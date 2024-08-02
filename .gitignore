@@ -5,6 +5,6 @@
 
 .env
 lib/
-demos/tidb-vector-python/*
+lamatidb/demos/tidb-vector-python/
 
 poetry.lock
