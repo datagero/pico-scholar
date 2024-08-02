@@ -6,7 +6,28 @@ authors = ["datagero <datagero@outlook.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.9"
+haystack-ai = "^2.3.1"
+python-dotenv = "^1.0.1"
+datasets = ">=2.6.1"
+sentence-transformers = ">=2.2.0"
+click = "8.1.7"
+sqlalchemy = "2.0.30"
+llama-index = "0.10.29"
+llama-index-readers-web = "0.1.8"
+llama-index-vector-stores-tidbvector = "0.1.2"
+pymysql = "1.1.0"
+tidb-vector = "0.0.9"
+pydantic = "2.7.1"
+pydantic-core = "2.18.2"
+dspy-ai = "2.4.9"
+langchain-community = "0.2.0"
+wikipedia = "1.4.0"
+pyvis = "0.3.1"
+openai = "1.27.0"
+fastapi = "^0.111.1"
+uvicorn = "^0.30.3"
+jinja2 = "^3.1.4"
 
 
 [build-system]
