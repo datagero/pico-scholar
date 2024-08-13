@@ -14,9 +14,8 @@ externalDocs:
   description: Find out more about Swagger
   url: http://swagger.io
 servers:
-- url: https://virtserver.swaggerhub.com/DATAGERO/lamatidb/1.0.0
+- url: https://virtserver.swaggerhub.com/
   description: SwaggerHub API Auto Mocking
-- url: https://petstore.swagger.io/v2
 tags:
 - name: Systemic Literature Review
   description: PRISMA guidelines for an overview
@@ -24,9 +23,19 @@ tags:
     description: Find out more
     url: https://www.prisma-statement.org/
 paths:
+  /:
+    get:
+      summary: Root path
+      description: This is the root of the API
+      operationId: swagger_server_controllers_default_controller_root_get
+      responses:
+        "200":
+          description: Root path
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /projects:
     get:
       summary: Get a list of all available project IDs and Names
+      operationId: projects_get
       responses:
         "200":
           description: List of projects retrieved successfully
@@ -36,11 +45,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Project'
+                x-content-type: application/json
         "402":
           description: No projects found
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /projects/{projectId}:
     get:
       summary: Get search query history for a given project
+      operationId: projects_project_id_get
       parameters:
       - name: projectId
         in: path
@@ -58,9 +70,11 @@ paths:
                 $ref: '#/components/schemas/SearchQueryHistory'
         "404":
           description: Project not found or no search history available
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /projects/{projectId}/add_searchQuery:
     post:
       summary: Add a search query to the history
+      operationId: projects_project_id_add_search_query_post
       parameters:
       - name: projectId
         in: path
@@ -80,9 +94,11 @@ paths:
           description: Search query added to history successfully
         "400":
           description: Invalid request or query data
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /projects/{projectId}/search:
     post:
       summary: Perform a research query vector search
+      operationId: projects_project_id_search_post
       parameters:
       - name: projectId
         in: path
@@ -106,11 +122,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SearchResult'
+                x-content-type: application/json
         "400":
           description: Invalid search query
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /projects/{projectId}/query/{queryId}/funnel_overview:
     get:
       summary: Get funnel statuses and item counts
+      operationId: projects_project_id_query_query_id_funnel_overview_get
       parameters:
       - name: projectId
         in: path
@@ -135,9 +154,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/FunnelStatus'
+                x-content-type: application/json
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /projects/{projectId}/query/{queryId}/funnel/{status}:
     get:
       summary: Get records filtered by funnel status
+      operationId: projects_project_id_query_query_id_funnel_status_get
       parameters:
       - name: projectId
         in: path
@@ -169,9 +191,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SearchResult'
+                x-content-type: application/json
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /projects/{projectId}/query/{queryId}/funnel/status:
     patch:
       summary: Bulk update the status of selected records
+      operationId: projects_project_id_query_query_id_funnel_status_patch
       parameters:
       - name: projectId
         in: path
@@ -198,9 +223,11 @@ paths:
           description: Status updated successfully
         "400":
           description: Invalid update data
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /projects/{projectId}/query/{queryId}/funnel/reviewed:
     patch:
       summary: Bulk update the reviewed marker of selected records
+      operationId: projects_project_id_query_query_id_funnel_reviewed_patch
       parameters:
       - name: projectId
         in: path
@@ -227,9 +254,11 @@ paths:
           description: Reviewed marker updated successfully
         "400":
           description: Invalid update data
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /projects/{projectId}/query/{queryId}/data:
     post:
       summary: Retrieve data for a specific search query
+      operationId: projects_project_id_query_query_id_data_post
       parameters:
       - name: projectId
         in: path
@@ -254,11 +283,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SearchResult'
+                x-content-type: application/json
         "404":
           description: Project or Query not found
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /projects/{projectId}/query/{queryId}/search:
     post:
       summary: Perform a semantic search on the records
+      operationId: projects_project_id_query_query_id_search_post
       parameters:
       - name: projectId
         in: path
@@ -290,11 +322,14 @@ paths:
                 items:
                   type: string
                   description: List of paper IDs matching the search query
+                x-content-type: application/json
         "400":
           description: Invalid search query
+      x-openapi-router-controller: swagger_server.controllers.default_controller
   /documents/{documentId}/chat:
     post:
       summary: Chat with a specific document
+      operationId: documents_document_id_chat_post
       parameters:
       - name: documentId
         in: path
@@ -318,6 +353,7 @@ paths:
                 $ref: '#/components/schemas/DocumentChatResponse'
         "404":
           description: Document not found
+      x-openapi-router-controller: swagger_server.controllers.default_controller
 components:
   schemas:
     Project:
@@ -327,6 +363,9 @@ components:
           type: string
         name:
           type: string
+      example:
+        name: name
+        projectId: projectId
     SearchQueryHistory:
       type: object
       properties:
@@ -339,6 +378,11 @@ components:
         timestamp:
           type: string
           format: date-time
+      example:
+        query: query
+        projectId: projectId
+        queryId: queryId
+        timestamp: 2000-01-23T04:56:07.000+00:00
     FunnelStatus:
       type: object
       properties:
@@ -346,6 +390,9 @@ components:
           type: string
         count:
           type: integer
+      example:
+        count: 0
+        status: status
     SearchResult:
       type: object
       properties:
@@ -361,11 +408,24 @@ components:
           type: string
         pico:
           $ref: '#/components/schemas/SearchResult_pico'
+      example:
+        pico:
+          p: p
+          c: c
+          i: i
+          o: o
+        year: 0
+        author: author
+        id: id
+        abstract: abstract
+        title: title
     DocumentChatResponse:
       type: object
       properties:
         response:
           type: string
+      example:
+        response: response
     projectId_add_searchQuery_body:
       type: object
       properties:
@@ -426,3 +486,9 @@ components:
           type: string
         o:
           type: string
+      example:
+        p: p
+        c: c
+        i: i
+        o: o
+
