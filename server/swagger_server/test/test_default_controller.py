@@ -29,7 +29,7 @@ class TestDefaultController(BaseTestCase):
         """
         body = DocumentIdChatBody()
         response = self.client.open(
-            '/DATAGERO/lamatidb/1.0.0/documents/{documentId}/chat'.format(document_id='document_id_example'),
+            '//documents/{documentId}/chat'.format(document_id='document_id_example'),
             method='POST',
             data=json.dumps(body),
             content_type='application/json')
@@ -42,7 +42,7 @@ class TestDefaultController(BaseTestCase):
         Get a list of all available project IDs and Names
         """
         response = self.client.open(
-            '/DATAGERO/lamatidb/1.0.0/projects',
+            '//projects',
             method='GET')
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))
@@ -54,7 +54,7 @@ class TestDefaultController(BaseTestCase):
         """
         body = ProjectIdAddSearchQueryBody()
         response = self.client.open(
-            '/DATAGERO/lamatidb/1.0.0/projects/{projectId}/add_searchQuery'.format(project_id='project_id_example'),
+            '//projects/{projectId}/add_searchQuery'.format(project_id='project_id_example'),
             method='POST',
             data=json.dumps(body),
             content_type='application/json')
@@ -67,7 +67,7 @@ class TestDefaultController(BaseTestCase):
         Get search query history for a given project
         """
         response = self.client.open(
-            '/DATAGERO/lamatidb/1.0.0/projects/{projectId}'.format(project_id='project_id_example'),
+            '//projects/{projectId}'.format(project_id='project_id_example'),
             method='GET')
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))
@@ -78,7 +78,7 @@ class TestDefaultController(BaseTestCase):
         Retrieve data for a specific search query
         """
         response = self.client.open(
-            '/DATAGERO/lamatidb/1.0.0/projects/{projectId}/query/{queryId}/data'.format(project_id='project_id_example', query_id='query_id_example'),
+            '//projects/{projectId}/query/{queryId}/data'.format(project_id='project_id_example', query_id='query_id_example'),
             method='POST')
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))
@@ -89,7 +89,7 @@ class TestDefaultController(BaseTestCase):
         Get funnel statuses and item counts
         """
         response = self.client.open(
-            '/DATAGERO/lamatidb/1.0.0/projects/{projectId}/query/{queryId}/funnel_overview'.format(project_id='project_id_example', query_id='query_id_example'),
+            '//projects/{projectId}/query/{queryId}/funnel_overview'.format(project_id='project_id_example', query_id='query_id_example'),
             method='GET')
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))
@@ -101,7 +101,7 @@ class TestDefaultController(BaseTestCase):
         """
         body = FunnelReviewedBody()
         response = self.client.open(
-            '/DATAGERO/lamatidb/1.0.0/projects/{projectId}/query/{queryId}/funnel/reviewed'.format(project_id='project_id_example', query_id='query_id_example'),
+            '//projects/{projectId}/query/{queryId}/funnel/reviewed'.format(project_id='project_id_example', query_id='query_id_example'),
             method='PATCH',
             data=json.dumps(body),
             content_type='application/json')
@@ -114,7 +114,7 @@ class TestDefaultController(BaseTestCase):
         Get records filtered by funnel status
         """
         response = self.client.open(
-            '/DATAGERO/lamatidb/1.0.0/projects/{projectId}/query/{queryId}/funnel/{status}'.format(project_id='project_id_example', query_id='query_id_example', status='status_example'),
+            '//projects/{projectId}/query/{queryId}/funnel/{status}'.format(project_id='project_id_example', query_id='query_id_example', status='status_example'),
             method='GET')
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))
@@ -126,7 +126,7 @@ class TestDefaultController(BaseTestCase):
         """
         body = FunnelStatusBody()
         response = self.client.open(
-            '/DATAGERO/lamatidb/1.0.0/projects/{projectId}/query/{queryId}/funnel/status'.format(project_id='project_id_example', query_id='query_id_example'),
+            '//projects/{projectId}/query/{queryId}/funnel/status'.format(project_id='project_id_example', query_id='query_id_example'),
             method='PATCH',
             data=json.dumps(body),
             content_type='application/json')
@@ -140,7 +140,7 @@ class TestDefaultController(BaseTestCase):
         """
         body = QueryIdSearchBody()
         response = self.client.open(
-            '/DATAGERO/lamatidb/1.0.0/projects/{projectId}/query/{queryId}/search'.format(project_id='project_id_example', query_id='query_id_example'),
+            '//projects/{projectId}/query/{queryId}/search'.format(project_id='project_id_example', query_id='query_id_example'),
             method='POST',
             data=json.dumps(body),
             content_type='application/json')
@@ -154,7 +154,7 @@ class TestDefaultController(BaseTestCase):
         """
         body = ProjectIdSearchBody()
         response = self.client.open(
-            '/DATAGERO/lamatidb/1.0.0/projects/{projectId}/search'.format(project_id='project_id_example'),
+            '//projects/{projectId}/search'.format(project_id='project_id_example'),
             method='POST',
             data=json.dumps(body),
             content_type='application/json')
@@ -167,7 +167,7 @@ class TestDefaultController(BaseTestCase):
         Root path
         """
         response = self.client.open(
-            '/DATAGERO/lamatidb/1.0.0/',
+            '//',
             method='GET')
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))
