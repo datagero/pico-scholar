@@ -14,9 +14,8 @@ externalDocs:
   description: Find out more about Swagger
   url: http://swagger.io
 servers:
-- url: https://virtserver.swaggerhub.com/DATAGERO/lamatidb/1.0.0
+- url: https://virtserver.swaggerhub.com/
   description: SwaggerHub API Auto Mocking
-- url: https://petstore.swagger.io/v2
 tags:
 - name: Systemic Literature Review
   description: PRISMA guidelines for an overview
@@ -24,6 +23,14 @@ tags:
     description: Find out more
     url: https://www.prisma-statement.org/
 paths:
+  /:
+    get:
+      summary: "Root path"
+      description: "This is the root of the API"
+      operationId: "swagger_server.controllers.default_controller.root_get"
+      responses:
+        '200':
+          description: "Root path"
   /projects:
     get:
       summary: Get a list of all available project IDs and Names
