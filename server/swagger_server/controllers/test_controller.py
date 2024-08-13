@@ -79,6 +79,12 @@ def projects_project_id_get(project_id):  # noqa: E501
         "queryId": "123",
         "query": "Example query",
         "timestamp": "2024-01-01T00:00:00Z"
+    },
+    {
+        "projectId": project_id,
+        "queryId": "234",
+        "query": "Example query",
+        "timestamp": "2024-01-02T00:00:00Z"
     }), 200
 
 

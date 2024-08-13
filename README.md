@@ -12,11 +12,12 @@ TIDB_PORT=
 TIDB_DB_NAME=
 ```
 
-To run the swagger/flask server
+To run the swagger/flask server (replace [PROJECT_ROOT_PATH])
 
-`
+```
+export PYTHONPATH=$PYTHONPATH:/[PROJECT_ROOT_PATH]/lamatidb/server
 python -m swagger_server
-`
+```
 
 Once the server is running, you can visit `http://localhost:8080//ui/` to review documentation and test the API.
 
