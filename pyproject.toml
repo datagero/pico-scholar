@@ -34,6 +34,7 @@ llama-index-embeddings-huggingface = "^0.2.2"
 connexion = {version = "^2.6.0", extras = ["swagger-ui"]}
 swagger-ui-bundle = "^0.0.2"
 setuptools = "^21.0.0"
+adapters = "^1.0.0"
 
 
 [build-system]
