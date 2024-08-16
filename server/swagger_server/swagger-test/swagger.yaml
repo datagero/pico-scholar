@@ -97,7 +97,7 @@ paths:
       x-openapi-router-controller: swagger_server.controllers.test_controller
   /projects/{projectId}/search:
     post:
-      summary: Perform a research query vector search
+      summary: Perform a research query vector search and add query to history
       operationId: projects_project_id_search_post
       parameters:
       - name: projectId

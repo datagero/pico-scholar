@@ -1,4 +1,6 @@
 .DS_Store
+sql_app.db
+.vscode/
 
 */.idea
 */.vscode
@@ -6,5 +8,7 @@
 .env
 lib/
 lamatidb/demos/tidb-vector-python/
+pubmed_sample/lama_index
 
 poetry.lock
+__pycache__/
