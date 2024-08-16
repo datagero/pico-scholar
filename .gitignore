@@ -8,3 +8,4 @@ lib/
 lamatidb/demos/tidb-vector-python/
 
 poetry.lock
+__pycache__/
