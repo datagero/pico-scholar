@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from . import models
+from typing import Union
 
 class ResultBase(BaseModel):
     source_id: int
@@ -8,10 +9,10 @@ class ResultBase(BaseModel):
     year: int
     title: str
     abstract: str
-    pico_p: str | None = None
-    pico_i: str | None = None
-    pico_c: str | None = None
-    pico_o: str | None = None
+    pico_p: Union[str, None] = None
+    pico_i: Union[str, None] = None
+    pico_c: Union[str, None] = None
+    pico_o: Union[str, None] = None
     funnel_stage: models.FunnelEnum
     is_reviewed: bool = False
 

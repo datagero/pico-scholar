@@ -12,8 +12,8 @@ DB_NAME = os.environ['TIDB_DB_NAME']
 # VECTOR_TABLE_NAME = "scibert_alldata"
 VECTOR_TABLE_NAME = "scibert_alldata"
 
-# Create the database if it doesn't exist
-tidb_interface = TiDBInterface(DB_NAME)
+## Create the database if it doesn't exist
+# tidb_interface = TiDBInterface(DB_NAME)
 # tidb_interface.create_db_if_not_exists() # Uncomment if you need to create the database
 # tidb_interface.delete_table(VECTOR_TABLE_NAME)  # Uncomment if you need to delete the table
 
