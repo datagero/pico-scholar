@@ -1,0 +1,1 @@
+// Component responsible for displaying search results in a table format.

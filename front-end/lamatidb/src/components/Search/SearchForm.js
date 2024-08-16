@@ -1,0 +1,1 @@
+// Component for the search input and initial search functionality

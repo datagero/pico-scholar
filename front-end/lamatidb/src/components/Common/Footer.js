@@ -1,0 +1,1 @@
+// The footer component shared across different pages.

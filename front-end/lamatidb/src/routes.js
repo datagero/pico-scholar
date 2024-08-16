@@ -1,0 +1,1 @@
+// Handles the routing configuration for the app, mapping URL paths to different components or pages.
