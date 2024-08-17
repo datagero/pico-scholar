@@ -33,4 +33,4 @@ tasks:
       docker build -t pico-backend ./backend
 
       # Run the backend application using the same Docker network and .env file
-      docker run -it --network mynetwork --env-file .env -p 8000:8000 pico-backend
+      docker run -it --network mynetwork --env-file backend/.env -p 8000:8000 pico-backend
