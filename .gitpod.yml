@@ -1,6 +1,7 @@
 # .gitpod.yml
 
-image: .gitpod.Dockerfile
+image: 
+  file: .gitpod.Dockerfile
 
 tasks:
   - name: "Start MySQL"
