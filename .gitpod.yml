@@ -30,7 +30,7 @@ tasks:
   - name: "Start Backend"
     command: |
       # Build the backend Docker image
-      docker build -t pico-backend .
+      docker build -t pico-backend /backend
 
       # Run the backend application using the same Docker network and .env file
       docker run -it --network mynetwork --env-file .env -p 8000:8000 pico-backend
