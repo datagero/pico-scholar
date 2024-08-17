@@ -1,15 +1,8 @@
 # .gitpod.yml
 
-image: gitpod/workspace-python-3.9
+image: .gitpod.Dockerfile
 
 tasks:
-  - name: "Set up Python"
-    command: |
-      pyenv install 3.9.6
-      pyenv global 3.9.6
-      pip install --upgrade pip
-      pip install -r requirements.txt
-
   - name: "Start MySQL"
     init: |
       # Start MySQL container with a persistent volume
