@@ -1,11 +1,27 @@
-image:
-  file: .gitpod.Dockerfile
+# .gitpod.yml
+tasks:
+  - name: "Start MySQL and Setup"
+    init: |
+      # Start MySQL container with a persistent volume
+      docker run --name mysql-container \
+        -e MYSQL_ROOT_PASSWORD=thisissecurepassword \
+        -v /workspace/mysql_data:/var/lib/mysql \
+        -p 3306:3306 \
+        -d mysql:latest
+
+    command: |
+      # Wait for MySQL service to be up and running
+      while ! mysqladmin ping -h"127.0.0.1" --silent; do
+        echo "Waiting for MySQL to be up..."
+        sleep 1
+      done
+      echo "MySQL is up and running!"
+      # Example: mysql -u root -pthisissecurepassword -h 127.0.0.1 mydatabase < /path/to/your/init.sql
 
 ports:
   - port: 3306
     onOpen: open-preview
 
-tasks:
-  - init: mysql -u root -e "CREATE DATABASE IF NOT EXISTS gitpod_test;"
-  - command: mysqld_safe
-
+vscode:
+  extensions:
+    - ms-mysql.mysql
