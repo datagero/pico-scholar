@@ -30,7 +30,7 @@ tasks:
       # Start MySQL container with a persistent volume
       docker run --name mysql-container \
         --network mynetwork \
-        -e MYSQL_ROOT_PASSWORD=$MYSQL_PASSWORD\
+        -e MYSQL_ROOT_PASSWORD=my-secret-pw\
         -v /workspace/mysql_data:/var/lib/mysql \
         -p 3306:3306 \
         -d mysql:latest
@@ -48,7 +48,7 @@ tasks:
       # Build the backend Docker image
       docker build -t pico-backend ./backend
 
-      read -s -p 'Enter TiDB Password: ' TIDB_PASSWORD && echo "" && echo "TIDB_PASSWORD=$TIDB_PASSWORD" >> /workspace/backend/.env_docker
+      read -s -p 'Enter TiDB Password: ' TIDB_PASSWORD && echo "" && echo "TIDB_PASSWORD=$TIDB_PASSWORD" >> backend/.env_docker
 
       # Run the backend application using the same Docker network and .env file
       docker run --platform linux/amd64 -it --network mynetwork --env-file backend/.env_docker -p 8000:8000 pico-backend
