@@ -23,6 +23,11 @@ FASTAPI_HOST=0.0.0.0
 FASTAPI_PORT=8000
 ```
 
+## Try it!
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/new/#https://github.com/datagero/pico-scholar)
+
+You will have to manually paste a .env inside the backend/ folder to run the App.
 
 ## Swagger (to be replaced by FastAPI)
 To run the swagger/flask server (replace [PROJECT_ROOT_PATH])
