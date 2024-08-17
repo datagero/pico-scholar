@@ -12,5 +12,5 @@ USER gitpod
 # Install Python 3.9.6 using pyenv and install dependencies
 RUN pyenv install 3.9.6 && \
     pyenv global 3.9.6 && \
-    pip install --upgrade pip && \
-    pip install -r /workspace/pico-scholar/requirements.txt
+    # pip install --upgrade pip && \
+    # pip install -r /workspace/pico-scholar/backend/requirements.txt
