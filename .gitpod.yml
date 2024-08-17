@@ -1,6 +1,16 @@
 # .gitpod.yml
+
+image: gitpod/workspace-python-3.9
+
 tasks:
-  - name: "Start MySQL and Setup"
+  - name: "Set up Python"
+    command: |
+      pyenv install 3.9.6
+      pyenv global 3.9.6
+      pip install --upgrade pip
+      pip install -r requirements.txt
+
+  - name: "Start MySQL"
     init: |
       # Start MySQL container with a persistent volume
       docker run --name mysql-container \
@@ -11,17 +21,8 @@ tasks:
 
     command: |
       # Wait for MySQL service to be up and running
-      while ! mysqladmin ping -h"127.0.0.1" --silent; do
+      while ! docker logs mysql-container 2>&1 | grep "ready for connections"; do
         echo "Waiting for MySQL to be up..."
         sleep 1
       done
       echo "MySQL is up and running!"
-      # Example: mysql -u root -pthisissecurepassword -h 127.0.0.1 mydatabase < /path/to/your/init.sql
-
-ports:
-  - port: 3306
-    onOpen: open-preview
-
-vscode:
-  extensions:
-    - ms-mysql.mysql
