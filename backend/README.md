@@ -17,9 +17,23 @@ docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -v
 ### Set-up backend APP container
 From the `\backend` directory,
 
-If the python environment changed generate requirements.txt using poetry on your local machine:
+
+### Note - Stage1 for python environment docker image
+If you need to create the python enviornment, you have to run and host Dockerfile.stage1
+Below is an example for building the image and push it to the docker hub under my username (datagero).
+Then the Dockerfile (stage 2 - build the backend for the App) will pull this image from the dockerhub.
+
+First, if the python environment changed generate requirements.txt using poetry on your local machine:
 
 `poetry export -f requirements.txt > requirements.txt`
+
+Then, build the image to set-up our python environment
+
+```
+docker build -t pico-env-builder --target pico-env-builder -f Dockerfile.stage1 .
+docker tag pico-env-builder datagero/pico-env-builder:latest 
+docker push datagero/pico-env-builder:latest
+```
 
 Build the Docker Image:
 

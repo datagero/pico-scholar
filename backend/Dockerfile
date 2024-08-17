@@ -1,28 +1,9 @@
-# Stage 1: Install dependencies
-FROM python:3.9 AS dependencies
+# Stage 2: Copy application code and use cached dependencies
+# The current stage `pico-env-builder` already contains dependencies.
+FROM datagero/pico-env-builder:latest AS pico-env-builder
 
 # Set the working directory in the container
 WORKDIR /app
-
-# Copy only requirements.txt first, to leverage Docker cache
-COPY requirements.txt /app/
-
-# Install dependencies
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
-
-# Stage 2: Install Model dependencies
-# CMD ["python", "pipelines/prepare_model.py"]
-
-# Stage 3: Copy application code and use cached dependencies
-FROM python:3.9
-
-# Set the working directory in the container
-WORKDIR /app
-
-# Copy dependencies from the previous stage
-COPY --from=dependencies /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
-COPY --from=dependencies /usr/local/bin /usr/local/bin
 
 # Copy the application code into the container
 COPY . /app
