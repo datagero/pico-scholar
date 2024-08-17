@@ -6,19 +6,19 @@ image:
 tasks:
   - name: "Set up .env_docker"
     command: |
-      echo "DEVELOPER_NAME=matias" >> /workspace/backend/.env_docker
-      echo "TIDB_HOST=gateway01.us-east-1.prod.aws.tidbcloud.com" >> /workspace/backend/.env_docker
-      echo "TIDB_USERNAME=6K9ZXKTM8XD1n73.root" >> /workspace/backend/.env_docker
-      echo "TIDB_PORT=4000" >> /workspace/backend/.env_docker
-      echo "TIDB_DB_NAME=test_matias" >> /workspace/backend/.env_docker
-      echo "MYSQL_HOST=mysql-container" >> /workspace/backend/.env_docker
-      echo "MYSQL_USERNAME=root" >> /workspace/backend/.env_docker
-      echo "MYSQL_PASSWORD=my-secret-pw" >> /workspace/backend/.env_docker
-      echo "MYSQL_PORT=3306" >> /workspace/backend/.env_docker
-      echo "MYSQL_DB_NAME=docker_test" >> /workspace/backend/.env_docker
-      echo "PYTHONPATH=./backend" >> /workspace/backend/.env_docker
-      echo "FASTAPI_HOST=0.0.0.0" >> /workspace/backend/.env_docker
-      echo "FASTAPI_PORT=8000" >> /workspace/backend/.env_docker
+      echo "DEVELOPER_NAME=matias" >> backend/.env_docker
+      echo "TIDB_HOST=gateway01.us-east-1.prod.aws.tidbcloud.com" >> backend/.env_docker
+      echo "TIDB_USERNAME=6K9ZXKTM8XD1n73.root" >> backend/.env_docker
+      echo "TIDB_PORT=4000" >> backend/.env_docker
+      echo "TIDB_DB_NAME=test_matias" >> backend/.env_docker
+      echo "MYSQL_HOST=mysql-container" >> backend/.env_docker
+      echo "MYSQL_USERNAME=root" >> backend/.env_docker
+      echo "MYSQL_PASSWORD=my-secret-pw" >> backend/.env_docker
+      echo "MYSQL_PORT=3306" >> backend/.env_docker
+      echo "MYSQL_DB_NAME=docker_test" >> backend/.env_docker
+      echo "PYTHONPATH=./backend" >> backend/.env_docker
+      echo "FASTAPI_HOST=0.0.0.0" >> backend/.env_docker
+      echo "FASTAPI_PORT=8000" >> backend/.env_docker
 
   - name: "Create Network"
     command: |
