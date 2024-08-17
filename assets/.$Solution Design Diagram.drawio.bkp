@@ -622,7 +622,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="SIeTkT_GqWFvNVWX8gKq-12" value="&lt;font style=&quot;font-size: 10px;&quot;&gt;Chat with Paper&lt;/font&gt;" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.message;" parent="1" vertex="1">
-          <mxGeometry x="833" y="-660" width="60" height="29.5" as="geometry" />
+          <mxGeometry x="833" y="-670" width="60" height="29.5" as="geometry" />
         </mxCell>
         <mxCell id="SIeTkT_GqWFvNVWX8gKq-14" value="Ask the AI about any paper (reference by name)" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="1000" y="-762.25" width="120" height="60" as="geometry" />

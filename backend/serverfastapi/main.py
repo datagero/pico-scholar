@@ -1,3 +1,7 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()  # This will load the variables from the .env file
+
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
@@ -10,7 +14,6 @@ app = FastAPI()
 
 
 # Set up orchestrator (maybe we move to different file)
-import os
 from lamatidb.interfaces.loader_interface import LoaderPubMedCSV
 from lamatidb.interfaces.index_interface import IndexInterface
 from lamatidb.interfaces.tidb_interface import TiDBInterface
@@ -112,12 +115,7 @@ def create_query_and_search(project_id: int, query: schemas.QueryCreate, db: Ses
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
-
-
-
-
-
+    uvicorn.run("main:app", host=os.environ['FASTAPI_HOST'], port=int(os.environ['FASTAPI_PORT']), reload=True)
 
 
 
