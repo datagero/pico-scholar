@@ -12,6 +12,7 @@ mysql_data
 backend/lamatidb/demos
 
 .env
+.env_docker
 lib/
 */lamatidb/demos/tidb-vector-python/
 pubmed_sample/lama_index
