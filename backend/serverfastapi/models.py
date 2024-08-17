@@ -1,6 +1,7 @@
 import enum
 
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Enum, Text
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Enum
+from sqlalchemy.dialects.mysql import MEDIUMTEXT, LONGTEXT
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -30,7 +31,7 @@ class Result(Base):
     authors = Column(String(255))
     year = Column(Integer)
     title = Column(String(255))
-    abstract = Column(Text)
+    abstract = Column(LONGTEXT)
     pico_p = Column(String(255))
     pico_i = Column(String(255))
     pico_c = Column(String(255))

@@ -1,14 +1,19 @@
 .DS_Store
+useful_commands.txt
 sql_app.db
 mysql_data
+*/persisted_models/
 .vscode/
 
 */.idea
 */.vscode
 
+# Demo files
+backend/lamatidb/demos
+
 .env
 lib/
-lamatidb/demos/tidb-vector-python/
+*/lamatidb/demos/tidb-vector-python/
 pubmed_sample/lama_index
 
 poetry.lock

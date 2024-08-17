@@ -1,7 +1,0 @@
-click
-fastapi
-uvicorn
-Jinja2
-llama-index
-llama-index-readers-web
-llama-index-vector-stores-tidbvector

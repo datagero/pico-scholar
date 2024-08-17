@@ -27,17 +27,9 @@ Once the server is running, you can visit `http://localhost:8080//ui/` to review
 For now, the server runs on test by default (with hardcoded outputs). You can modify this in `server/swagger_server/__main__.py`
 
 ## FastAPI
-fastapi dev serverfastapi/main.py
+fastapi dev backend/serverfastapi/main.py
 
 
-## Docker
-export MYSQL_ROOT_PASSWORD=my-secret-pw
-docker run --name pico-mysql-container -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -d mysql:latest
-docker run --name pico-mysql-container -e MYSQL_ROOT_PASSWORD=my-secret-pw -v /Users/datagero/Documents/offline_repos/lamatidb/mysql_data:/var/lib/mysql -d mysql:latest
-docker exec -it pico-mysql-container mysql -uroot -p
-
-
-docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=thisissecurepassword -v /Users/datagero/Documents/offline_repos/lamatidb/mysql_data:/var/lib/mysql -p 3306:3306 -d mysql:latest
 
 
 mysql -h 127.0.0.1 -P 3306 -u root -p

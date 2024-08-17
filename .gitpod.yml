@@ -4,11 +4,17 @@ image:
   file: .gitpod.Dockerfile
 
 tasks:
+  - name: "Create Network"
+    command: |
+      # Create a Docker network
+      docker network create mynetwork
+  
   - name: "Start MySQL"
     init: |
       # Start MySQL container with a persistent volume
       docker run --name mysql-container \
-        -e MYSQL_ROOT_PASSWORD=thisissecurepassword \
+        --network mynetwork \
+        -e MYSQL_ROOT_PASSWORD=my-secret-pw \
         -v /workspace/mysql_data:/var/lib/mysql \
         -p 3306:3306 \
         -d mysql:latest
@@ -20,3 +26,11 @@ tasks:
         sleep 1
       done
       echo "MySQL is up and running!"
+
+  - name: "Start Backend"
+    command: |
+      # Build the backend Docker image
+      docker build -t pico-backend .
+
+      # Run the backend application using the same Docker network and .env file
+      docker run -it --network mynetwork --env-file .env -p 8000:8000 pico-backend

@@ -36,6 +36,7 @@ swagger-ui-bundle = "^0.0.2"
 setuptools = "^21.0.0"
 adapters = "^1.0.0"
 streamlit = "^1.37.1"
+cryptography = "^43.0.0"
 
 
 [build-system]
