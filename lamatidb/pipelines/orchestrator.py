@@ -66,10 +66,15 @@ filters = [
 response = query_interface.perform_metadata_filtered_query("What is the specific focus of the documents?", filters)
 print(response)
 
-# Example 4: Generate PICO Summary
-pico_query = ("""For the given PICO Extraction (Patient, Intervention, Outcome) look at the source abstract and give
-              me a short sentence that accurately represents PICO for the document. You should return a dictionary
-              with {'I-INT': [Generated Sentence Related to Intervention], 'I-PAR': [Generated Sentence Related to
-              study Participant], 'I-OUT': [Generated Sentence Related to study Outputs]}""")
-response = query_interface.generate_pico_summary("16625676", pico_query)
-print(response)
+# # Example 4: Generate PICO Summary
+# pico_metadata = {'I-INT': ['one intervention'], 'I-PAR': ['school kids', 'young'], 'I-OUT': ['It worked!']}
+
+# pico_query = ("""For the given PICO Extraction (Patient, Intervention, Outcome): '{pico_metadata}' look at the source abstract and give
+#               me a short sentence that accurately represents PICO for the document. You should return a dictionary
+#               with {'I-INT': [Generated Sentence Related to Intervention], 'I-PAR': [Generated Sentence Related to
+#               study Participant], 'I-OUT': [Generated Sentence Related to study Outputs]}""")
+# response = query_interface.generate_pico_summary("16625676", pico_query)
+
+# {'I-INT': 'This study focused only on one intervention, not taking into consideration the rest', 'I-PAR': 'Studies 33 school kids', 'I-OUT': 'The study results are...'}
+
+# print(response)

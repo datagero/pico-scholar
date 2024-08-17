@@ -1,0 +1,11 @@
+image:
+  file: .gitpod.Dockerfile
+
+ports:
+  - port: 3306
+    onOpen: open-preview
+
+tasks:
+  - init: mysql -u root -e "CREATE DATABASE IF NOT EXISTS gitpod_test;"
+  - command: mysqld_safe
+

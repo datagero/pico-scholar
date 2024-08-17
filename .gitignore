@@ -1,5 +1,6 @@
 .DS_Store
 sql_app.db
+mysql_data
 .vscode/
 
 */.idea
