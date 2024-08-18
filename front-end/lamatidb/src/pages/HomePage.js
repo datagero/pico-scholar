@@ -1,6 +1,10 @@
+// HomePage.js
+
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbtack, faUpload, faArrowRight, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { searchQuery } from '../services/searchService'; // Import the search service
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const HomePage = () => {
   const [query, setQuery] = useState('');
@@ -10,6 +14,8 @@ const HomePage = () => {
     { id: 2, text: 'Past Search 2: "AI Predictive Models for Disease"' },
     { id: 3, text: 'Past Search 3: "Natural Language Processing in Healthcare"' },
   ]);
+
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const handleInputChange = (e) => {
     setQuery(e.target.value);
@@ -25,6 +31,20 @@ const HomePage = () => {
 
   const deletePinnedSearch = (id) => {
     setPinnedSearches(pinnedSearches.filter(search => search.id !== id));
+  };
+
+  const handleSearch = async () => {
+    if (query.trim()) {
+      try {
+        const data = await searchQuery(query);
+        console.log('Search results:', data); // Handle the response data as needed
+        navigate('/results', { state: { results: data.results } }); // Pass results to FunnelPage
+      } catch (error) {
+        console.error('Error during the search request:', error);
+      }
+    } else {
+      alert('Please enter a search query');
+    }
   };
 
   return (
@@ -48,7 +68,7 @@ const HomePage = () => {
             <FontAwesomeIcon icon={faTimes} />
           </button>
         )}
-        <button className="search-button">
+        <button className="search-button" onClick={handleSearch}>
           <FontAwesomeIcon icon={faArrowRight} />
         </button>
       </div>

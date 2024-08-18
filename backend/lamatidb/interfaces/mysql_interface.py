@@ -19,11 +19,21 @@ class MySQLInterface:
 
     def create_engine_without_db(self):
         DATABASE_URI = f'mysql+pymysql://{self.MYSQL_USERNAME}:{self.MYSQL_PASSWORD}@{self.MYSQL_HOST}:{self.MYSQL_PORT}'
-        return create_engine(DATABASE_URI)
+        return create_engine(DATABASE_URI,
+                    pool_size=10,
+                    max_overflow=20,
+                    pool_timeout=30,
+                    pool_recycle=1800  # Recycle connections after 30 minutes
+                )
 
     def create_engine_with_db(self):
         DATABASE_URI = f'mysql+pymysql://{self.MYSQL_USERNAME}:{self.MYSQL_PASSWORD}@{self.MYSQL_HOST}:{self.MYSQL_PORT}/{self.MYSQL_DB_NAME}'
-        return create_engine(DATABASE_URI)
+        return create_engine(DATABASE_URI,
+                    pool_size=10,
+                    max_overflow=20,
+                    pool_timeout=30,
+                    pool_recycle=1800  # Recycle connections after 30 minutes
+                )
 
     def recreate_database(self):
         with self.engine.connect() as conn:

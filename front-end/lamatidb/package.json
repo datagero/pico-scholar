@@ -2,6 +2,8 @@
   "name": "lamatidb",
   "version": "1.0.0",
   "description": "",
+  "private": true,
+  "proxy": "http://0.0.0.0:8000",
   "main": "index.js",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
