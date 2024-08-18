@@ -1,2 +1,134 @@
 /* Global styles for the app. This file will include general layout styles, CSS resets, or other styles 
 that should apply across the entire application. */
+
+html, body {
+  height: 100%; /* Ensure the body takes up the full height of the viewport */
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Full viewport height */
+}
+
+.App {
+  flex: 1; /* Grow to fill the available space */
+  padding: 20px;
+  background-color: #fff; /* Ensure background is white */
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #f8f9fa;
+}
+
+.logo {
+  height: 150px;
+  margin-right: 20px;
+}
+
+.header-text {
+  font-size: 15px; /* Adjust font size as needed */
+  color: #333; /* Adjust color as needed */
+  margin: 0; /* Remove any default margin */
+}
+
+.footer {
+  margin-top: auto; /* Push the footer to the bottom */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: #f1f1f1;
+  border-top: 1px solid #ddd;
+  text-align: center;
+}
+
+.footer-section {
+  flex: 0 1 auto; /* Flex grow is set to 0, shrink is set to 1, and the width is determined by content */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 60px; /* Reduce margin between sections */
+}
+
+.footer-logo-img {
+  height: 150px; /* Adjust the height as needed */
+}
+
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin: 5px 0;
+}
+
+.footer-links a {
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+}
+
+.footer-social a {
+  color: #333;
+  font-size: 20px;
+  margin: 0 8px; /* Reduce margin between icons */
+}
+
+.footer-social a:hover {
+  color: #007BFF; /* Change color on hover */
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
+  background-color: #fff; /* Content area background */
+  min-height: 400px; /* Ensure a minimum content area height */
+}
+
+.navbar {
+  background-color: #f8f9fa;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: center; /* Aligns navigation links to the left */
+  border-bottom: 1px solid #ddd;
+}
+
+.nav-links {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 30px; /* Adds space between the links */
+}
+
+.nav-links li {
+  margin-right: 40px; /* Additional space between links */
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #333;
+  font-size: 16px;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: #007BFF; /* Color when hovering over a link */
+}
+
+.active-link {
+  color: #007BFF; /* Color for the active link */
+  font-weight: bold;
+}
+
+.inactive-link {
+  color: #555; /* Color for inactive links */
+}
