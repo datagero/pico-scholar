@@ -1,11 +1,11 @@
+# models.py
 import enum
-
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Enum
-from sqlalchemy.dialects.mysql import MEDIUMTEXT, LONGTEXT
+from sqlalchemy.dialects.mysql import LONGTEXT
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-from .database import Base
-
+Base = declarative_base()
 
 class FunnelEnum(enum.Enum):
     IDENTIFIED = 'identified'
@@ -19,8 +19,7 @@ class Query(Base):
     id = Column(Integer, primary_key=True, index=True)
     query_text = Column(String(255), nullable=False)
 
-    # Relationship to Result (if needed)
-    # results = relationship("Result", back_populates="query")
+    results = relationship("Result", back_populates="query")
 
 class Result(Base):
     __tablename__ = 'result'
@@ -39,26 +38,4 @@ class Result(Base):
     funnel_stage = Column(Enum(FunnelEnum, name='funnelenum'))
     is_reviewed = Column(Boolean, default=False)
 
-    # Relationship back to Query (if needed)
-    # query = relationship("Query", back_populates="results")
-
-# class User(Base):
-#     __tablename__ = "users"
-
-#     id = Column(Integer, primary_key=True)
-#     email = Column(String, unique=True, index=True)
-#     hashed_password = Column(String)
-#     is_active = Column(Boolean, default=True)
-
-#     items = relationship("Item", back_populates="owner")
-
-
-# class Item(Base):
-#     __tablename__ = "items"
-
-#     id = Column(Integer, primary_key=True)
-#     title = Column(String, index=True)
-#     description = Column(String, index=True)
-#     owner_id = Column(Integer, ForeignKey("users.id"))
-
-#     owner = relationship("User", back_populates="items")
+    query = relationship("Query", back_populates="results")

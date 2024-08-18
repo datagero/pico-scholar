@@ -1,30 +1,52 @@
 import os
-from lamatidb.interfaces.loader_interface import LoaderPubMedCSV
+
 from lamatidb.interfaces.index_interface import IndexInterface
 from lamatidb.interfaces.tidb_interface import TiDBInterface
 from lamatidb.interfaces.settings_manager import SettingsManager
 
+from lamatidb.interfaces.mysql_interface import MySQLInterface
+from lamatidb.interfaces.mysql_ingestors.abstract_ingestor import AbstractIngestor
+from lamatidb.interfaces.tidb_loaders.vector_loader_interface import LoaderPubMedMySQL
+
 # Set global settings
 SettingsManager.set_global_settings()
 
+vector_table_options = ["scibert_alldata","scibert_smalldata","mocked_data"]
+
+
 # Database and vector table names
 DB_NAME = os.environ['TIDB_DB_NAME']
-# VECTOR_TABLE_NAME = "scibert_alldata"
-VECTOR_TABLE_NAME = "scibert_alldata"
+VECTOR_TABLE_NAME = vector_table_options[2]
 
 ## Create the database if it doesn't exist
 # tidb_interface = TiDBInterface(DB_NAME)
 # tidb_interface.create_db_if_not_exists() # Uncomment if you need to create the database
 # tidb_interface.delete_table(VECTOR_TABLE_NAME)  # Uncomment if you need to delete the table
 
-# # Optional - Load your data (only if needed to load data/create index)
-# csv_pubmed_path = 'pubmed_sample/pubmed24n0541.csv'
-# data_loader = LoaderPubMedCSV(csv_pubmed_path)
-# data_loader.load_data()
-# data_loader.process_data()
-# documents = data_loader.documents[:10]
+# # ==============================================================================================
+# #           Optional - Ingest your data (only if needed to load data/create index)
+# #           ----------------------------------------------------------------------
+
+# # Delete all existing tables
+# mysql_interface = MySQLInterface(force_recreate_db=True)
+# mysql_interface.setup_database()
+# mysql_interface.create_tables("database/schemas.sql")
+
+# abstract_csv_file = 'datalake/mock_data/abstracts2.csv'
+# abstract_ingestor = AbstractIngestor()
+# abstract_ingestor.process_csv(abstract_csv_file)
+
+# # Load data from MySQL and process it into LlamaIndex documents
+# loader = LoaderPubMedMySQL()
+# loader.load_data()
+# loader.process_data()
+
+# # Retrieve the documents and feed into LlamaIndex
+# documents = loader.get_documents()
 # index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME)
 # index_interface.create_index(documents=documents) # Uncomment only if need to create / append to index
+# # ==============================================================================================
+
 
 # Load or create the index
 index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME)
