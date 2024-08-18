@@ -1,0 +1,54 @@
+# .gitpod.yml
+
+image: 
+  file: .gitpod.Dockerfile
+
+tasks:
+  - name: "Set up .env_docker"
+    command: |
+      echo "DEVELOPER_NAME=matias" >> backend/.env_docker
+      echo "TIDB_HOST=gateway01.us-east-1.prod.aws.tidbcloud.com" >> backend/.env_docker
+      echo "TIDB_USERNAME=6K9ZXKTM8XD1n73.root" >> backend/.env_docker
+      echo "TIDB_PORT=4000" >> backend/.env_docker
+      echo "TIDB_DB_NAME=test_matias" >> backend/.env_docker
+      echo "MYSQL_HOST=mysql-container" >> backend/.env_docker
+      echo "MYSQL_USERNAME=root" >> backend/.env_docker
+      echo "MYSQL_PASSWORD=my-secret-pw" >> backend/.env_docker
+      echo "MYSQL_PORT=3306" >> backend/.env_docker
+      echo "MYSQL_DB_NAME=docker_test" >> backend/.env_docker
+      echo "PYTHONPATH=./backend" >> backend/.env_docker
+      echo "FASTAPI_HOST=0.0.0.0" >> backend/.env_docker
+      echo "FASTAPI_PORT=8000" >> backend/.env_docker
+
+  - name: "Create Network"
+    command: |
+      # Create a Docker network
+      docker network create mynetwork
+  
+  - name: "Start MySQL"
+    init: |
+      # Start MySQL container with a persistent volume
+      docker run --name mysql-container \
+        --network mynetwork \
+        -e MYSQL_ROOT_PASSWORD=my-secret-pw\
+        -v /workspace/mysql_data:/var/lib/mysql \
+        -p 3306:3306 \
+        -d mysql:latest
+
+    command: |
+      # Wait for MySQL service to be up and running
+      while ! docker logs mysql-container 2>&1 | grep "ready for connections"; do
+        echo "Waiting for MySQL to be up..."
+        sleep 1
+      done
+      echo "MySQL is up and running!"
+
+  - name: "Start Backend"
+    command: |
+      # Build the backend Docker image
+      docker build -t pico-backend ./backend
+
+      read -s -p 'Enter TiDB Password: ' TIDB_PASSWORD && echo "" && echo "TIDB_PASSWORD=$TIDB_PASSWORD" >> backend/.env_docker
+
+      # Run the backend application using the same Docker network and .env file
+      docker run --platform linux/amd64 -it --network mynetwork --env-file backend/.env_docker -p 8000:8000 pico-backend
