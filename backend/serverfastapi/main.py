@@ -91,24 +91,10 @@ def create_query_and_search(project_id: int, query: schemas.QueryCreate, db: Ses
 #         "records": filtered_records
 #     }
 
+@app.post("/projects/{project_id}/chat/document/{document_id}")
+def start_streamlit_session(document_id):
+    pass
 
-
-
-
-def chat_with_documents(query:str, PMID=None)->str:
-    query_interface = QueryInterface(cwd_index)
-    query_interface.configure_retriever(similarity_top_k=100)
-    query_interface.configure_response_synthesizer()
-    query_interface.assemble_query_engine()
-    if PMID is not None:
-        filters = [
-        {"key": "PMID", "value": str(PMID), "operator": "=="},
-        ]
-        response = query_interface.perform_metadata_filtered_query(query, filters)
-        
-    else:
-        response = query_interface.perform_query(query)
-    return str(response)
 
 if __name__ == "__main__":
     import uvicorn
