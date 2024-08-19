@@ -23,12 +23,7 @@ const FunnelPage = () => {
 
   const handleStageChange = (event) => {
     const newStage = event.target.value;
-    const updatedPapers = papers.map(paper => {
-      if (selectedPapers.includes(paper.id)) {
-        return { ...paper, funnelStage: newStage };
-      }
-      return paper;
-    });
+    const updatedPapers = papers; // To implement in backend newStage and selectedPapers (global)
     setPapers(updatedPapers);
     setSelectedPapers([]); // Clear selection after status change
   };
@@ -46,7 +41,7 @@ const FunnelPage = () => {
     setSearchQuery('');
   };
 
-  const filteredPapers = papers.filter(paper => paper.funnelStage === currentStatus);
+  const filteredPapers = papers.filter(paper => paper.funnel_stage === currentStatus); // to be managed by backend API call.
 
   return (
     <div className={styles.container}>
