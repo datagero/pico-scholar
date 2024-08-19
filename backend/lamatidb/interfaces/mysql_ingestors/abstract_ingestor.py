@@ -5,7 +5,8 @@ import base64
 import pandas as pd
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from lamatidb.interfaces.mysql_interface import MySQLInterface
+from lamatidb.interfaces.database_interfaces.mysql_interface import MySQLInterface
+from lamatidb.interfaces.database_interfaces.database_interface import DatabaseInterface
 from sqlalchemy import text
 
 def generate_short_uuid():
@@ -42,7 +43,8 @@ def generate_hash_key(input_str, length=16):
 
 class Ingestor:
     def __init__(self):
-        self.mysql_interface = MySQLInterface()
+        self.mysql_interface = DatabaseInterface(db_type='tidb', db_name='test_creation')
+        # self.mysql_interface = MySQLInterface()
         self.mysql_interface.setup_database()
         self.engine = self.mysql_interface.engine
 
@@ -56,7 +58,7 @@ class Ingestor:
     def process_csv(self, csv_file: str):
         raise NotImplementedError("Subclasses should implement this method.")
 
-    def ensure_database_exists(self, database_name):
+    def ensure_database_exists(self, database_name, description=None):
         """
         Ensure that the logical document database exists in the AcademicDatabases table. 
         If it doesn't exist, prompt the user for a description and create it.
@@ -67,11 +69,12 @@ class Ingestor:
 
             if result:
                 database_id = result[0]
-                print(f"Database '{database_name}' found with ID '{database_id}'.")
+                print(f"Academic Database '{database_name}' found with ID '{database_id}'.")
             else:
                 # Prompt for a description if the database doesn't exist
                 database_id = generate_short_uuid()
-                description = input(f"Enter a description for the new database '{database_name}': ")
+                if not description:
+                    description = input(f"Enter a description for the new database '{database_name}': ")
                 insert_query = """
                     INSERT INTO `AcademicDatabases` (databaseId, databaseName, description) 
                     VALUES (:database_id, :database_name, :description)
@@ -115,10 +118,10 @@ class AbstractIngestor(Ingestor):
         super().__init__()
         self.database_id = None
 
-    def process_csv(self, csv_file: str):
+    def process_csv(self, csv_file: str, database_description=None):
 
         database_name = os.path.basename(os.path.dirname(csv_file))
-        self.database_id = self.ensure_database_exists(database_name)
+        self.database_id = self.ensure_database_exists(database_name, description=database_description)
 
         df = pd.read_csv(csv_file)
 
@@ -176,7 +179,7 @@ if __name__ == "__main__":
     abstract_csv_file = 'datalake/mock_data/abstracts.csv'
 
     abstract_ingestor = AbstractIngestor()
-    abstract_ingestor.process_csv(abstract_csv_file)
+    abstract_ingestor.process_csv(abstract_csv_file, database_description="Mock Abstracts Database")
 
     # Example for Full Document Ingestion
     full_document_pdf_file = 'datalake/mock_data/16625675.pdf'

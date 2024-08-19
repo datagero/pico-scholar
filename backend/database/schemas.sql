@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `DocumentDatabaseMapping` (
 
 CREATE TABLE IF NOT EXISTS `DocumentAbstract` (
   `documentId` VARCHAR(255) PRIMARY KEY,
-  `abstract` VARCHAR(255)
+  `abstract` LONGTEXT
 );
 
 CREATE TABLE IF NOT EXISTS `DocumentPICO_raw` (

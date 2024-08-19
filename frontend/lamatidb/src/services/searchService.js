@@ -25,14 +25,3 @@ export const searchQuery = async (query) => {
     }
   };
   
-
-  // export const updateStatus = async (Array(ID), currentStatus, updatedStatus) => {
-  //   // e.g. updateStatus([16631576, 16630583], "Identified", "scoped");
-  //   // Bulk Update Status in DB
-  //   // Returns Updated view
-  // };
-
-  // export const getStatusRecord = async (query) => {
-  //   // Bulk Update Status
-  // };
-  

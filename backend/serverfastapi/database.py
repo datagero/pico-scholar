@@ -1,6 +1,6 @@
 # database.py
 from sqlalchemy.orm import sessionmaker
-from lamatidb.interfaces.mysql_interface import MySQLInterface
+from lamatidb.interfaces.database_interfaces.mysql_interface import MySQLInterface
 
 # Initialize MySQL interface and set up the database
 mysql_interface = MySQLInterface()
