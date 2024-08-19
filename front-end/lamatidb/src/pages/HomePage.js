@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbtack, faUpload, faArrowRight, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { searchQuery } from '../services/searchService'; // Import the search service
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { searchQuery } from '../services/searchService';
 
 const HomePage = () => {
   const [query, setQuery] = useState('');
