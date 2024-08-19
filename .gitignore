@@ -21,3 +21,5 @@ poetry.lock
 __pycache__/
 pmc_data
 ben_scratchwork
+
+node_modules

@@ -45,8 +45,11 @@ Go inside the container
 
 `docker exec -it d10bacbf42af /bin/bash`
 
-## Docker - Option 1: Containerised application
+## Docker - Option 2: Containerised application
 Create a Docker Network for both services to communicate
+
+From the `\backend` directory,
+
 
 ```
 export MYSQL_ROOT_PASSWORD=my-secret-pw
@@ -54,5 +57,6 @@ docker network create mynetwork
 
 docker run -it --network mynetwork --name mysql-container -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -v /Users/datagero/Documents/offline_repos/lamatidb/mysql_data:/var/lib/mysql -p 3306:3306 -d mysql:latest
 
+docker build -t pico-backend .
 docker run -it --network mynetwork --env-file .env_docker -p 8000:8000 pico-backend
 ```
