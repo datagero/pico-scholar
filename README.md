@@ -46,11 +46,15 @@ First, set-up MySQL container with persistent local storage
 
 ```
 export MYSQL_ROOT_PASSWORD=my-secret-pw
-docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -v /Users/datagero/Documents/offline_repos/lamatidb/mysql_data:/var/lib/mysql -p 3306:3306 -d mysql:latest
+docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -v $(pwd)/mysql_data:/var/lib/mysql -p 3306:3306 -d mysql:latest
 ```
 
 Then start the server
-`fastapi dev backend/serverfastapi/main.py`
+```
+fastapi dev backend/serverfastapi/main.py
+```
 
 You can access the database through the terminal
-`mysql -h 127.0.0.1 -P 3306 -u root -p`
+```
+mysql -h 127.0.0.1 -P 3306 -u root -p
+```
