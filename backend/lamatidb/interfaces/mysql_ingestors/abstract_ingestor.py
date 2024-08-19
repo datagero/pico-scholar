@@ -149,6 +149,10 @@ class FullDocumentIngestor(Ingestor):
         super().__init__()
         self.database_id = None
 
+    def get_docID(self, pmid):
+        # returns pcmid
+        return
+
     def process_blob(self, pdf_path: str, document_id: str):
         database_name = os.path.basename(os.path.dirname(pdf_path))
         self.database_id = self.ensure_database_exists(database_name)

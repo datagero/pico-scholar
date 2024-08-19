@@ -42,7 +42,7 @@ const FunnelPage = () => {
     setSemanticSearchQuery('');
   };
 
-  const filteredPapers = filterByStatus(currentStatus);
+  const filteredPapers = papers //filterByStatus(currentStatus);
   // papers.filter(paper => paper.funnel_stage === currentStatus); // to be managed by backend API call.
 
   return (

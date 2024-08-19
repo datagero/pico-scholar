@@ -6,7 +6,7 @@ from lamatidb.interfaces.settings_manager import SettingsManager
 
 from lamatidb.interfaces.database_interfaces.mysql_interface import MySQLInterface
 from lamatidb.interfaces.mysql_ingestors.abstract_ingestor import AbstractIngestor
-from lamatidb.interfaces.tidb_loaders.vector_loader_interface import LoaderPubMedMySQL
+from lamatidb.interfaces.tidb_loaders.vector_loader_interface import LoaderPubMedAbstracts
 
 # Set global settings
 SettingsManager.set_global_settings()
@@ -37,7 +37,7 @@ VECTOR_TABLE_NAME = vector_table_options[2]
 # abstract_ingestor.process_csv(abstract_csv_file)
 
 # # Load data from MySQL and process it into LlamaIndex documents
-# loader = LoaderPubMedMySQL()
+# loader = LoaderPubMedAbstracts()
 # loader.load_data()
 # loader.process_data()
 

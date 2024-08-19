@@ -21,12 +21,12 @@ class LoaderInterface:
         self.raw_data = None
         self.documents = None  # List of Document objects for LlamaIndex
 
-class LoaderPubMedMySQL(LoaderInterface):
+class LoaderPubMedAbstracts(LoaderInterface):
     """Loader class for fetching and processing PubMed data from MySQL."""
     
     def __init__(self):
         """
-        Initialize LoaderPubMedMySQL with a specific database.
+        Initialize LoaderPubMedAbstracts with a specific database.
         
         :param database_name: The name of the MySQL database to connect to.
         """
@@ -90,9 +90,12 @@ class LoaderPubMedMySQL(LoaderInterface):
         """
         return self.documents
 
+class LoaderPubMedFullText(LoaderInterface):
+    pass
+
 if __name__ == "__main__":
     # Initialize the loader with your database name
-    loader = LoaderPubMedMySQL()
+    loader = LoaderPubMedAbstracts()
 
     # Load and process the data
     print("Loading data from MySQL database...")
