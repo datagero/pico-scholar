@@ -1,67 +1,126 @@
-// FunnelPage.js
-
-// Contains the main page components, which typically represent different routes in your application.
-// The page where the search results are displayed in the funnel view.
-
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import FunnelTable from '../components/Funnel/FunnelTable';
+import styles from '../components/Funnel/Funnel.module.css';
 
 const FunnelPage = () => {
   const location = useLocation();
-  const { results } = location.state || {};
+  const initialResults = location.state?.results || []; // Get initial results from the main page search
+  const [papers, setPapers] = useState(initialResults);
+  const [currentStatus, setCurrentStatus] = useState('Identified');
+  const [selectedPapers, setSelectedPapers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSelectPaper = (paperId) => {
+    setSelectedPapers((prevSelected) => {
+      if (prevSelected.includes(paperId)) {
+        return prevSelected.filter(id => id !== paperId);
+      } else {
+        return [...prevSelected, paperId];
+      }
+    });
+  };
+
+  const handleStageChange = (event) => {
+    const newStage = event.target.value;
+    const updatedPapers = papers; // To implement in backend newStage and selectedPapers (global)
+    setPapers(updatedPapers);
+    setSelectedPapers([]); // Clear selection after status change
+  };
+
+  const handleStatusButtonClick = (status) => {
+    setCurrentStatus(status);
+  };
+
+  const handleSearch = () => {
+    // Logic for handling the search within the current status
+    console.log("Searching for:", searchQuery);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+  };
+
+  const filteredPapers = papers.filter(paper => paper.funnel_stage === currentStatus); // to be managed by backend API call.
 
   return (
-    <div>
-      <h1>Welcome to Results Analyser!</h1>
-      {results && results.length > 0 ? (
-        <table>
-          <thead>
-            <tr>
-              <th style={{ width: '800px' }}>Summary</th> {/* Set a specific width */}
-              <th style={{ width: '500px' }}>Abstract</th> {/* Set a specific width */}
-              <th style={{ width: '500px' }}>PICO</th> {/* Set a specific width */}
-              <th>Funnel Stage</th>
-              <th>Reviewed</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.map((result, index) => (
-              <tr key={index}>
-                {/* Merged and Compact Summary Column with Narrow Width */}
-                <td style={{ 
-                  whiteSpace: 'normal', 
-                  width: '200px', 
-                  overflow: 'hidden', 
-                  textOverflow: 'ellipsis',
-                  wordWrap: 'break-word'
-                }}>
-                  <strong>{result.title}</strong><br />
-                  {result.year}, {result.authors}<br />
-                  ID: {result.source_id}, Similarity: {result.similarity}
-                </td>
+    <div className={styles.container}>
+      <div className={styles.statusButtonsContainer}>
+        <button 
+          className={`${styles.statusButton} ${currentStatus === 'Identified' ? styles.activeStatus : ''}`}
+          onClick={() => handleStatusButtonClick('Identified')}
+        >
+          Identified
+        </button>
+        <button 
+          className={`${styles.statusButton} ${currentStatus === 'Screened' ? styles.activeStatus : ''}`}
+          onClick={() => handleStatusButtonClick('Screened')}
+        >
+          Screened
+        </button>
+        <button 
+          className={`${styles.statusButton} ${currentStatus === 'Sought for Retrieval' ? styles.activeStatus : ''}`}
+          onClick={() => handleStatusButtonClick('Sought for Retrieval')}
+        >
+          Sought for Retrieval
+        </button>
+        <button 
+          className={`${styles.statusButton} ${currentStatus === 'Assessed for Eligibility' ? styles.activeStatus : ''}`}
+          onClick={() => handleStatusButtonClick('Assessed for Eligibility')}
+        >
+          Assessed for Eligibility
+        </button>
+        <button 
+          className={`${styles.statusButton} ${currentStatus === 'Systematic Literature Review' ? styles.activeStatus : ''}`}
+          onClick={() => handleStatusButtonClick('Systematic Literature Review')}
+        >
+          Systematic Literature Review
+        </button>
+      </div>
+      
+      <div className={styles.controlsContainer}>
+        <span className={styles.selectedText}>Selected: {selectedPapers.length}</span>
+        <div className={styles.statusChange}>
+          <span>Change Status: </span>
+          <select 
+            value={currentStatus} 
+            onChange={handleStageChange} 
+            className={styles.dropdown}
+          >
+            <option value="Identified">Identified</option>
+            <option value="Screened">Screened</option>
+            <option value="Sought for Retrieval">Sought for Retrieval</option>
+            <option value="Assessed for Eligibility">Assessed for Eligibility</option>
+            <option value="Systematic Literature Review">Systematic Literature Review</option>
+          </select>
+        </div>
 
-                <td>{result.abstract}</td>
+        {/* Search Bar Section */}
+        <div className={styles.searchContainer}>
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="Search in current list of papers."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button className={styles.clearButton} onClick={clearSearch}>
+            &times;
+          </button>
+          <button className={styles.searchButton} onClick={handleSearch}>
+            ➔
+          </button>
+        </div>
+      </div>
 
-                {/* Merged PICO Column */}
-                <td>
-                  <strong>P:</strong> {result.pico_p} <br />
-                  <strong>I:</strong> {result.pico_i} <br />
-                  <strong>C:</strong> {result.pico_c} <br />
-                  <strong>O:</strong> {result.pico_o}
-                </td>
-
-                <td>{result.funnel_stage}</td>
-                <td>{result.is_reviewed ? 'Yes' : 'No'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p>No results found.</p>
-      )}
+      <FunnelTable
+        results={filteredPapers}
+        selectedPapers={selectedPapers}
+        handleSelectPaper={handleSelectPaper}
+        funnelStage={currentStatus}
+      />
     </div>
   );
 };
-
 
 export default FunnelPage;

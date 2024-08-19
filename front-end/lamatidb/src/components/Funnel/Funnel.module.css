@@ -1,1 +1,329 @@
-/* Scoped CSS for the funnel-related components. */
+/* Funnel.module.css */
+
+/* Style the table element */
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Ensure horizontal scrolling */
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    min-width: 800px; /* Minimum width to trigger scrolling if necessary */
+}
+
+/* Style the table header */
+.headerCell {
+    background-color: #007BFF;
+    color: #ffffff;
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid #ddd;
+}
+
+/* Style the table rows and cells */
+.cell {
+    padding: 12px;
+    border: 1px solid #ddd;
+    vertical-align: top;
+}
+
+/* Style the checkbox and text cells */
+.checkboxCell {
+    text-align: center;
+    width: 50px;
+    border: 1px solid #ddd;
+}
+
+/* Add a hover effect to rows */
+.row:hover {
+    background-color: #f1f1f1;
+}
+
+/* Style the summary column for better readability */
+.summaryCell {
+    font-weight: 500;
+    border: 1px solid #ddd;
+}
+
+/* Add some spacing between the lines in the PICO section */
+.picoItem {
+    margin-bottom: 5px;
+}
+
+/* Responsive design: make the table scrollable on smaller screens */
+@media screen and (max-width: 768px) {
+    .table-container {
+        display: block;
+        overflow-x: auto;
+    }
+    .table {
+        min-width: 600px; /* Minimum width to ensure horizontal scrolling */
+    }
+}
+
+/* Stacked Rows on Very Small Screens */
+@media screen and (max-width: 480px) {
+    .table, .thead, .tbody, .th, .tr, .td {
+        display: block;
+        width: 100%;
+    }
+    
+    .tr {
+        margin-bottom: 15px;
+    }
+    
+    .td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+        border: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 50%;
+        padding-left: 15px;
+        font-weight: bold;
+        text-align: left;
+        white-space: nowrap;
+    }
+}
+
+/* Pagination Styles */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.pageLink {
+    margin: 0 5px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.pageLink:hover {
+    background-color: #007BFF;
+    color: #fff;
+}
+
+.pageLink:disabled {
+    cursor: not-allowed;
+    background-color: #ccc;
+}
+
+.activePage {
+    background-color: #007BFF;
+    color: #fff;
+    font-weight: bold;
+}
+
+/* Dropdown Styles */
+.reviewDropdown {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.reviewDropdown:focus {
+    border-color: #007BFF; /* Change border color on focus */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .statusContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px; /* Adjust this value to control spacing */
+    margin-bottom: 20px; /* Adjust this value for spacing below */
+  }
+  
+  .selectedText {
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .statusChange {
+    display: flex;
+    align-items: center;
+  }
+  
+  .dropdown {
+    font-size: 16px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    color: #333;
+    margin-left: 10px;
+    cursor: pointer;
+  }
+  
+  .dropdown:hover {
+    border-color: #007BFF;
+  }
+
+/* Container for the status buttons */
+.statusButtonsContainer {
+    display: flex;
+    justify-content: center;
+    margin: 40px auto; /* Adjust margin to center */
+    gap: 30px; /* Space between buttons */
+    max-width: 80%; /* Limit width for centering */
+  }
+  
+  /* Style for each status button */
+  .statusButton {
+    background-color: #b6d9ff; /* Color for the buttons */
+    color: #fff;
+    border: none;
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 30px 15px 15px 30px; /* Rounded arrow shape */
+    position: relative;
+    transition: background-color 0.3s;
+  }
+  
+  /* Highlight the active status button */
+  .activeStatus {
+    background-color: #007bff; /* Active button color */
+  }
+  
+  .statusButton::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -15px;
+    width: 0;
+    height: 0;
+    border-left: 15px solid #b6d9ff;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+  }
+  
+  .statusButton:hover {
+    background-color: #007bff;
+  }
+  
+  .statusButton:hover::after {
+    border-left-color: #007bff;
+  }
+  
+  .activeStatus::after {
+    border-left-color: #007bff; /* Active state arrow color */
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+  
+  .controlsContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    width: auto;
+    max-width: 80%;
+    margin: 0 auto 20px auto;
+    padding: 0 20px;
+  }
+  
+  .selectedText {
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .statusChange {
+    display: flex;
+    align-items: center;
+  }
+  
+  .dropdown {
+    font-size: 16px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    color: #333;
+    margin-left: 10px;
+    cursor: pointer;
+  }
+  
+  .dropdown:hover {
+    border-color: #007BFF;
+  }
+  
+  .searchContainer {
+    display: flex;
+    align-items: center;
+    position: relative;
+    flex-grow: 0;
+  }
+  
+  .searchInput {
+    width: 500px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding-right: 50px;
+  }
+  
+  .clearButton {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #333;
+    position: absolute;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .clearButton:hover {
+    color: #FF0000;
+  }
+  
+  .searchButton {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #333;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: color 0.3s ease;
+  }
+  
+  .searchButton:hover {
+    color: #007BFF;
+  }

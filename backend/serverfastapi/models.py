@@ -8,11 +8,11 @@ from sqlalchemy.orm import relationship
 Base = declarative_base()
 
 class FunnelEnum(enum.Enum):
-    IDENTIFIED = 'identified'
-    SCREENED = 'screened'
-    SOUGHT = 'sought'
-    ASSESSED = 'assessed'
-    FINAL = 'final'
+    IDENTIFIED = 'Identified'
+    SCREENED = 'Screened'
+    SOUGHT = 'Sought for Retrieval'
+    ASSESSED = 'Assessed for Eligibility'
+    FINAL = 'Systematic Literature Review'
 
 class Query(Base):
     __tablename__ = 'query'
