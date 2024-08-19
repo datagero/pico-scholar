@@ -70,10 +70,27 @@ def create_query_and_search(project_id: int, query: schemas.QueryCreate, db: Ses
     ]
     db_results = crud.create_results(db, results, db_query)
 
+    # # Mock a few with status Screened
+    # db_results[0].funnel_stage = models.FunnelEnum.SCREENED
+    # db_results[1].funnel_stage = models.FunnelEnum.SCREENED
+    # db_results[2].funnel_stage = models.FunnelEnum.SCREENED
+    # db_results[3].funnel_stage = models.FunnelEnum.SCREENED
+    # db.commit()
+
     return {
         "query": db_query,
         "results": db_results
-    }    
+    }
+
+
+# @app.post("/projects/{project_id}/get_status/{status}")
+# def get_status(project_id: int, status: schemas.QueryCreate, db: Session = Depends(get_db)):
+#     filtered_records = db.query(models.Result).filter(models.Result.funnel_stage == status).all()
+#     return {
+#         "status": status,
+#         "records": filtered_records
+#     }
+
 
 
 

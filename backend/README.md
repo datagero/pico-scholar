@@ -50,7 +50,8 @@ Create a Docker Network for both services to communicate
 
 From the `\backend` directory,
 
-First, make sure that we've built the pico-backend docker
+First, make sure that we've built the pico-backend docker with the latest backend changes.
+No need to run this if backend has not changed since last build.
 
 `docker build -t pico-backend .`
 

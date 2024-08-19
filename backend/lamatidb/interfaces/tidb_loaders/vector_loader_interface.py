@@ -1,5 +1,6 @@
 from llama_index.core import Document
-from lamatidb.interfaces.mysql_interface import MySQLInterface
+# from lamatidb.interfaces.database_interfaces.mysql_interface import MySQLInterface
+from lamatidb.interfaces.database_interfaces.database_interface import DatabaseInterface
 
 class LoaderInterface:
     """
@@ -13,7 +14,8 @@ class LoaderInterface:
         
         :param database_name: The name of the MySQL database to connect to.
         """
-        self.mysql_interface = MySQLInterface()
+        self.mysql_interface = DatabaseInterface(db_type='tidb', db_name='test_creation')
+        # self.mysql_interface = DatabaseInterface()
         self.mysql_interface.setup_database()
         self.engine = self.mysql_interface.engine
         self.raw_data = None

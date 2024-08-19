@@ -1,10 +1,10 @@
 import os
 
 from lamatidb.interfaces.index_interface import IndexInterface
-from lamatidb.interfaces.tidb_interface import TiDBInterface
+from lamatidb.interfaces.database_interfaces.tidb_interface import TiDBInterface
 from lamatidb.interfaces.settings_manager import SettingsManager
 
-from lamatidb.interfaces.mysql_interface import MySQLInterface
+from lamatidb.interfaces.database_interfaces.mysql_interface import MySQLInterface
 from lamatidb.interfaces.mysql_ingestors.abstract_ingestor import AbstractIngestor
 from lamatidb.interfaces.tidb_loaders.vector_loader_interface import LoaderPubMedMySQL
 

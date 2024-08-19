@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import FunnelTable from '../components/Funnel/FunnelTable';
 import styles from '../components/Funnel/Funnel.module.css';
+import { filterByStatus } from '../services/statusService';
 
 const FunnelPage = () => {
   const location = useLocation();
@@ -9,7 +10,7 @@ const FunnelPage = () => {
   const [papers, setPapers] = useState(initialResults);
   const [currentStatus, setCurrentStatus] = useState('Identified');
   const [selectedPapers, setSelectedPapers] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [semanticSearchQuery, setSemanticSearchQuery] = useState('');
   const [narrowSearch, setNarrowSearch] = useState(false);
   const [narrowField, setNarrowField] = useState('All Fields');
 
@@ -36,14 +37,15 @@ const FunnelPage = () => {
 
   const handleSearch = () => {
     // Logic for handling the search within the current status
-    console.log("Searching for:", searchQuery);
+    console.log("Searching for:", semanticSearchQuery);
   };
 
   const clearSearch = () => {
-    setSearchQuery('');
+    setSemanticSearchQuery('');
   };
 
-  const filteredPapers = papers.filter(paper => paper.funnel_stage === currentStatus); // to be managed by backend API call.
+  const filteredPapers = filterByStatus(currentStatus);
+  // papers.filter(paper => paper.funnel_stage === currentStatus); // to be managed by backend API call.
 
   return (
     <div className={styles.container}>
@@ -108,7 +110,7 @@ const FunnelPage = () => {
               className={styles.searchInput}
               placeholder="Search in current list of papers."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => setSemanticSearchQuery(e.target.value)}
             />
             <button className={styles.clearButton} onClick={clearSearch}>
               &times;
