@@ -11,6 +11,8 @@ const FunnelPage = () => {
   const [currentStatus, setCurrentStatus] = useState('Identified');
   const [selectedPapers, setSelectedPapers] = useState([]);
   const [semanticSearchQuery, setSemanticSearchQuery] = useState('');
+  const [narrowSearch, setNarrowSearch] = useState(false);
+  const [narrowField, setNarrowField] = useState('All Fields');
 
   // Run handleFilters whenever currentStatus changes
   useEffect(() => {
@@ -122,21 +124,48 @@ const FunnelPage = () => {
           </select>
         </div>
 
-        {/* Search Bar Section */}
-        <div className={styles.searchContainer}>
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder="Search in current list of papers."
-            value={semanticSearchQuery}
-            onChange={(e) => setSemanticSearchQuery(e.target.value)}
-          />
-          <button className={styles.clearButton} onClick={clearSearch}>
-            &times;
-          </button>
-          <button className={styles.searchButton} onClick={handleSearch}>
-            ➔
-          </button>
+        {/* Search and Narrow Search under Selected and Change Status */}
+        <div className={styles.searchAndNarrowContainer}>
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Search in current list of papers."
+              value={semanticSearchQuery}
+              onChange={(e) => setSemanticSearchQuery(e.target.value)}
+            />
+            <button className={styles.clearButton} onClick={clearSearch}>
+              &times;
+            </button>
+            <button className={styles.searchButton} onClick={handleSearch}>
+              ➔
+            </button>
+          </div>
+
+          <div className={styles.narrowSearchContainer}>
+            <label>
+              <input 
+                type="checkbox" 
+                checked={narrowSearch} 
+                onChange={() => setNarrowSearch(!narrowSearch)} 
+              />
+              Narrow search to fields
+            </label>
+            {narrowSearch && (
+              <select 
+                value={narrowField} 
+                onChange={(e) => setNarrowField(e.target.value)} 
+                className={styles.dropdown}
+              >
+                <option value="All Fields">All Fields</option>
+                <option value="Abstract">Abstract</option>
+                <option value="Patient">Patient</option>
+                <option value="Intervention">Intervention</option>
+                <option value="Comparison">Comparison</option>
+                <option value="Outcome">Outcome</option>
+              </select>
+            )}
+          </div>
         </div>
       </div>
 
