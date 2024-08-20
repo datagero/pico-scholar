@@ -10,6 +10,8 @@ const FunnelPage = () => {
   const [currentStatus, setCurrentStatus] = useState('identified');
   const [selectedPapers, setSelectedPapers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [narrowSearch, setNarrowSearch] = useState(false);
+  const [narrowField, setNarrowField] = useState('All Fields');
 
   const handleSelectPaper = (paperId) => {
     setSelectedPapers((prevSelected) => {
@@ -50,7 +52,7 @@ const FunnelPage = () => {
           className={`${styles.statusButton} ${currentStatus === 'identified' ? styles.activeStatus : ''}`}
           onClick={() => handleStatusButtonClick('identified')}
         >
-          identified
+          Identified
         </button>
         <button 
           className={`${styles.statusButton} ${currentStatus === 'Screened' ? styles.activeStatus : ''}`}
@@ -79,37 +81,67 @@ const FunnelPage = () => {
       </div>
       
       <div className={styles.controlsContainer}>
-        <span className={styles.selectedText}>Selected: {selectedPapers.length}</span>
-        <div className={styles.statusChange}>
-          <span>Change Status: </span>
-          <select 
-            value={currentStatus} 
-            onChange={handleStageChange} 
-            className={styles.dropdown}
-          >
-            <option value="identified">Identified</option>
-            <option value="Screened">Screened</option>
-            <option value="Sought for Retrieval">Sought for Retrieval</option>
-            <option value="Assessed for Eligibility">Assessed for Eligibility</option>
-            <option value="Systematic Literature Review">Systematic Literature Review</option>
-          </select>
+        {/* Selected and Change Status on one line */}
+        <div className={styles.selectedStatusContainer}>
+          <span className={styles.selectedText}>Selected: {selectedPapers.length}</span>
+          <div className={styles.statusChange}>
+            <span>Change Status: </span>
+            <select 
+              value={currentStatus} 
+              onChange={handleStageChange} 
+              className={styles.dropdown}
+            >
+              <option value="identified">Identified</option>
+              <option value="Screened">Screened</option>
+              <option value="Sought for Retrieval">Sought for Retrieval</option>
+              <option value="Assessed for Eligibility">Assessed for Eligibility</option>
+              <option value="Systematic Literature Review">Systematic Literature Review</option>
+            </select>
+          </div>
         </div>
 
-        {/* Search Bar Section */}
-        <div className={styles.searchContainer}>
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder="Search in current list of papers."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button className={styles.clearButton} onClick={clearSearch}>
-            &times;
-          </button>
-          <button className={styles.searchButton} onClick={handleSearch}>
-            ➔
-          </button>
+        {/* Search and Narrow Search under Selected and Change Status */}
+        <div className={styles.searchAndNarrowContainer}>
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Search in current list of papers."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button className={styles.clearButton} onClick={clearSearch}>
+              &times;
+            </button>
+            <button className={styles.searchButton} onClick={handleSearch}>
+              ➔
+            </button>
+          </div>
+
+          <div className={styles.narrowSearchContainer}>
+            <label>
+              <input 
+                type="checkbox" 
+                checked={narrowSearch} 
+                onChange={() => setNarrowSearch(!narrowSearch)} 
+              />
+              Narrow search to fields
+            </label>
+            {narrowSearch && (
+              <select 
+                value={narrowField} 
+                onChange={(e) => setNarrowField(e.target.value)} 
+                className={styles.dropdown}
+              >
+                <option value="All Fields">All Fields</option>
+                <option value="Abstract">Abstract</option>
+                <option value="Patient">Patient</option>
+                <option value="Intervention">Intervention</option>
+                <option value="Comparison">Comparison</option>
+                <option value="Outcome">Outcome</option>
+              </select>
+            )}
+          </div>
         </div>
       </div>
 

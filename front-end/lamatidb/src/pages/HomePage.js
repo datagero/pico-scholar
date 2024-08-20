@@ -1,5 +1,3 @@
-// HomePage.js
-
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbtack, faUpload, faArrowRight, faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -87,13 +85,34 @@ const HomePage = () => {
       {isAdvancedSearch && (
         <div className="advanced-search-popup">
           <h4>Filter by:</h4>
-          <label><input type="checkbox" /> Date</label>
-          <label><input type="checkbox" /> Location</label>
-          <label><input type="checkbox" /> Demographic</label>
-          <label><input type="checkbox" /> Design/methodology</label>
-          <label><input type="checkbox" /> Search strategy (add more keywords)</label>
-          <label><input type="checkbox" /> Type of intervention</label>
-          <label><input type="checkbox" /> PICO</label>
+          <label>
+            <input type="checkbox" /> Date
+            <input type="text" className="advanced-input" placeholder="Enter date..." />
+          </label>
+          <label>
+            <input type="checkbox" /> Location
+            <input type="text" className="advanced-input" placeholder="Enter location..." />
+          </label>
+          <label>
+            <input type="checkbox" /> Demographic
+            <input type="text" className="advanced-input" placeholder="Enter demographic..." />
+          </label>
+          <label>
+            <input type="checkbox" /> Design/methodology
+            <input type="text" className="advanced-input" placeholder="Enter design/methodology..." />
+          </label>
+          <label>
+            <input type="checkbox" /> Search strategy (add more keywords)
+            <input type="text" className="advanced-input" placeholder="Enter search strategy..." />
+          </label>
+          <label>
+            <input type="checkbox" /> Type of intervention
+            <input type="text" className="advanced-input" placeholder="Enter intervention type..." />
+          </label>
+          <label>
+            <input type="checkbox" /> PICO
+            <input type="text" className="advanced-input" placeholder="Enter PICO criteria..." />
+          </label>
         </div>
       )}
 
