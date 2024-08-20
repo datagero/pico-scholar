@@ -7,7 +7,7 @@ const FunnelPage = () => {
   const location = useLocation();
   const initialResults = location.state?.results || []; // Get initial results from the main page search
   const [papers, setPapers] = useState(initialResults);
-  const [currentStatus, setCurrentStatus] = useState('Identified');
+  const [currentStatus, setCurrentStatus] = useState('identified');
   const [selectedPapers, setSelectedPapers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -47,10 +47,10 @@ const FunnelPage = () => {
     <div className={styles.container}>
       <div className={styles.statusButtonsContainer}>
         <button 
-          className={`${styles.statusButton} ${currentStatus === 'Identified' ? styles.activeStatus : ''}`}
-          onClick={() => handleStatusButtonClick('Identified')}
+          className={`${styles.statusButton} ${currentStatus === 'identified' ? styles.activeStatus : ''}`}
+          onClick={() => handleStatusButtonClick('identified')}
         >
-          Identified
+          identified
         </button>
         <button 
           className={`${styles.statusButton} ${currentStatus === 'Screened' ? styles.activeStatus : ''}`}
@@ -87,7 +87,7 @@ const FunnelPage = () => {
             onChange={handleStageChange} 
             className={styles.dropdown}
           >
-            <option value="Identified">Identified</option>
+            <option value="identified">Identified</option>
             <option value="Screened">Screened</option>
             <option value="Sought for Retrieval">Sought for Retrieval</option>
             <option value="Assessed for Eligibility">Assessed for Eligibility</option>
