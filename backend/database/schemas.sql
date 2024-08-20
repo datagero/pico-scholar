@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `DocumentPICO_raw` (
   `pico_o` VARCHAR(255)
 );
 
-CREATE TABLE IF NOT EXISTS `DocumentPICO` (
+CREATE TABLE IF NOT EXISTS `DocumentPICO_enhanced` (
   `documentId` VARCHAR(255) PRIMARY KEY,
   `pico_p` VARCHAR(255),
   `pico_i` VARCHAR(255),

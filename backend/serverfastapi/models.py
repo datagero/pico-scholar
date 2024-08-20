@@ -10,9 +10,9 @@ Base = declarative_base()
 class FunnelEnum(enum.Enum):
     IDENTIFIED = 'Identified'
     SCREENED = 'Screened'
-    SOUGHT = 'Sought for Retrieval'
-    ASSESSED = 'Assessed for Eligibility'
-    FINAL = 'Systematic Literature Review'
+    SOUGHT = 'Sought Retrieval'
+    ASSESSED = 'Assessed Eligibility'
+    FINAL = 'Included in Review'
 
 class Query(Base):
     __tablename__ = 'query'
@@ -35,7 +35,7 @@ class Result(Base):
     pico_i = Column(String(255))
     pico_c = Column(String(255))
     pico_o = Column(String(255))
-    funnel_stage = Column(Enum(FunnelEnum, name='funnelenum'))
+    funnel_stage =Column(Enum(FunnelEnum, name='funnelenum'))
     is_reviewed = Column(Boolean, default=False)
 
     query = relationship("Query", back_populates="results")

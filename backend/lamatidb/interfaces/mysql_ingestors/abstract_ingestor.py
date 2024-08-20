@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from lamatidb.interfaces.database_interfaces.mysql_interface import MySQLInterface
 from lamatidb.interfaces.database_interfaces.database_interface import DatabaseInterface
+from lamatidb.interfaces.metadata_interface import Metadata
 from sqlalchemy import text
 
 def generate_short_uuid():
@@ -47,6 +48,7 @@ class Ingestor:
         # self.mysql_interface = MySQLInterface()
         self.mysql_interface.setup_database()
         self.engine = self.mysql_interface.engine
+        self.metadata_processor = Metadata()  # Initialize the Metadata class
 
     def insert_data(self, session: Session, table_name: str, data: pd.DataFrame):
         try:
@@ -142,6 +144,43 @@ class AbstractIngestor(Ingestor):
             for document_id in document_data['documentId']:
                 self.insert_mapping_if_not_exists(session, self.database_id, str(document_id))
 
+        # After processing CSV, process PICO metadata
+        self.process_pico_metadata(csv_file)
+
+    def process_pico_metadata(self, csv_file: str):
+        # Read the CSV file
+        df = pd.read_csv(csv_file)
+
+        # Process each abstract to extract PICO metadata
+        for _, row in df.iterrows():
+            document_id = str(row['PMID'])
+            abstract_text = row['Abstract']
+
+            # Skip if no text to process
+            if not abstract_text or pd.isnull(abstract_text):
+                continue
+
+            # Process the abstract using the metadata processor
+            processed_terms, enhanced_terms = self.metadata_processor.process_text([abstract_text])
+
+            terms_dict = {'raw': processed_terms, 'enhanced': enhanced_terms}
+
+            for label, terms in terms_dict.items():
+
+                # Initialize an empty list to store PICO metadata
+                pico_data = []
+
+                for term in terms:
+                    term.update({'documentId': document_id})
+                    pico_data.append(term)
+
+            # Convert list to DataFrame
+            pico_df = pd.DataFrame(pico_data)
+
+            # Insert PICO data into the DocumentPICO_raw table
+            with self.mysql_interface.get_session() as session:
+                self.insert_data(session, f'DocumentPICO_{label}', pico_df)
+
 # Example subclass for full document ingestion
 class FullDocumentIngestor(Ingestor):
 
@@ -166,10 +205,6 @@ class FullDocumentIngestor(Ingestor):
             'documentId': [document_id],
             'pdfBlob': [blob_data]
         })
-
-        # Insert the data into the DocumentFull table
-        with self.mysql_interface.get_session() as session:
-            self.insert_data(session, 'DocumentFull', document_full_data)
 
         # Insert the data into the DocumentFull table
         with self.mysql_interface.get_session() as session:

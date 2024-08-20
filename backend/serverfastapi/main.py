@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()  # This will load the variables from the .env file
 
+from typing import List
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
@@ -24,20 +25,20 @@ SettingsManager.set_global_settings()
 
 # Database and vector table names
 DB_NAME = "test_matias" #os.environ['TIDB_DB_NAME'] # set to test_matias as this has data loaded
-VECTOR_TABLE_NAME = "scibert_alldata"
+VECTOR_TABLE_NAME = 'scibert_alldata' #'mocked_data'"scibert_alldata"
 
-CHAT_WITH_DATA_DB = "test"
-CHAT_WITH_DATA_VECTOR_TABLE_NAME = "Ben_full_docs_v3"
-CHAT_WITH_DATA_EMBEDDING_MODEL = "allenai/scibert_scivocab_uncased"
+# CHAT_WITH_DATA_DB = "test"
+# CHAT_WITH_DATA_VECTOR_TABLE_NAME = "Ben_full_docs_v3"
+# CHAT_WITH_DATA_EMBEDDING_MODEL = "allenai/scibert_scivocab_uncased"
 
 # Load or create the index
 index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME)
 index_interface.load_index_from_vector_store()
 index = index_interface.get_index()
 
-cwd_index_interface = IndexInterface(CHAT_WITH_DATA_DB,CHAT_WITH_DATA_VECTOR_TABLE_NAME,embedding_model_name=CHAT_WITH_DATA_EMBEDDING_MODEL)
-cwd_index_interface.load_index_from_vector_store()
-cwd_index = cwd_index_interface.get_index()
+# cwd_index_interface = IndexInterface(CHAT_WITH_DATA_DB,CHAT_WITH_DATA_VECTOR_TABLE_NAME,embedding_model_name=CHAT_WITH_DATA_EMBEDDING_MODEL)
+# cwd_index_interface.load_index_from_vector_store()
+# cwd_index = cwd_index_interface.get_index()
 
 @app.post("/projects/{project_id}/search/")
 def create_query_and_search(project_id: int, query: schemas.QueryCreate, db: Session = Depends(get_db)):
@@ -70,26 +71,47 @@ def create_query_and_search(project_id: int, query: schemas.QueryCreate, db: Ses
     ]
     db_results = crud.create_results(db, results, db_query)
 
-    # # Mock a few with status Screened
-    # db_results[0].funnel_stage = models.FunnelEnum.SCREENED
-    # db_results[1].funnel_stage = models.FunnelEnum.SCREENED
+    # Mock a few with status Screened
+    db_results[0].funnel_stage = models.FunnelEnum.SCREENED
+    db_results[1].funnel_stage = models.FunnelEnum.SCREENED
     # db_results[2].funnel_stage = models.FunnelEnum.SCREENED
     # db_results[3].funnel_stage = models.FunnelEnum.SCREENED
-    # db.commit()
+    db.commit()
 
     return {
         "query": db_query,
         "results": db_results
     }
 
+@app.patch("/projects/{project_id}/documents/{document_ids}/status/{status}")
+def update_document_status(project_id: int, document_ids, status: str, db: Session = Depends(get_db)):
+    # Split the document_ids string into a list of integers
+    try:
+        document_id_list = [int(doc_id) for doc_id in document_ids.split(',')]
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid document ID format")
 
-# @app.post("/projects/{project_id}/get_status/{status}")
-# def get_status(project_id: int, status: schemas.QueryCreate, db: Session = Depends(get_db)):
-#     filtered_records = db.query(models.Result).filter(models.Result.funnel_stage == status).all()
-#     return {
-#         "status": status,
-#         "records": filtered_records
-#     }
+    # Query to fetch the documents by their IDs
+    documents = db.query(models.Result).filter(models.Result.source_id.in_(document_id_list)).all()
+
+    if not documents:
+        raise HTTPException(status_code=404, detail="Documents not found")
+
+    # Update the status of each document
+    for document in documents:
+        document.funnel_stage = status
+
+    db.commit()
+    return {"message": "Status updated successfully", "document_ids": document_ids, "new_status": status}
+
+@app.get("/projects/{project_id}/get_status/{status}")
+def get_status(project_id: int, status: str, db: Session = Depends(get_db)):
+    # Changes revert to original...
+    filtered_records = db.query(models.Result).filter(models.Result.funnel_stage == status).all()
+    return {
+        "status": status,
+        "records": filtered_records
+    }
 
 @app.post("/projects/{project_id}/chat/document/{document_id}")
 def start_streamlit_session(document_id):
