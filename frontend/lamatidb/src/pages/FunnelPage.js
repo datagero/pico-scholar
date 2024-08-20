@@ -131,7 +131,7 @@ const FunnelPage = () => {
               type="text"
               className={styles.searchInput}
               placeholder="Search in current list of papers."
-              value={searchQuery}
+              value={semanticSearchQuery}
               onChange={(e) => setSemanticSearchQuery(e.target.value)}
             />
             <button className={styles.clearButton} onClick={clearSearch}>
