@@ -19,7 +19,7 @@ pubmed_sample/lama_index
 
 poetry.lock
 __pycache__/
-
-node_modules
 pmc_data
 ben_scratchwork
+
+node_modules
