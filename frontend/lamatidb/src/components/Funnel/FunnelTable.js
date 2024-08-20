@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styles from './Funnel.module.css';
 
-const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, funnelStage }) => {
+const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper}) => {
   const [reviewStatuses, setReviewStatuses] = useState(
     results.map(result => result.is_reviewed || 'No') // Initialize the review statuses
   );
@@ -74,7 +74,7 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, funnelSt
                   <strong>O:</strong> {result.pico_o}
                 </div>
               </td>
-              <td className={styles.cell} data-label="Status">{funnelStage}</td>
+              <td className={styles.cell} data-label="Status">{result.funnel_stage}</td>
               <td className={styles.cell} data-label="Reviewed">
                 <select
                   value={reviewStatuses[index]}

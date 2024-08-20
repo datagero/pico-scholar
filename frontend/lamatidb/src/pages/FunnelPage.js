@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import FunnelTable from '../components/Funnel/FunnelTable';
 import styles from '../components/Funnel/Funnel.module.css';
-import { filterByStatus } from '../services/statusService';
+import { filterByStatus, updateDocumentStatuses } from '../services/statusService';
 
 const FunnelPage = () => {
   const location = useLocation();
@@ -11,6 +11,22 @@ const FunnelPage = () => {
   const [currentStatus, setCurrentStatus] = useState('Identified');
   const [selectedPapers, setSelectedPapers] = useState([]);
   const [semanticSearchQuery, setSemanticSearchQuery] = useState('');
+
+  // Run handleFilters whenever currentStatus changes
+  useEffect(() => {
+    handleFilters();
+  }, [currentStatus]);
+
+  const handleUpdateStatuses = async (newStage) => {
+    try {
+      await updateDocumentStatuses(selectedPapers, newStage);
+      // Refresh the data or update the UI to reflect the status change
+      handleFilters();
+    } catch (error) {
+      console.error('Failed to update statuses:', error);
+    }
+  };
+
 
   const handleSelectPaper = (paperId) => {
     setSelectedPapers((prevSelected) => {
@@ -24,8 +40,9 @@ const FunnelPage = () => {
 
   const handleStageChange = (event) => {
     const newStage = event.target.value;
-    const updatedPapers = papers; // To implement in backend newStage and selectedPapers (global)
-    setPapers(updatedPapers);
+    // Optional: Call an API to update the stage in the backend
+    // Example: updateStage(newStage, selectedPapers);
+    handleUpdateStatuses(newStage); // Update the current status with the new stage
     setSelectedPapers([]); // Clear selection after status change
   };
 
@@ -34,7 +51,7 @@ const FunnelPage = () => {
   };
 
   const handleSearch = () => {
-    // Logic for handling the search within the current status
+    // Implement logic for handling the search within the current status
     console.log("Searching for:", semanticSearchQuery);
   };
 
@@ -42,8 +59,16 @@ const FunnelPage = () => {
     setSemanticSearchQuery('');
   };
 
-  const filteredPapers = papers //filterByStatus(currentStatus);
-  // papers.filter(paper => paper.funnel_stage === currentStatus); // to be managed by backend API call.
+  const handleFilters = async () => {
+    try {
+      console.log("Filtering papers for status:", currentStatus);
+      const filteredPapers = await filterByStatus(currentStatus);
+      setPapers(filteredPapers.records); 
+      console.log(filteredPapers); // Log filtered results for debugging
+    } catch (error) {
+      console.error('Error in handleFilters:', error);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -61,22 +86,22 @@ const FunnelPage = () => {
           Screened
         </button>
         <button 
-          className={`${styles.statusButton} ${currentStatus === 'Sought for Retrieval' ? styles.activeStatus : ''}`}
-          onClick={() => handleStatusButtonClick('Sought for Retrieval')}
+          className={`${styles.statusButton} ${currentStatus === 'Sought Retrieval' ? styles.activeStatus : ''}`}
+          onClick={() => handleStatusButtonClick('Sought Retrieval')}
         >
-          Sought for Retrieval
+          Sought Retrieval
         </button>
         <button 
-          className={`${styles.statusButton} ${currentStatus === 'Assessed for Eligibility' ? styles.activeStatus : ''}`}
-          onClick={() => handleStatusButtonClick('Assessed for Eligibility')}
+          className={`${styles.statusButton} ${currentStatus === 'Assessed Eligibility' ? styles.activeStatus : ''}`}
+          onClick={() => handleStatusButtonClick('Assessed Eligibility')}
         >
-          Assessed for Eligibility
+          Assessed Eligibility
         </button>
         <button 
-          className={`${styles.statusButton} ${currentStatus === 'Systematic Literature Review' ? styles.activeStatus : ''}`}
-          onClick={() => handleStatusButtonClick('Systematic Literature Review')}
+          className={`${styles.statusButton} ${currentStatus === 'Included in Review' ? styles.activeStatus : ''}`}
+          onClick={() => handleStatusButtonClick('Included in Review')}
         >
-          Systematic Literature Review
+          Included in Review
         </button>
       </div>
       
@@ -91,9 +116,9 @@ const FunnelPage = () => {
           >
             <option value="Identified">Identified</option>
             <option value="Screened">Screened</option>
-            <option value="Sought for Retrieval">Sought for Retrieval</option>
-            <option value="Assessed for Eligibility">Assessed for Eligibility</option>
-            <option value="Systematic Literature Review">Systematic Literature Review</option>
+            <option value="Sought Retrieval">Sought Retrieval</option>
+            <option value="Assessed Eligibility">Assessed Eligibility</option>
+            <option value="Included in Review">Included in Review</option>
           </select>
         </div>
 
@@ -116,7 +141,7 @@ const FunnelPage = () => {
       </div>
 
       <FunnelTable
-        results={filteredPapers}
+        results={papers} // Use the papers state which contains filtered results
         selectedPapers={selectedPapers}
         handleSelectPaper={handleSelectPaper}
         funnelStage={currentStatus}

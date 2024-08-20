@@ -36,12 +36,31 @@ class LoaderPubMedAbstracts(LoaderInterface):
 
     def load_data(self):
         """Load PubMed data from the MySQL database."""
+        # query = """
+        # SELECT Document.documentId, title, author, abstract, `year`
+        # FROM Document
+        # INNER JOIN DocumentAbstract ON Document.documentId = DocumentAbstract.documentId;
+        # """
+
         query = """
-        SELECT Document.documentId, title, author, abstract, `year`
+        SELECT 
+            Document.documentId, 
+            title, 
+            author, 
+            abstract, 
+            `year`,
+            pico_p,
+            pico_i,
+            pico_c,
+            pico_o
         FROM Document
-        INNER JOIN DocumentAbstract ON Document.documentId = DocumentAbstract.documentId;
+        INNER JOIN DocumentAbstract ON Document.documentId = DocumentAbstract.documentId
+        LEFT JOIN DocumentPICO_raw ON Document.documentId = DocumentPICO_raw.documentId;
         """
+
         self.raw_data = self.mysql_interface.fetch_data_from_db(query)
+
+
 
     def process_data(self):
         """
@@ -65,7 +84,8 @@ class LoaderPubMedAbstracts(LoaderInterface):
         content = ignore_empty_abstract()
 
         # Convert the processed data into a dictionary and prepare text samples
-        self.sample_dict = {x[0]: {'text': x[3], 'title': x[1], 'authors': x[2], 'year': x[4]} for x in content}
+        self.sample_dict = {x[0]: {'text': x[3], 'title': x[1], 'authors': x[2], 'year': x[4], 
+                                   'pico_p': x[5], 'pico_i': x[6], 'pico_c': x[7], 'pico_o': x[8]} for x in content}
         self.sample_text = [x['text'] for x in self.sample_dict.values()]
 
         # Create LlamaIndex Document objects
@@ -76,7 +96,11 @@ class LoaderPubMedAbstracts(LoaderInterface):
                     "source": doc_id,
                     "title": values['title'],
                     "authors": values['authors'],
-                    "year": values['year']
+                    "year": values['year'],
+                    'pico_p': values['pico_p'],
+                    'pico_i': values['pico_i'],
+                    'pico_c': values['pico_c'],
+                    'pico_o': values['pico_o']
                 },
             )
             for doc_id, values in self.sample_dict.items()
