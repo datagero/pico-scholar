@@ -1,16 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import FunnelTable from '../components/Funnel/FunnelTable';
 import styles from '../components/Funnel/Funnel.module.css';
-import { filterByStatus } from '../services/statusService';
+import { filterByStatus, updateDocumentStatuses } from '../services/statusService';
+import { semanticSearchQuery } from '../services/searchService';
 
 const FunnelPage = () => {
   const location = useLocation();
+
+  const extractSourceIds = (papersArray) => {
+    return papersArray.map(paper => paper.source_id);
+  };
+
   const initialResults = location.state?.results || []; // Get initial results from the main page search
   const [papers, setPapers] = useState(initialResults);
+  const [sourceIds, setSourceIds] = useState(initialResults.map(paper => paper.source_id));
   const [currentStatus, setCurrentStatus] = useState('Identified');
   const [selectedPapers, setSelectedPapers] = useState([]);
-  const [semanticSearchQuery, setSemanticSearchQuery] = useState('');
+  const [semanticQuery, setSemanticSearchQuery] = useState('');
+  const [narrowSearch, setNarrowSearch] = useState(false);
+  const [narrowField, setNarrowField] = useState('All Fields');
+
+  // Run handleFilters whenever currentStatus changes
+  useEffect(() => {
+    handleFilters();
+  }, [currentStatus]);
+  const handleUpdateStatuses = async (newStage) => {
+    try {
+      await updateDocumentStatuses(selectedPapers, newStage);
+      // Refresh the data or update the UI to reflect the status change
+      handleFilters();
+    } catch (error) {
+      console.error('Failed to update statuses:', error);
+    }
+  };
+
 
   const handleSelectPaper = (paperId) => {
     setSelectedPapers((prevSelected) => {
@@ -24,8 +48,9 @@ const FunnelPage = () => {
 
   const handleStageChange = (event) => {
     const newStage = event.target.value;
-    const updatedPapers = papers; // To implement in backend newStage and selectedPapers (global)
-    setPapers(updatedPapers);
+    // Optional: Call an API to update the stage in the backend
+    // Example: updateStage(newStage, selectedPapers);
+    handleUpdateStatuses(newStage); // Update the current status with the new stage
     setSelectedPapers([]); // Clear selection after status change
   };
 
@@ -33,17 +58,39 @@ const FunnelPage = () => {
     setCurrentStatus(status);
   };
 
-  const handleSearch = () => {
-    // Logic for handling the search within the current status
-    console.log("Searching for:", semanticSearchQuery);
+  const handleSemanticSearch = async () => {
+    if (semanticQuery.trim()) {
+      try {
+        const ids = await semanticSearchQuery(semanticQuery, "All Fields", sourceIds);
+        console.log('Semantic Search results:', ids);
+        // TODO -> Update the UI to reflect the search results. These should be a filtered subset of the papers state.
+        // Ideally, we want these sorted on the same order as the ids returned by the search.
+        // The UI should have a way to "Go back to all papers" or "Clear search results"
+      } catch (error) {
+        console.error('Error during the search request:', error);
+      }
+    } else {
+      alert('Please enter a search query');
+    }
   };
 
+  
   const clearSearch = () => {
     setSemanticSearchQuery('');
   };
 
-  const filteredPapers = papers //filterByStatus(currentStatus);
-  // papers.filter(paper => paper.funnel_stage === currentStatus); // to be managed by backend API call.
+  const handleFilters = async () => {
+    try {
+      console.log("Filtering papers for status:", currentStatus);
+      const filteredPapers = await filterByStatus(currentStatus);
+      setPapers(filteredPapers.records);
+      setSourceIds(filteredPapers.records.map(paper => paper.source_id))
+      // TODO -> We probably need to reset the counts for the funnel filters here (filteredPapers.funnel_count contains the counts after filters)
+      console.log(filteredPapers); // Log filtered results for debugging
+    } catch (error) {
+      console.error('Error in handleFilters:', error);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -61,22 +108,22 @@ const FunnelPage = () => {
           Screened
         </button>
         <button 
-          className={`${styles.statusButton} ${currentStatus === 'Sought for Retrieval' ? styles.activeStatus : ''}`}
-          onClick={() => handleStatusButtonClick('Sought for Retrieval')}
+          className={`${styles.statusButton} ${currentStatus === 'Sought Retrieval' ? styles.activeStatus : ''}`}
+          onClick={() => handleStatusButtonClick('Sought Retrieval')}
         >
-          Sought for Retrieval
+          Sought Retrieval
         </button>
         <button 
-          className={`${styles.statusButton} ${currentStatus === 'Assessed for Eligibility' ? styles.activeStatus : ''}`}
-          onClick={() => handleStatusButtonClick('Assessed for Eligibility')}
+          className={`${styles.statusButton} ${currentStatus === 'Assessed Eligibility' ? styles.activeStatus : ''}`}
+          onClick={() => handleStatusButtonClick('Assessed Eligibility')}
         >
-          Assessed for Eligibility
+          Assessed Eligibility
         </button>
         <button 
-          className={`${styles.statusButton} ${currentStatus === 'Systematic Literature Review' ? styles.activeStatus : ''}`}
-          onClick={() => handleStatusButtonClick('Systematic Literature Review')}
+          className={`${styles.statusButton} ${currentStatus === 'Included in Review' ? styles.activeStatus : ''}`}
+          onClick={() => handleStatusButtonClick('Included in Review')}
         >
-          Systematic Literature Review
+          Included in Review
         </button>
       </div>
       
@@ -91,32 +138,59 @@ const FunnelPage = () => {
           >
             <option value="Identified">Identified</option>
             <option value="Screened">Screened</option>
-            <option value="Sought for Retrieval">Sought for Retrieval</option>
-            <option value="Assessed for Eligibility">Assessed for Eligibility</option>
-            <option value="Systematic Literature Review">Systematic Literature Review</option>
+            <option value="Sought Retrieval">Sought Retrieval</option>
+            <option value="Assessed Eligibility">Assessed Eligibility</option>
+            <option value="Included in Review">Included in Review</option>
           </select>
         </div>
 
-        {/* Search Bar Section */}
-        <div className={styles.searchContainer}>
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder="Search in current list of papers."
-            value={semanticSearchQuery}
-            onChange={(e) => setSemanticSearchQuery(e.target.value)}
-          />
-          <button className={styles.clearButton} onClick={clearSearch}>
-            &times;
-          </button>
-          <button className={styles.searchButton} onClick={handleSearch}>
-            ➔
-          </button>
+        {/* Search and Narrow Search under Selected and Change Status */}
+        <div className={styles.searchAndNarrowContainer}>
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Search in current list of papers."
+              value={semanticQuery}
+              onChange={(e) => setSemanticSearchQuery(e.target.value)}
+            />
+            <button className={styles.clearButton} onClick={clearSearch}>
+              &times;
+            </button>
+            <button className={styles.searchButton} onClick={handleSemanticSearch}>
+              ➔
+            </button>
+          </div>
+
+          <div className={styles.narrowSearchContainer}>
+            <label>
+              <input 
+                type="checkbox" 
+                checked={narrowSearch} 
+                onChange={() => setNarrowSearch(!narrowSearch)} 
+              />
+              Narrow search to fields
+            </label>
+            {narrowSearch && (
+              <select 
+                value={narrowField} 
+                onChange={(e) => setNarrowField(e.target.value)} 
+                className={styles.dropdown}
+              >
+                <option value="All Fields">All Fields</option>
+                <option value="Abstract">Abstract</option>
+                <option value="Patient">Patient</option>
+                <option value="Intervention">Intervention</option>
+                <option value="Comparison">Comparison</option>
+                <option value="Outcome">Outcome</option>
+              </select>
+            )}
+          </div>
         </div>
       </div>
 
       <FunnelTable
-        results={filteredPapers}
+        results={papers} // Use the papers state which contains filtered results
         selectedPapers={selectedPapers}
         handleSelectPaper={handleSelectPaper}
         funnelStage={currentStatus}

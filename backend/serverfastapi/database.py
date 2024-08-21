@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from lamatidb.interfaces.database_interfaces.mysql_interface import MySQLInterface
 
 # Initialize MySQL interface and set up the database
-mysql_interface = MySQLInterface()
+mysql_interface = MySQLInterface(force_recreate_db=True)
 mysql_interface.setup_database()
 
 # Create engine, session, and base

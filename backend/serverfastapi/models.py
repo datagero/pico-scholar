@@ -1,6 +1,6 @@
 # models.py
 import enum
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Enum
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Enum, TEXT
 from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -10,9 +10,9 @@ Base = declarative_base()
 class FunnelEnum(enum.Enum):
     IDENTIFIED = 'Identified'
     SCREENED = 'Screened'
-    SOUGHT = 'Sought for Retrieval'
-    ASSESSED = 'Assessed for Eligibility'
-    FINAL = 'Systematic Literature Review'
+    SOUGHT = 'Sought Retrieval'
+    ASSESSED = 'Assessed Eligibility'
+    FINAL = 'Included in Review'
 
 class Query(Base):
     __tablename__ = 'query'
@@ -27,15 +27,16 @@ class Result(Base):
     query_id = Column(Integer, ForeignKey('query.id'), nullable=False)
     source_id = Column(Integer, nullable=False)
     similarity = Column(Float, nullable=False)
-    authors = Column(String(255))
+    authors = Column(TEXT)
     year = Column(Integer)
-    title = Column(String(255))
+    title = Column(TEXT)
     abstract = Column(LONGTEXT)
-    pico_p = Column(String(255))
-    pico_i = Column(String(255))
-    pico_c = Column(String(255))
-    pico_o = Column(String(255))
-    funnel_stage = Column(Enum(FunnelEnum, name='funnelenum'))
-    is_reviewed = Column(Boolean, default=False)
+    pico_p = Column(TEXT)
+    pico_i = Column(TEXT)
+    pico_c = Column(TEXT)
+    pico_o = Column(TEXT)
+    funnel_stage =Column(Enum(FunnelEnum, name='funnelenum'))
+    is_archived = Column(Boolean, default=False)
+    has_pdf = Column(Boolean, default=False)
 
     query = relationship("Query", back_populates="results")

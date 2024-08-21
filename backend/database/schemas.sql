@@ -19,8 +19,8 @@ CREATE TABLE IF NOT EXISTS `AcademicDatabases` (
 
 CREATE TABLE IF NOT EXISTS `Document` (
   `documentId` VARCHAR(255) PRIMARY KEY,
-  `title` VARCHAR(255),
-  `author` VARCHAR(255),
+  `title` TEXT,
+  `author` TEXT,
   `year` INT
 );
 
@@ -43,12 +43,12 @@ CREATE TABLE IF NOT EXISTS `DocumentPICO_raw` (
   `pico_o` VARCHAR(255)
 );
 
-CREATE TABLE IF NOT EXISTS `DocumentPICO` (
+CREATE TABLE IF NOT EXISTS `DocumentPICO_enhanced` (
   `documentId` VARCHAR(255) PRIMARY KEY,
-  `pico_p` VARCHAR(255),
-  `pico_i` VARCHAR(255),
-  `pico_c` VARCHAR(255),
-  `pico_o` VARCHAR(255)
+  `pico_p` TEXT,
+  `pico_i` TEXT,
+  `pico_c` TEXT,
+  `pico_o` TEXT
 );
 CREATE TABLE IF NOT EXISTS `DocumentFull` (
   `documentId` VARCHAR(255) PRIMARY KEY,
@@ -121,7 +121,7 @@ ALTER TABLE `SearchResult` ADD FOREIGN KEY (`queryId`) REFERENCES `SearchQueryHi
 ALTER TABLE `SearchResult` ADD FOREIGN KEY (`documentId`) REFERENCES `Document` (`documentId`);
 ALTER TABLE `DocumentAbstract` ADD FOREIGN KEY (`documentId`) REFERENCES `Document` (`documentId`);
 ALTER TABLE `DocumentPICO_raw` ADD FOREIGN KEY (`documentId`) REFERENCES `Document` (`documentId`);
-ALTER TABLE `DocumentPICO` ADD FOREIGN KEY (`documentId`) REFERENCES `Document` (`documentId`);
+ALTER TABLE `DocumentPICO_enhanced` ADD FOREIGN KEY (`documentId`) REFERENCES `Document` (`documentId`);
 ALTER TABLE `DocumentFull` ADD FOREIGN KEY (`documentId`) REFERENCES `Document` (`documentId`);
 ALTER TABLE `DocumentDatabaseMapping` ADD FOREIGN KEY (`documentId`) REFERENCES `Document` (`documentId`);
 ALTER TABLE `DocumentDatabaseMapping` ADD FOREIGN KEY (`databaseId`) REFERENCES `AcademicDatabases` (`databaseId`);

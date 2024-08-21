@@ -23,7 +23,6 @@ class SettingsManager:
 
         Settings.embed_model = HuggingFaceEmbedding(model_name="allenai/scibert_scivocab_uncased")
 
-
     @staticmethod
     def get_db_name():
         return os.environ['TIDB_DB_NAME']

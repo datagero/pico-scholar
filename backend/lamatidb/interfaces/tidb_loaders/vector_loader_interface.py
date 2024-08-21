@@ -8,13 +8,13 @@ class LoaderInterface:
     Loaders return Document objects for LlamaIndex.
     """
     
-    def __init__(self):
+    def __init__(self, db_type, db_name):
         """
         Initialize the LoaderInterface with a database connection.
         
         :param database_name: The name of the MySQL database to connect to.
         """
-        self.mysql_interface = DatabaseInterface(db_type='tidb', db_name='test_creation')
+        self.mysql_interface = DatabaseInterface(db_type=db_type, db_name=db_name)
         # self.mysql_interface = DatabaseInterface()
         self.mysql_interface.setup_database()
         self.engine = self.mysql_interface.engine
@@ -24,24 +24,43 @@ class LoaderInterface:
 class LoaderPubMedAbstracts(LoaderInterface):
     """Loader class for fetching and processing PubMed data from MySQL."""
     
-    def __init__(self):
+    def __init__(self, db_type='tidb', db_name='test_creation'):
         """
         Initialize LoaderPubMedAbstracts with a specific database.
         
         :param database_name: The name of the MySQL database to connect to.
         """
-        super().__init__()
+        super().__init__(db_type=db_type, db_name=db_name)
         self.sample_dict = None
         self.sample_text = None
 
     def load_data(self):
         """Load PubMed data from the MySQL database."""
+        # query = """
+        # SELECT Document.documentId, title, author, abstract, `year`
+        # FROM Document
+        # INNER JOIN DocumentAbstract ON Document.documentId = DocumentAbstract.documentId;
+        # """
+
         query = """
-        SELECT Document.documentId, title, author, abstract, `year`
+        SELECT 
+            Document.documentId, 
+            title, 
+            author, 
+            abstract, 
+            `year`,
+            pico_p,
+            pico_i,
+            pico_c,
+            pico_o
         FROM Document
-        INNER JOIN DocumentAbstract ON Document.documentId = DocumentAbstract.documentId;
+        INNER JOIN DocumentAbstract ON Document.documentId = DocumentAbstract.documentId
+        LEFT JOIN DocumentPICO_enhanced ON Document.documentId = DocumentPICO_enhanced.documentId;
         """
+
         self.raw_data = self.mysql_interface.fetch_data_from_db(query)
+
+
 
     def process_data(self):
         """
@@ -65,7 +84,8 @@ class LoaderPubMedAbstracts(LoaderInterface):
         content = ignore_empty_abstract()
 
         # Convert the processed data into a dictionary and prepare text samples
-        self.sample_dict = {x[0]: {'text': x[3], 'title': x[1], 'authors': x[2], 'year': x[4]} for x in content}
+        self.sample_dict = {x[0]: {'text': x[3], 'title': x[1], 'authors': x[2], 'year': x[4], 
+                                   'pico_p': x[5], 'pico_i': x[6], 'pico_c': x[7], 'pico_o': x[8]} for x in content}
         self.sample_text = [x['text'] for x in self.sample_dict.values()]
 
         # Create LlamaIndex Document objects
@@ -76,7 +96,11 @@ class LoaderPubMedAbstracts(LoaderInterface):
                     "source": doc_id,
                     "title": values['title'],
                     "authors": values['authors'],
-                    "year": values['year']
+                    "year": values['year'],
+                    'pico_p': values['pico_p'],
+                    'pico_i': values['pico_i'],
+                    'pico_c': values['pico_c'],
+                    'pico_o': values['pico_o']
                 },
             )
             for doc_id, values in self.sample_dict.items()
