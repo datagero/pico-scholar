@@ -3,14 +3,21 @@ import { useLocation } from 'react-router-dom';
 import FunnelTable from '../components/Funnel/FunnelTable';
 import styles from '../components/Funnel/Funnel.module.css';
 import { filterByStatus, updateDocumentStatuses } from '../services/statusService';
+import { semanticSearchQuery } from '../services/searchService';
 
 const FunnelPage = () => {
   const location = useLocation();
+
+  const extractSourceIds = (papersArray) => {
+    return papersArray.map(paper => paper.source_id);
+  };
+
   const initialResults = location.state?.results || []; // Get initial results from the main page search
   const [papers, setPapers] = useState(initialResults);
+  const [sourceIds, setSourceIds] = useState(initialResults.map(paper => paper.source_id));
   const [currentStatus, setCurrentStatus] = useState('Identified');
   const [selectedPapers, setSelectedPapers] = useState([]);
-  const [semanticSearchQuery, setSemanticSearchQuery] = useState('');
+  const [semanticQuery, setSemanticSearchQuery] = useState('');
   const [narrowSearch, setNarrowSearch] = useState(false);
   const [narrowField, setNarrowField] = useState('All Fields');
 
@@ -18,7 +25,6 @@ const FunnelPage = () => {
   useEffect(() => {
     handleFilters();
   }, [currentStatus]);
-
   const handleUpdateStatuses = async (newStage) => {
     try {
       await updateDocumentStatuses(selectedPapers, newStage);
@@ -52,11 +58,23 @@ const FunnelPage = () => {
     setCurrentStatus(status);
   };
 
-  const handleSearch = () => {
-    // Implement logic for handling the search within the current status
-    console.log("Searching for:", semanticSearchQuery);
+  const handleSemanticSearch = async () => {
+    if (semanticQuery.trim()) {
+      try {
+        const ids = await semanticSearchQuery(semanticQuery, "All Fields", sourceIds);
+        console.log('Semantic Search results:', ids);
+        // TODO -> Update the UI to reflect the search results. These should be a filtered subset of the papers state.
+        // Ideally, we want these sorted on the same order as the ids returned by the search.
+        // The UI should have a way to "Go back to all papers" or "Clear search results"
+      } catch (error) {
+        console.error('Error during the search request:', error);
+      }
+    } else {
+      alert('Please enter a search query');
+    }
   };
 
+  
   const clearSearch = () => {
     setSemanticSearchQuery('');
   };
@@ -65,7 +83,9 @@ const FunnelPage = () => {
     try {
       console.log("Filtering papers for status:", currentStatus);
       const filteredPapers = await filterByStatus(currentStatus);
-      setPapers(filteredPapers.records); 
+      setPapers(filteredPapers.records);
+      setSourceIds(filteredPapers.records.map(paper => paper.source_id))
+      // TODO -> We probably need to reset the counts for the funnel filters here (filteredPapers.funnel_count contains the counts after filters)
       console.log(filteredPapers); // Log filtered results for debugging
     } catch (error) {
       console.error('Error in handleFilters:', error);
@@ -131,13 +151,13 @@ const FunnelPage = () => {
               type="text"
               className={styles.searchInput}
               placeholder="Search in current list of papers."
-              value={semanticSearchQuery}
+              value={semanticQuery}
               onChange={(e) => setSemanticSearchQuery(e.target.value)}
             />
             <button className={styles.clearButton} onClick={clearSearch}>
               &times;
             </button>
-            <button className={styles.searchButton} onClick={handleSearch}>
+            <button className={styles.searchButton} onClick={handleSemanticSearch}>
               ➔
             </button>
           </div>

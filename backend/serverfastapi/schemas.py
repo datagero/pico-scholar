@@ -1,3 +1,4 @@
+from sqlalchemy import Column, Integer, Float, String, Text, Boolean, Enum
 from pydantic import BaseModel
 from . import models
 from typing import Union
@@ -14,8 +15,8 @@ class ResultBase(BaseModel):
     pico_c: Union[str, None] = None
     pico_o: Union[str, None] = None
     funnel_stage: models.FunnelEnum
-    is_reviewed: bool = False
-
+    is_archived: bool = False
+    has_pdf: bool = False
 
 class Result(ResultBase):
     id: int

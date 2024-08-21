@@ -5,9 +5,14 @@
   //   // Returns Updated view
   // };
 
-export const filterByStatus = async (currentStatus) => {
+export const filterByStatus = async (currentStatus, archived = false) => {
   try {
-      const response = await fetch(`/projects/1/get_status/${currentStatus}`, {
+      // Construct the query string with the archived parameter
+      const queryParams = new URLSearchParams({
+        archived: archived.toString()  // Convert the boolean to a string ('true' or 'false')
+      });
+
+      const response = await fetch(`/projects/1/get_status/${currentStatus}?${queryParams.toString()}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',

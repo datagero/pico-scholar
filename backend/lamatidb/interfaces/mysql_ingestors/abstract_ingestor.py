@@ -43,8 +43,8 @@ def generate_hash_key(input_str, length=16):
     return numeric_hash
 
 class Ingestor:
-    def __init__(self):
-        self.mysql_interface = DatabaseInterface(db_type='tidb', db_name='test_creation')
+    def __init__(self, db_type, db_name):
+        self.mysql_interface = DatabaseInterface(db_type=db_type, db_name=db_name)
         # self.mysql_interface = MySQLInterface()
         self.mysql_interface.setup_database()
         self.engine = self.mysql_interface.engine
@@ -53,7 +53,7 @@ class Ingestor:
     def insert_data(self, session: Session, table_name: str, data: pd.DataFrame):
         try:
             data.to_sql(table_name, con=session.bind, if_exists='append', index=False)
-            print(f"Data inserted into {table_name} successfully.")
+            print(f"Data inserted into {table_name} successfully, {len(data)} records.")
         except IntegrityError as e:
             print(f"Data insertion failed: {e}")
 
@@ -87,7 +87,7 @@ class Ingestor:
                 print(f"Database '{database_name}' created with ID '{database_id}'.")
         return database_id
 
-    def insert_mapping_if_not_exists(self, session: Session, database_id: str, document_id: str):
+    def get_mapping_if_not_exists(self, session: Session, database_id: str, document_id: str):
         """
         Insert the document-to-database mapping only if it does not already exist.
         
@@ -104,20 +104,20 @@ class Ingestor:
         result = session.execute(text(query), {"document_id": document_id, "database_id": self.database_id}).fetchone()
 
         if not result:
-            document_mapping = pd.DataFrame({
-                'hashKey': [hash_key],
-                'documentId': [document_id],
-                'databaseId': [database_id]
-            })
-            self.insert_data(session, 'DocumentDatabaseMapping', document_mapping)
+            document_mapping = {
+                'documentId': document_id,
+                'databaseId': database_id,
+                'hashKey': hash_key
+            }
+            return document_mapping
         else:
             print(f"Mapping for document '{document_id}' in database '{database_id}' already exists.")
 
 # Example subclass for abstract ingestion
 class AbstractIngestor(Ingestor):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, db_type='tidb', db_name='test_creation'):
+        super().__init__(db_type=db_type, db_name=db_name)
         self.database_id = None
 
     def process_csv(self, csv_file: str, database_description=None):
@@ -140,21 +140,31 @@ class AbstractIngestor(Ingestor):
             self.insert_data(session, 'Document', document_data)
             self.insert_data(session, 'DocumentAbstract', document_abstract_data)
 
-            # Insert mapping if it doesn't exist
-            for document_id in document_data['documentId']:
-                self.insert_mapping_if_not_exists(session, self.database_id, str(document_id))
+            # Accumulate mappings and add new ones to database
+            mappings_to_add = [self.get_mapping_if_not_exists(session, self.database_id, str(x)) 
+                            for x in document_data['documentId']]
+            # Remove None values from the list
+            mappings_to_add = [x for x in mappings_to_add if x]
+
+            # Convert the list of dictionaries to a DataFrame
+            mappings_df = pd.DataFrame(mappings_to_add)
+
+            if not mappings_df.empty:
+                self.insert_data(session, 'DocumentDatabaseMapping', mappings_df)
+                
 
         # After processing CSV, process PICO metadata
         self.process_pico_metadata(csv_file)
 
-    def process_pico_metadata(self, csv_file: str):
-        # Read the CSV file
-        df = pd.read_csv(csv_file)
+    def process_pico_metadata(self, df: pd.DataFrame):
+
+        # Process each abstract to extract PICO metadata
+        bulk_insert_data = {'raw': [], 'enhanced': []}
 
         # Process each abstract to extract PICO metadata
         for _, row in df.iterrows():
-            document_id = str(row['PMID'])
-            abstract_text = row['Abstract']
+            document_id = str(row['documentId'])
+            abstract_text = row['abstract']
 
             # Skip if no text to process
             if not abstract_text or pd.isnull(abstract_text):
@@ -166,26 +176,48 @@ class AbstractIngestor(Ingestor):
             terms_dict = {'raw': processed_terms, 'enhanced': enhanced_terms}
 
             for label, terms in terms_dict.items():
-
-                # Initialize an empty list to store PICO metadata
-                pico_data = []
-
                 for term in terms:
                     term.update({'documentId': document_id})
-                    pico_data.append(term)
+                    bulk_insert_data[label].append(term)
 
-            # Convert list to DataFrame
-            pico_df = pd.DataFrame(pico_data)
+        # Convert lists to DataFrames and perform bulk insert
+        with self.mysql_interface.get_session() as session:
+            for label, data in bulk_insert_data.items():
+                if data:  # Ensure there is data to insert
+                    pico_df = pd.DataFrame(data)
 
-            # Insert PICO data into the DocumentPICO_raw table
-            with self.mysql_interface.get_session() as session:
-                self.insert_data(session, f'DocumentPICO_{label}', pico_df)
+                    # Get duplicated document ids
+                    # duplicated_ids = pico_df[pico_df.duplicated(subset='documentId')]['documentId'].unique()
+
+                    self.insert_data(session, f'DocumentPICO_{label}', pico_df)
+
+    def fetch_unprocessed_pico_data(self):
+        """
+        Fetch PMIDs and abstracts that are not yet processed into the DocumentPICO_ tables.
+        
+        :param session: SQLAlchemy session object.
+        :return: DataFrame containing unprocessed PMIDs and their abstracts.
+        """
+        # Query to find PMIDs not in DocumentPICO_raw (assuming the same PMIDs would be in all DocumentPICO_ tables)
+        query = """
+            SELECT da.documentId, da.abstract
+            FROM DocumentAbstract da
+            LEFT JOIN DocumentPICO_raw dp ON da.documentId = dp.documentId
+            WHERE dp.documentId IS NULL
+        """
+        
+        # Execute the query and fetch the results
+        with self.mysql_interface.get_session() as session:
+            result = session.execute(text(query)).fetchall()
+        unprocessed_data = pd.DataFrame(result, columns=['documentId', 'abstract'])
+        return unprocessed_data
+
 
 # Example subclass for full document ingestion
 class FullDocumentIngestor(Ingestor):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, db_type='tidb', db_name='test_creation'):
+        super().__init__(db_type=db_type, db_name=db_name)
         self.database_id = None
 
     def get_docID(self, pmid):
@@ -211,7 +243,9 @@ class FullDocumentIngestor(Ingestor):
             self.insert_data(session, 'DocumentFull', document_full_data)
 
             # Insert mapping if it doesn't exist
-            self.insert_mapping_if_not_exists(session, self.database_id, str(document_id))
+            mappings_to_add = self.get_mapping_if_not_exists(session, self.database_id, str(document_id))
+            if mappings_to_add :
+                self.insert_data(session, 'DocumentDatabaseMapping', mappings_to_add)
 
 if __name__ == "__main__":
     # Example for Abstract Ingestion

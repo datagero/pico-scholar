@@ -72,7 +72,13 @@ class PICO:
         cleaned_terms = {}
         unwanted_tokens = ['[PAD]', '[CLS]', '[SEP]']
 
-        for label, terms in extracted_terms.items():
+        # Convert labels to a expected name
+        original_labels_mapper = {'I-INT':'pico_p', 'I-PAR': 'pico_i', 'I-OUT': 'pico_c', 'I-OUT':'pico_o'}
+
+        for label_org, terms in extracted_terms.items():
+            if label_org not in original_labels_mapper.values():
+                continue
+            label = original_labels_mapper[label_org]
             cleaned_label_terms = []
             for term in terms:
                 for token in unwanted_tokens:
@@ -94,7 +100,7 @@ class PICO:
 
         for i, terms in enumerate(cleaned_terms):
             prompt = f"""For the given PICO Extraction (Patient, Intervention, Outcome) look at the source abstract and give me a short sentence that accurately represents PICO for the document. 
-You should return a dictionary with {{'I-INT': 'Generated Sentence Related to Intervention', 'I-PAR': 'Generated Sentence Related to study Participant', 'I-OUT': 'Generated Sentence Related to study Outputs'}}.
+You should return a dictionary with {{'pico_i': 'Generated Sentence Related to Intervention', 'pico_p': 'Generated Sentence Related to study Participant', 'pico_o': 'Generated Sentence Related to study Outputs', 'pico_c': 'Generated Sentence Related to Comparison'}}.
 The PICO terms are: {terms}
 The full abstract is: {texts[i]}"""
             completion = client.chat.completions.create(
@@ -106,14 +112,29 @@ The full abstract is: {texts[i]}"""
             generated_text = completion.choices[0].message.content
 
 
-            # Regular expression to match the key-value pairs
-            pattern = r"'(.*?)':\s*'(.*?)'"
+            # Define a function to extract the value associated with a specific key
+            def extract_value(text, key):
+                # Use regex to find the pattern for the key and its associated value
+                pattern = f"'{key}':\s*'(.*?)'"
+                match = re.search(pattern, text)
+                if match:
+                    return match.group(1).replace("\\'", "'")
+                return None
 
-            # Find all matches
-            matches = re.findall(pattern, generated_text)
+            # Extract values for specific keys
+            i_int_value = extract_value(generated_text, 'pico_i')
+            i_par_value = extract_value(generated_text, 'pico_p')
+            i_out_value = extract_value(generated_text, 'pico_o')
+            i_com_value = extract_value(generated_text, 'pico_c')
 
-            # Convert matches to a dictionary
-            result_dict = {key: value for key, value in matches}
+            # Store the results in a dictionary
+            result_dict = {
+                'pico_i': i_int_value,
+                'pico_p': i_par_value,
+                'pico_o': i_out_value,
+                'pico_c': i_com_value
+            }
+
             enhanced_texts.append(result_dict)
 
         return enhanced_texts

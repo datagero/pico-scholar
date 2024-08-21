@@ -3,7 +3,7 @@ import styles from './Funnel.module.css';
 
 const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper}) => {
   const [reviewStatuses, setReviewStatuses] = useState(
-    results.map(result => result.is_reviewed || 'No') // Initialize the review statuses
+    results.map(result => result.is_archived || 'No') // Initialize the review statuses
   );
 
   const handleReviewChange = (index, value) => {

@@ -3,15 +3,21 @@ from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.postprocessor import SimilarityPostprocessor
 from llama_index.core import VectorStoreIndex, get_response_synthesizer
 from llama_index.core.vector_stores.types import MetadataFilter, MetadataFilters
+from llama_index.core import Settings
 
 class QueryInterface:
     def __init__(self, index):
         self.index = index
 
-    def configure_retriever(self, similarity_top_k=100):
+    def configure_retriever(self, similarity_top_k=100, metadata_filters=None):
+        if metadata_filters:
+            metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in metadata_filters])
+    
         self.retriever = VectorIndexRetriever(
             index=self.index,
-            similarity_top_k=similarity_top_k
+            similarity_top_k=similarity_top_k,
+            embedding_model=Settings.embed_model,
+            filters=metadata_filters,
         )
 
     def configure_response_synthesizer(self):
@@ -40,14 +46,19 @@ class QueryInterface:
 
     def perform_metadata_filtered_query(self, query: str, filters: list):
         metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in filters])
-        self.query_engine = self.index.as_query_engine(filters=metadata_filters)
+        self.query_engine = self.index.as_query_engine(filters=metadata_filters, response_synthesizer=None)
         response = self.query_engine.query(query)
         return response
 
-    def generate_pico_summary(self, source: str, query: str):
-        """ Experimental function, as this should be done at preprocessing stage (to enhance metadata before indexing)"""
-        self.query_engine = self.index.as_query_engine(
-            filters=MetadataFilters(filters=[MetadataFilter(key="source", value=source, operator="==")])
-        )
-        response = self.query_engine.query(query)
-        return response
+    def filter_by_similarity_score(self, nodes, similarity_cutoff=0.6):
+        """
+        Filters nodes based on a similarity score cutoff.
+        
+        Args:
+        - nodes: List of nodes retrieved by the retriever.
+        - similarity_cutoff: The minimum similarity score a node must have to be included.
+        
+        Returns:
+        - List of filtered nodes.
+        """
+        return [node for node in nodes if node.score >= similarity_cutoff]

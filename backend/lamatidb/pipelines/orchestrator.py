@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()  # This will load the variables from the .env file
 
 from lamatidb.interfaces.index_interface import IndexInterface
 from lamatidb.interfaces.database_interfaces.tidb_interface import TiDBInterface
@@ -16,37 +18,53 @@ vector_table_options = ["scibert_alldata","scibert_smalldata","mocked_data"]
 
 # Database and vector table names
 DB_NAME = os.environ['TIDB_DB_NAME']
-VECTOR_TABLE_NAME = vector_table_options[2]
+VECTOR_TABLE_NAME = vector_table_options[0]
 
-## Create the database if it doesn't exist
+# # Create the database if it doesn't exist
 # tidb_interface = TiDBInterface(DB_NAME)
 # tidb_interface.create_db_if_not_exists() # Uncomment if you need to create the database
 # tidb_interface.delete_table(VECTOR_TABLE_NAME)  # Uncomment if you need to delete the table
+
+# # Delete vectors that do not have PICO metadata
+# tidb_interface = TiDBInterface(DB_NAME, VECTOR_TABLE_NAME)
+# tidb_interface.delete_entries_missing_metadata(required_metadata_keys=['pico_p', 'pico_i', 'pico_c', 'pico_o'])
+
 
 # ==============================================================================================
 #           Optional - Ingest your data (only if needed to load data/create index)
 #           ----------------------------------------------------------------------
 
-# Delete all existing tables
-mysql_interface = DatabaseInterface(db_type='mysql', db_name='test_creation', force_recreate_db=True)
-mysql_interface.setup_database()
-mysql_interface.create_tables("database/schemas.sql")
+# # Delete all existing tables
+# mysql_interface = DatabaseInterface(db_type='mysql', db_name='test_creation', force_recreate_db=True)
+# mysql_interface.setup_database()
+# mysql_interface.create_tables("database/schemas.sql")
 
-abstract_csv_file = 'datalake/mock_data/abstracts2.csv'
+# # abstract_csv_file = 'datalake/mock_data/abstracts2.csv'
 # abstract_csv_file = 'datalake/pubmed/pubmed24n0541.csv'
-abstract_ingestor = AbstractIngestor()
-abstract_ingestor.process_csv(abstract_csv_file)
+# abstract_ingestor = AbstractIngestor(db_type='mysql', db_name='test_creation')
+# abstract_ingestor.process_csv(abstract_csv_file, database_description="Mock Abstracts Database")
 
-# Load data from MySQL and process it into LlamaIndex documents
-loader = LoaderPubMedAbstracts()
-loader.load_data()
-loader.process_data()
+# # Load data from MySQL and process it into LlamaIndex documents
+# loader = LoaderPubMedAbstracts(db_type='mysql', db_name='test_creation')
+# loader.load_data()
+# loader.process_data()
 
-# Retrieve the documents and feed into LlamaIndex
-documents = loader.get_documents()
-index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME)
-index_interface.create_index(documents=documents) # Uncomment only if need to create / append to index
+# # Retrieve the documents and feed into LlamaIndex
+# documents = loader.get_documents()
+# index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME)
+# index_interface.create_index(documents=documents) # Uncomment only if need to create / append to index
 # ==============================================================================================
+
+
+# # Adhoc generate PICOs and upsert to tables and vector databases
+# abstract_ingestor = AbstractIngestor(db_type='mysql', db_name='test_creation')
+# unprocessed_data = abstract_ingestor.fetch_unprocessed_pico_data()
+# abstract_ingestor.process_pico_metadata(unprocessed_data)
+
+# loader = LoaderPubMedAbstracts(db_type='mysql', db_name='test_creation')
+# loader.load_data()
+# # Then we'd need to re-create the index for the unprocessed_data
+
 
 
 # Load or create the index
@@ -63,29 +81,35 @@ from lamatidb.interfaces.query_interface import QueryInterface
 # Initialize the query interface with your index
 query_interface = QueryInterface(index)
 
-# Example 1: Granular Retrieval and Synthesis (Similarity Search)
-query_interface.configure_retriever(similarity_top_k=100)
-query_interface.configure_response_synthesizer()
-query_interface.assemble_query_engine()
-response = query_interface.perform_query("Neurological and cerebral conditions.")
-query_interface.inspect_similarity_scores(response.source_nodes)
+# # Example 1: Granular Retrieval and Synthesis (Similarity Search)
+# query_interface.configure_retriever(similarity_top_k=100)
+# query_interface.configure_response_synthesizer()
+# query_interface.assemble_query_engine()
+# response = query_interface.perform_query("Neurological and cerebral conditions.")
+# query_interface.inspect_similarity_scores(response.source_nodes)
 
-# Example 1.1: More clean for simple semantic search, without synthesiser
-query_interface.configure_retriever(similarity_top_k=100)
-source_nodes = query_interface.retriever.retrieve("Neurological and cerebral conditions.")
-query_interface.inspect_similarity_scores(source_nodes)
+# # Example 1.1: More clean for simple semantic search, without synthesiser
+# query_interface.configure_retriever(similarity_top_k=100)
+# source_nodes = query_interface.retriever.retrieve("Neurological and cerebral conditions.")
+# query_interface.inspect_similarity_scores(source_nodes)
 
-# Example 2: RAG-based Query Engine
-query_interface.build_rag_query_engine(similarity_top_k=100)
-# response = query_interface.perform_query("List all the titles of the books mentioned in the documents.")
-response = query_interface.perform_query("Neurological and cerebral conditions.")
-query_interface.inspect_similarity_scores(response.source_nodes)
+# # Example 2: RAG-based Query Engine
+# query_interface.build_rag_query_engine(similarity_top_k=100)
+# # response = query_interface.perform_query("List all the titles of the books mentioned in the documents.")
+# response = query_interface.perform_query("Neurological and cerebral conditions.")
+# query_interface.inspect_similarity_scores(response.source_nodes)
 
 # Example 3: Metadata Filtered Query
 filters = [
     {"key": "source", "value": "16625676", "operator": "=="},
     # Add more filters as needed
 ]
+
+# Case 3.1 Just Retrieval
+query_interface.configure_retriever(similarity_top_k=100, metadata_filters=filters)
+source_nodes = query_interface.retriever.retrieve("Neurological and cerebral conditions.")
+
+# Case 3.2 With Syntesiser (By Default - requires LLM with metadata/context_window/etc...)
 response = query_interface.perform_metadata_filtered_query("What is the specific focus of the documents?", filters)
 print(response)
 

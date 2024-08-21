@@ -8,13 +8,13 @@ class LoaderInterface:
     Loaders return Document objects for LlamaIndex.
     """
     
-    def __init__(self):
+    def __init__(self, db_type, db_name):
         """
         Initialize the LoaderInterface with a database connection.
         
         :param database_name: The name of the MySQL database to connect to.
         """
-        self.mysql_interface = DatabaseInterface(db_type='tidb', db_name='test_creation')
+        self.mysql_interface = DatabaseInterface(db_type=db_type, db_name=db_name)
         # self.mysql_interface = DatabaseInterface()
         self.mysql_interface.setup_database()
         self.engine = self.mysql_interface.engine
@@ -24,13 +24,13 @@ class LoaderInterface:
 class LoaderPubMedAbstracts(LoaderInterface):
     """Loader class for fetching and processing PubMed data from MySQL."""
     
-    def __init__(self):
+    def __init__(self, db_type='tidb', db_name='test_creation'):
         """
         Initialize LoaderPubMedAbstracts with a specific database.
         
         :param database_name: The name of the MySQL database to connect to.
         """
-        super().__init__()
+        super().__init__(db_type=db_type, db_name=db_name)
         self.sample_dict = None
         self.sample_text = None
 
@@ -55,7 +55,7 @@ class LoaderPubMedAbstracts(LoaderInterface):
             pico_o
         FROM Document
         INNER JOIN DocumentAbstract ON Document.documentId = DocumentAbstract.documentId
-        LEFT JOIN DocumentPICO_raw ON Document.documentId = DocumentPICO_raw.documentId;
+        LEFT JOIN DocumentPICO_enhanced ON Document.documentId = DocumentPICO_enhanced.documentId;
         """
 
         self.raw_data = self.mysql_interface.fetch_data_from_db(query)
