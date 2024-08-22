@@ -1,4 +1,5 @@
 # models.py
+import random
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Enum, TEXT
 from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.ext.declarative import declarative_base
@@ -29,7 +30,7 @@ class Result(Base):
     pico_i = Column(TEXT)
     pico_c = Column(TEXT)
     pico_o = Column(TEXT)
-    funnel_stage =Column(Enum(schemas.FunnelEnum, name='funnelenum'))
+    funnel_stage = Column(TEXT, nullable=False)
     is_archived = Column(Boolean, default=False)
     has_pdf = Column(Boolean, default=False)
 
@@ -49,7 +50,27 @@ class crud:
         db.refresh(db_result)
         return db_result
 
-    def create_results(db: Session, results: List[schemas.ResultBase], query: schemas.Query):
+    def create_results(db: Session, source_nodes, query: schemas.Query):
+
+        results = [
+            schemas.ResultBase(
+                source_id = source_node.metadata['source'],
+                similarity = source_node.score,
+                authors = source_node.metadata['authors'],
+                year = source_node.metadata['year'],
+                title = source_node.metadata['title'],
+                abstract = source_node.text,
+                pico_p = source_node.metadata['pico_p'],
+                pico_i = source_node.metadata['pico_i'],
+                pico_c = source_node.metadata['pico_c'],
+                pico_o = source_node.metadata['pico_o'],
+                funnel_stage = "Identified",
+                is_archived = False,
+                has_pdf = source_node.metadata['has_pdf']
+            )
+            for source_node in source_nodes
+        ]
+
         db_results = [Result(**result.model_dump(), query_id=query.id) for result in results]
         db.add_all(db_results)
         db.commit()

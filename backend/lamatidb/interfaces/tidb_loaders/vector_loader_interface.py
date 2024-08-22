@@ -22,6 +22,14 @@ class LoaderInterface:
         self.raw_data = None
         self.documents = None  # List of Document objects for LlamaIndex
 
+    def get_documents(self):
+        """
+        Retrieve the processed Document objects.
+        
+        :return: List of Document objects.
+        """
+        return self.documents
+
 class LoaderPubMedAbstracts(LoaderInterface):
     """Loader class for fetching and processing PubMed data from MySQL."""
     
@@ -110,14 +118,6 @@ class LoaderPubMedAbstracts(LoaderInterface):
             for doc_id, values in self.sample_dict.items()
         ]
 
-    def get_documents(self):
-        """
-        Retrieve the processed Document objects.
-        
-        :return: List of Document objects.
-        """
-        return self.documents
-
 
 class LoaderPubMedPICO(LoaderPubMedAbstracts):
     """Loader class for fetching and processing PubMed data from MySQL."""
@@ -131,6 +131,38 @@ class LoaderPubMedPICO(LoaderPubMedAbstracts):
         super().__init__(db_type=db_type, db_name=db_name)
         self.sample_dict = None
         self.sample_text = None
+
+    def recover_final_picos_from_vector_db(self):
+        """ 
+        This is recovery code in case of operational db deletion
+        Since currently generating PICOs require OpenAI key, it is costly and time-consuming.
+        The class will have to be initialised with the vector database.
+        """
+
+        query = """
+        SELECT 
+            JSON_UNQUOTE(JSON_EXTRACT(meta, '$.source')) AS documentId,
+            JSON_UNQUOTE(JSON_EXTRACT(meta, '$.pico_p')) AS pico_p,
+            JSON_UNQUOTE(JSON_EXTRACT(meta, '$.pico_i')) AS pico_i,
+            JSON_UNQUOTE(JSON_EXTRACT(meta, '$.pico_c')) AS pico_c,
+            JSON_UNQUOTE(JSON_EXTRACT(meta, '$.pico_o')) AS pico_o
+        FROM 
+            scibert_alldata_pico.scibert_alldata;
+        """
+        import json
+        recovered_data = self.mysql_interface.fetch_data_from_db(query)
+        keys = ['documentId', 'pico_p', 'pico_i', 'pico_c', 'pico_o']
+
+        
+        # Create a dictionary from the tuple
+        data_dicts = [dict(zip(keys, entry)) for entry in recovered_data]
+
+        # Convert the dictionary to JSON
+        json_data = json.dumps(data_dicts, indent=4)
+
+        # Save the JSON to a file
+        with open('datalake/pubmed/recovered_pico_data.json', 'w') as json_file:
+            json_file.write(json_data)
 
     def load_data(self):
         """Load PubMed data from the MySQL database: Only those with PICO values"""
@@ -202,7 +234,61 @@ class LoaderPubMedPICO(LoaderPubMedAbstracts):
         return self.documents_dict
 
 class LoaderPubMedFullText(LoaderInterface):
-    pass
+    
+    def load_data(self):
+        """Load PubMed data from the MySQL database."""
+        # query = """
+        # SELECT Document.documentId, title, author, abstract, `year`
+        # FROM Document
+        # INNER JOIN DocumentAbstract ON Document.documentId = DocumentAbstract.documentId;
+        # """
+
+        query = """
+        SELECT 
+            documentId, 
+            PMCID, 
+            `fullText`
+        FROM DocumentFull
+        """
+
+        self.raw_data = self.mysql_interface.fetch_data_from_db(query)
+
+
+    def clean_data(self):
+            
+        # From blob convert to text
+        def blob_to_text(blob):
+            return blob.decode('utf-8')
+        
+        clean_data = [(x[0], x[1], x[2]) for x in self.raw_data]
+
+        # Convert the processed data into a dictionary and prepare text samples
+        self.sample_dict = {x[0]: {'text': x[2], 'PMCID': x[1]} for x in clean_data}
+        self.sample_text = [x['text'] for x in self.sample_dict.values()]
+
+    def process_data(self):
+        """
+        Process and clean PubMed data to create Document objects for LlamaIndex.
+        
+        The process involves:
+        - Filtering out rows with empty abstracts.
+        - Creating a dictionary and list of documents based on the processed data.
+        """
+        
+        self.clean_data() # initialise self.sample_dict
+
+        # Create LlamaIndex Document objects
+        self.documents = [
+            Document(
+                text=values['text'],
+                metadata={
+                    "source": doc_id,
+                    "PMCID": values['PMCID']
+                },
+            )
+            for doc_id, values in self.sample_dict.items()
+        ]
+
 
 if __name__ == "__main__":
     # Initialize the loader with your database name

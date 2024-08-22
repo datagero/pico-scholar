@@ -1,3 +1,6 @@
+# Legacy interface that may be useful for some legacy operations.
+# To be integrated into the parent database interface class.
+
 import os
 from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base

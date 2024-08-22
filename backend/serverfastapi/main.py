@@ -1,6 +1,5 @@
 # main.py
 import os
-import random
 import itertools
 import concurrent.futures
 
@@ -9,19 +8,20 @@ load_dotenv()  # This will load the variables from the .env file
 
 from typing import List
 from fastapi import Depends, FastAPI, HTTPException
-from sqlalchemy.orm import Session
-from sqlalchemy import func
 from contextlib import asynccontextmanager
-
-from serverfastapi import models, schemas
-from serverfastapi.database import get_db, engine
 
 from lamatidb.interfaces.query_interface import QueryInterface
 from lamatidb.interfaces.index_interface import IndexInterface
 from lamatidb.interfaces.settings_manager import SettingsManager
+from lamatidb.interfaces.database_interfaces.database_interface import DatabaseInterface
+
+from serverfastapi import models, schemas
 
 from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
+from sqlalchemy.orm import Session
+from sqlalchemy import func
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import sessionmaker
 
 crud = models.crud
 
@@ -32,21 +32,53 @@ retry_decorator = retry(
     retry=(retry_if_exception_type(OperationalError)),
 )
 
+# Dependency for FastAPI to get the DB session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+
+    global tidb_interface
+    global get_db
+    global index
+    global index_fulltext
+    global metadata_indexes
+    global index_metadata_keys
+    global SessionLocal
+
     # Set global settings
     SettingsManager.set_global_settings()
-    models.Base.metadata.create_all(bind=engine)
 
     # Database and vector table names
     DB_NAME = "scibert_alldata_pico"
     VECTOR_TABLE_NAME = 'scibert_alldata'
 
+    # Initialize Cloud-based TiDB interface and set up the Vectorstore and datastore
+    tidb_interface = DatabaseInterface(db_type='tidb', db_name='datastore')
+
+    # Initialize Local MySQL interface and set up the database for operations
+    mysql_interface = DatabaseInterface(db_type='mysql', db_name='operations', force_recreate_db=True)
+    mysql_interface.setup_database()
+
+    # Create engine, session, and base
+    engine = mysql_interface.engine
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+    models.Base.metadata.create_all(bind=engine)
+
     # Load or create the index
-    global index
     index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME)
     index_interface.load_index_from_vector_store()
     index = index_interface.get_index()
+
+    index_interface_fulltext = IndexInterface(DB_NAME, VECTOR_TABLE_NAME+'_fulltext')
+    index_interface_fulltext.load_index_from_vector_store()
+    index_fulltext = index_interface.get_index()
 
     # Load PICO indexes
     elements = ['p', 'i', 'c', 'o']
@@ -54,8 +86,6 @@ async def lifespan(app: FastAPI):
     for r in range(1, len(elements) + 1):
         combinations += list(itertools.combinations(elements, r))
 
-    global metadata_indexes
-    global index_metadata_keys
     metadata_indexes = {}
     index_metadata_keys = []
 
@@ -88,44 +118,37 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+
 @app.post("/projects/{project_id}/search/")
 @retry_decorator
 def create_query_and_search(project_id: int, query: schemas.QueryCreate, db: Session = Depends(get_db)):
     db_query = crud.create_query(db, query=query)
-    
-    # Vectorize query and retrieve results
-    # Initialize the query interface with your index
+
     query_interface = QueryInterface(index)
-    # Example 1.1: More clean for simple semantic search, without synthesiser
     query_interface.configure_retriever(similarity_top_k=None)
     source_nodes = query_interface.retriever.retrieve(query.query_text)
     # query_interface.inspect_similarity_scores(source_nodes) #for debug
 
-    results = [
-        schemas.ResultBase(
-            source_id = source_node.metadata['source'],
-            similarity = source_node.score,
-            authors = source_node.metadata['authors'],
-            year = source_node.metadata['year'],
-            title = source_node.metadata['title'],
-            abstract = source_node.text,
-            pico_p = source_node.metadata['pico_p'],
-            pico_i = source_node.metadata['pico_i'],
-            pico_c = source_node.metadata['pico_c'],
-            pico_o = source_node.metadata['pico_o'],
-            funnel_stage = schemas.FunnelEnum.IDENTIFIED,
-            is_archived = random.choice([True, False]),
-            has_pdf = random.choice([True, False])
-        )
-        for source_node in source_nodes
-    ]
-    db_results = crud.create_results(db, results, db_query)
+    # Find if the documentId has PDF available
+    query = "SELECT documentId FROM datastore.DocumentFull"
+    fulldoc_result = tidb_interface.fetch_data_from_db(query)
+    doc_ids = [x[0] for x in fulldoc_result]
+    for source_node in source_nodes:
+        source_node.metadata['has_pdf'] = source_node.metadata['source'] in doc_ids
+
+    db_results = crud.create_results(db, source_nodes, db_query)
 
     # Mock a few with status Screened
-    db_results[0].funnel_stage = schemas.FunnelEnum.SCREENED
-    db_results[1].funnel_stage = schemas.FunnelEnum.SCREENED
-    db_results[2].funnel_stage = schemas.FunnelEnum.SCREENED
-    db_results[3].funnel_stage = schemas.FunnelEnum.SCREENED
+    db_results[0].funnel_stage = "Screened"
+    db_results[1].funnel_stage = "Screened"
+    db_results[2].funnel_stage = "Screened"
+    db_results[3].funnel_stage = "Screened"
+
+    db_results[3].is_archived = True
+    db_results[8].is_archived = True
+    db_results[9].is_archived = True
+    db_results[13].is_archived = True
+
     db.commit()
 
     return {
@@ -178,8 +201,9 @@ def get_status(project_id: int, status: str, archived: bool, db: Session = Depen
 
     # Update the dictionary with actual counts from the query
     for stage, is_reviewed, count in funnel_count_query:
+        stage_clean = stage.split('.')[-1]
         key = "archived" if is_reviewed else "active"
-        funnel_count_dict[schemas.FunnelEnum(stage).value][key] = count
+        funnel_count_dict[stage_clean][key] = count
 
     return {
         "status": status,
@@ -211,7 +235,9 @@ def create_query_and_semantic_search(
 
     # Set index to filter
     field = fields[0] # At the moment, just one field is supported
-    if field != "All Fields":
+    if field == "Full Document":
+        semantic_index = index_fulltext
+    elif field != "All Fields":
         index_name = metadata_mapper.get(field, None)
         semantic_index = metadata_indexes.get(index_name)
     else:
@@ -228,10 +254,10 @@ def create_query_and_semantic_search(
     # query_interface.inspect_similarity_scores(filtered_nodes) #for debug
 
     # Extract source_ids from the filtered results
-    source_ids = [node.metadata['source'] for node in filtered_nodes if 'source' in node.metadata]
+    source_ids = [int(node.metadata['source']) for node in filtered_nodes if 'source' in node.metadata]
 
     # Return the list of source_ids
-    return {"source_ids": [int(x) for x in source_ids]} # for some reason need to pass ints to front-end...
+    return {"source_ids": source_ids} # for some reason need to pass ints to front-end...
 
 @app.post("/projects/{project_id}/chat/document/{document_id}")
 def start_streamlit_session(document_id):

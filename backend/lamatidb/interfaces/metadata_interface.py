@@ -153,12 +153,16 @@ class Metadata:
     def __init__(self):
         self.pico = PICO()
 
-    def process_text(self, texts, local_llm):
+    def process_text(self, texts, enhanced_pico, local_llm):
         predictions, input_ids, offset_mapping = self.pico.classify_texts(texts, threshold=0.7)
         extracted_terms = self.pico.extract_terms(predictions, input_ids, offset_mapping)
-        cleaned_terms = [self.pico.clean_extracted_terms(x) for x in extracted_terms]
-        enhanced_terms = self.pico.enhance_text(texts, cleaned_terms, local_llm=local_llm)
-        return cleaned_terms, enhanced_terms
+        cleaned_terms = extracted_terms # [self.pico.clean_extracted_terms(x) for x in extracted_terms]
+        
+        if enhanced_pico:
+            enhanced_terms = self.pico.enhance_text(texts, extracted_terms, local_llm=local_llm)
+            return cleaned_terms, enhanced_terms
+        else:
+            return cleaned_terms, None
 
 # Debug viewer
 #sample_dict['16625676']['text']

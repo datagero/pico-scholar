@@ -1,3 +1,6 @@
+## Newer interface that aims to encapsulate both MySQL and TiDB interfaces.
+## To be divided into inherent classes for MySQL and TiDB, to manage operational/ingestion data and vectors/indixes respectively.
+
 from sqlalchemy import create_engine, text, URL
 from sqlalchemy.orm import sessionmaker
 import os
@@ -104,6 +107,8 @@ class DatabaseInterface:
                 print(f"Table '{table_name}' deleted successfully.")
             except Exception as e:
                 print(f"Failed to delete table: {e}")
+
+
 
 # Example Usage
 if __name__ == "__main__":

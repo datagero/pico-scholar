@@ -21,7 +21,7 @@ class ResultBase(BaseModel):
     pico_i: Union[str, None] = None
     pico_c: Union[str, None] = None
     pico_o: Union[str, None] = None
-    funnel_stage: FunnelEnum
+    funnel_stage: str
     is_archived: bool = False
     has_pdf: bool = False
 

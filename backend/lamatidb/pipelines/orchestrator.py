@@ -7,8 +7,8 @@ from lamatidb.interfaces.database_interfaces.tidb_interface import TiDBInterface
 from lamatidb.interfaces.settings_manager import SettingsManager
 
 from lamatidb.interfaces.database_interfaces.database_interface import DatabaseInterface
-from lamatidb.interfaces.mysql_ingestors.abstract_ingestor import AbstractIngestor
-from lamatidb.interfaces.tidb_loaders.vector_loader_interface import LoaderPubMedAbstracts, LoaderPubMedPICO
+from lamatidb.interfaces.mysql_ingestors.abstract_ingestor import AbstractIngestor, FullDocumentIngestor
+from lamatidb.interfaces.tidb_loaders.vector_loader_interface import LoaderPubMedAbstracts, LoaderPubMedPICO, LoaderPubMedFullText
 
 # Set global settings
 SettingsManager.set_global_settings(set_local=False)
@@ -33,18 +33,26 @@ VECTOR_TABLE_NAME = vector_table_options[0]
 #           Optional - Ingest your data (only if needed to load data/create index)
 #           ----------------------------------------------------------------------
 
+datastore_db = os.environ['DATASTORE_HOST']
+datastore_db_name = os.environ['MYSQL_DB_NAME']
+
 # # Delete all existing tables
-# mysql_interface = DatabaseInterface(db_type='mysql', db_name='test_creation', force_recreate_db=True)
+# # mysql_interface = DatabaseInterface(db_type='mysql', db_name='test_creation', force_recreate_db=True)
+# mysql_interface = DatabaseInterface(db_type=datastore_db, db_name=datastore_db_name, force_recreate_db=True)
 # mysql_interface.setup_database()
 # mysql_interface.create_tables("database/schemas.sql")
 
-# # abstract_csv_file = 'datalake/mock_data/abstracts2.csv'
+# # # abstract_csv_file = 'datalake/mock_data/abstracts2.csv'
 # abstract_csv_file = 'datalake/pubmed/pubmed24n0541.csv'
-# abstract_ingestor = AbstractIngestor(db_type='mysql', db_name='test_creation')
-# abstract_ingestor.process_csv(abstract_csv_file, database_description="Mock Abstracts Database")
+# abstract_ingestor = AbstractIngestor(db_type=datastore_db, db_name=datastore_db_name)
+# abstract_ingestor.process_csv(abstract_csv_file, enhanced_pico=False, database_description="Sampled PubMed datasets for abstracts and fulltext")
+
+# Recovery of PICO Data into the database
+abstract_ingestor = AbstractIngestor(db_type=datastore_db, db_name=datastore_db_name)
+abstract_ingestor.recovery_load_pico_enhanced('datalake/pubmed/recovered_pico_data.json')
 
 # # Load data from MySQL and process it into LlamaIndex documents
-# loader = LoaderPubMedAbstracts(db_type='mysql', db_name='test_creation')
+# loader = LoaderPubMedAbstracts(db_type=datastore_db, db_name=datastore_db_name)
 # loader.load_data()
 # loader.process_data()
 
@@ -53,30 +61,51 @@ VECTOR_TABLE_NAME = vector_table_options[0]
 # index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME)
 # index_interface.create_index(documents=documents) # Uncomment only if need to create / append to index
 # ==============================================================================================
+# ==============================================================================================
+#                   Optional - Ingest your Full Document data 
+#                   (only if needed to load data/create index)
+#           ----------------------------------------------------------------------
+
+abstract_csv_file = 'datalake/pubmed/pubmed24n0541.csv'
+mapping_id_file = 'datalake/pubmed/PMC-ids-small.csv'
+fulltext_ingestor = FullDocumentIngestor(mapping_file=mapping_id_file, db_type=datastore_db, db_name=datastore_db_name)
+fulltext_ingestor.process_csv(abstract_csv_file, limitIDs=True, database_description="Mock Abstracts Database")
+
+# # # Load data from MySQL and process it into LlamaIndex documents
+# loader = LoaderPubMedFullText(db_type=datastore_db, db_name=datastore_db_name)
+# loader.load_data()
+# loader.process_data()
+
+# documents = loader.get_documents()
+# index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME+"_fulltext")
+# index_interface.create_index(documents=documents) # Uncomment only if need to create / append to index
+
+# ==============================================================================================
 
 
 # # Adhoc generate PICOs and upsert to tables and vector databases
-# abstract_ingestor = AbstractIngestor(db_type='mysql', db_name='test_creation')
+# abstract_ingestor = AbstractIngestor(db_type=datastore_db, db_name=datastore_db_name)
 # unprocessed_data = abstract_ingestor.fetch_unprocessed_pico_data()
 # abstract_ingestor.process_pico_metadata(unprocessed_data, local_llm=True)
 
-# loader = LoaderPubMedAbstracts(db_type='mysql', db_name='test_creation')
+# loader = LoaderPubMedAbstracts(db_type=datastore_db, db_name=datastore_db_name)
 # loader.load_data()
 # # Then we'd need to re-create/add to the index/VectorDB for the unprocessed_data
 
-# ==============================================================================================
-# Create PICO/Metadata Indexes - it is 15 combinations so it may take 10-20mins
-# Load data from MySQL and process it into LlamaIndex documents
-loader = LoaderPubMedPICO(db_type='mysql', db_name='test_creation')
-loader.load_data()
-loader.process_data()
+# # ==============================================================================================
+# # Create PICO/Metadata Indexes - it is 15 combinations so it may take 10-20mins
+# # Load data from MySQL and process it into LlamaIndex documents
+# loader = LoaderPubMedPICO(db_type=datastore_db, db_name=datastore_db_name)
+# loader.load_data()
+# loader.process_data()
 
-# Retrieve the documents and feed into LlamaIndex
-documents_dict = loader.get_documents_dict()
+# # Retrieve the documents and feed into LlamaIndex
+# documents_dict = loader.get_documents_dict()
 
-for key, documents in documents_dict.items():
-    index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME+"_"+key)
-    index_interface.create_index(documents=documents) # Uncomment only if need to create / append to index
+# for key, documents in documents_dict.items():
+#     index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME+"_"+key)
+#     index_interface.create_index(documents=documents) # Uncomment only if need to create / append to index
+
 
 # # Test Load a PICO Index
 # index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME+"_p")
@@ -94,13 +123,14 @@ for key, documents in documents_dict.items():
 
 ################################################################################################
 
+# Mock Similarity Search Results
+from lamatidb.interfaces.query_interface import QueryInterface
+
 # Load or create the index
-index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME)
+index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME+"_fulltext")
 index_interface.load_index_from_vector_store()
 index = index_interface.get_index()
 
-# Mock Similarity Search Results
-from lamatidb.interfaces.query_interface import QueryInterface
 
 # Initialize the query interface with your index
 query_interface = QueryInterface(index)
@@ -113,7 +143,7 @@ query_interface = QueryInterface(index)
 # query_interface.inspect_similarity_scores(response.source_nodes)
 
 # Example 1.1: More clean for simple semantic search, without synthesiser
-query_interface.configure_retriever(similarity_top_k=100)
+query_interface.configure_retriever(similarity_top_k=200)
 source_nodes = query_interface.retriever.retrieve("List all documents.")
 query_interface.inspect_similarity_scores(source_nodes)
 

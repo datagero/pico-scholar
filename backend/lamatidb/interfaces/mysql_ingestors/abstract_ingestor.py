@@ -3,6 +3,11 @@ import uuid
 import hashlib
 import base64
 import pandas as pd
+import xml.etree.ElementTree as ET
+import requests
+import time
+import pickle
+
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from lamatidb.interfaces.database_interfaces.mysql_interface import MySQLInterface
@@ -120,7 +125,7 @@ class AbstractIngestor(Ingestor):
         super().__init__(db_type=db_type, db_name=db_name)
         self.database_id = None
 
-    def process_csv(self, csv_file: str, database_description=None):
+    def process_csv(self, csv_file: str, database_description=None, enhanced_pico=False):
 
         database_name = os.path.basename(os.path.dirname(csv_file))
         self.database_id = self.ensure_database_exists(database_name, description=database_description)
@@ -140,29 +145,36 @@ class AbstractIngestor(Ingestor):
             self.insert_data(session, 'Document', document_data)
             self.insert_data(session, 'DocumentAbstract', document_abstract_data)
 
-            # Accumulate mappings and add new ones to database
-            mappings_to_add = [self.get_mapping_if_not_exists(session, self.database_id, str(x)) 
-                            for x in document_data['documentId']]
-            # Remove None values from the list
-            mappings_to_add = [x for x in mappings_to_add if x]
+            # Not active for DEMO - will only be loading pre-existing IDs
+            # # Accumulate mappings and add new ones to database
+            # mappings_to_add = [self.get_mapping_if_not_exists(session, self.database_id, str(x)) 
+            #                 for x in document_data['documentId']]
+            # # Remove None values from the list
+            # mappings_to_add = [x for x in mappings_to_add if x]
 
-            # Convert the list of dictionaries to a DataFrame
-            mappings_df = pd.DataFrame(mappings_to_add)
+            # # Convert the list of dictionaries to a DataFrame
+            # mappings_df = pd.DataFrame(mappings_to_add)
 
-            if not mappings_df.empty:
-                self.insert_data(session, 'DocumentDatabaseMapping', mappings_df)
+            # if not mappings_df.empty:
+            #     self.insert_data(session, 'DocumentDatabaseMapping', mappings_df)
                 
 
         # After processing CSV, process PICO metadata
-        self.process_pico_metadata(csv_file)
+        self.process_pico_metadata(csv_file, enhanced_pico)
 
-    def process_pico_metadata(self, df: pd.DataFrame, local_llm:bool=False):
+    def process_pico_metadata(self, csv_filepath:str, enhanced_pico, local_llm:bool=False):
+
+        df = pd.read_csv(csv_filepath)
+
+        # Process and insert data into the Document table
+        document_data = df[['PMID', 'Title', 'Authors', 'Abstract', 'Publication Year']].copy()
+        document_data.columns = ['documentId', 'title', 'author', 'abstract', 'year']
 
         # Process each abstract to extract PICO metadata
         bulk_insert_data = {'raw': [], 'enhanced': []}
 
         # Process each abstract to extract PICO metadata
-        for _, row in df.iterrows():
+        for _, row in document_data.iterrows():
             document_id = str(row['documentId'])
             abstract_text = row['abstract']
 
@@ -171,9 +183,12 @@ class AbstractIngestor(Ingestor):
                 continue
 
             # Process the abstract using the metadata processor
-            processed_terms, enhanced_terms = self.metadata_processor.process_text([abstract_text], local_llm=local_llm)
-
-            terms_dict = {'raw': processed_terms, 'enhanced': enhanced_terms}
+            if enhanced_pico:
+                processed_terms, enhanced_terms = self.metadata_processor.process_text([abstract_text], enhanced_pico=enhanced_pico, local_llm=local_llm)
+                terms_dict = {'raw': processed_terms, 'enhanced': enhanced_terms}
+            else:
+                processed_terms, _ = self.metadata_processor.process_text([abstract_text], enhanced_pico=enhanced_pico, local_llm=local_llm)
+                terms_dict = {'raw': processed_terms}
 
             for label, terms in terms_dict.items():
                 for term in terms:
@@ -185,11 +200,15 @@ class AbstractIngestor(Ingestor):
             for label, data in bulk_insert_data.items():
                 if data:  # Ensure there is data to insert
                     pico_df = pd.DataFrame(data)
-
-                    # Get duplicated document ids
-                    # duplicated_ids = pico_df[pico_df.duplicated(subset='documentId')]['documentId'].unique()
-
                     self.insert_data(session, f'DocumentPICO_{label}', pico_df)
+    
+    def recovery_load_pico_enhanced(self, json_filepath:str):
+        # Load the JSON file into dataframe
+        pico_df = pd.read_json(json_filepath)
+        
+        # Convert lists to DataFrames and perform bulk insert
+        with self.mysql_interface.get_session() as session:
+            self.insert_data(session, f'DocumentPICO_enhanced', pico_df)
 
     def fetch_unprocessed_pico_data(self):
         """
@@ -216,16 +235,219 @@ class AbstractIngestor(Ingestor):
 # Example subclass for full document ingestion
 class FullDocumentIngestor(Ingestor):
 
-    def __init__(self, db_type='tidb', db_name='test_creation'):
+    def __init__(self, mapping_file, db_type='tidb', db_name='test_creation'):
         super().__init__(db_type=db_type, db_name=db_name)
         self.database_id = None
+        self.mapping_file = mapping_file
+        self.mapping_df = None
 
-    def get_docID(self, pmid):
-        # returns pcmid
-        return
+    def get_docID_mapper(self, pmids: list, save_output=False):
+        # Load the mapping file if not already loaded
+        if self.mapping_df is None:
+            if self.mapping_file:
+                self.mapping_df = pd.read_csv(self.mapping_file, dtype={'PMID': str})
+            else:
+                # Note, this is a temporary solution to get the PMCIDs for the PMIDs
+                # Will have to continue working on this for full functionality and UX
 
-    def process_blob(self, pdf_path: str, document_id: str):
-        database_name = os.path.basename(os.path.dirname(pdf_path))
+                # If there is no mapper file in lake, then create one through API calls
+                if not os.path.exists('datalake/pubmed/pmcid_dict.pkl'):
+                    pmcid_dict = self.pmid_to_pmcid_bulk(pmids)
+
+                    # Persist dict and save it in lake
+                    with open('datalake/pubmed/pmcid_dict.pkl', 'wb') as f:
+                        pickle.dump(pmcid_dict, f)
+                else:
+                    with open('datalake/pubmed/pmcid_dict.pkl', 'rb') as f:
+                        pmcid_dict = pickle.load(f)
+
+        # Filter the DataFrame for the given PMIDs
+        filtered_df = self.mapping_df[self.mapping_df['PMID'].isin(pmids)]
+
+        # Create a dictionary where PMIDs are the keys and PMCIDs are the values
+        doc_ids_dict = filtered_df.set_index('PMID')['PMCID'].to_dict()
+
+        # Save small mapping file
+        if save_output:
+            parentpath = os.path.dirname(self.mapping_file)
+            filtered_df.to_csv(f'{parentpath}/PMC-ids-small.csv', index=False)
+
+        return doc_ids_dict
+
+    def pmid_to_pmcid_bulk(self, pmids, tool_name="my_tool", email="my_email@example.com", batch_size=200):
+        base_url = "https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/"
+        pmcid_mapping = {}
+
+        # Split PMIDs into batches
+        for i in range(0, len(pmids), batch_size):
+            batch_pmids = pmids[i:i + batch_size]
+            ids_param = ",".join(batch_pmids)
+            
+            # Prepare the API request
+            params = {
+                "tool": tool_name,
+                "email": email,
+                "ids": ids_param,
+                "format": "json"
+            }
+            
+            # Make the API request
+            response = requests.get(base_url, params=params)
+            if response.status_code != 200:
+                print(f"Failed to retrieve data for batch starting at index {i}. Status code: {response.status_code}")
+                continue
+            
+            # Process the JSON response
+            data = response.json()
+            for record in data.get("records", []):
+                pmid = record.get("pmid")
+                pmcid = record.get("pmcid")
+                if pmid and pmcid:
+                    pmcid_mapping[pmid] = pmcid
+            
+            # Be respectful of the API rate limits
+            time.sleep(1)  # Sleep 1 second between requests
+        
+        return pmcid_mapping
+
+    def parse_and_clean_xml(self, xml_file_path: str) -> str:
+        """
+        Parse an XML file, extract text content, and clean it by removing excess newlines.
+
+        Args:
+            file_path (str): Path to the XML file.
+
+        Returns:
+            str: Cleaned text content extracted from the XML file.
+        """
+        tree = ET.parse(xml_file_path)
+        root = tree.getroot()
+
+        # Extract and clean text
+        text_content = []
+        for elem in root.iter():
+            if elem.text:
+                # Strip leading/trailing whitespace and replace multiple newlines with a single one
+                cleaned_text = elem.text.strip().replace("\n", " ").replace("\r", " ")
+                text_content.append(cleaned_text)
+
+        # Join all cleaned text into a single string, ensuring consistent spacing
+        return " ".join(text_content)
+
+    def get_first_file_by_type(self, doc_directory_path: str, file_extension: str='.nxml') -> str:
+        """
+        Get the first file with a specific extension in a directory.
+
+        Args:
+            doc_directory_path (str): The directory to search in.
+            file_extension (str): The file extension to filter by (e.g., '.xml').
+
+        Returns:
+            str: The path to the first matching file, or None if no match is found.
+        """
+        if file_extension == '.pdf':
+            files = [file for file in os.listdir(doc_directory_path) if file.endswith(file_extension)]
+            # Return the shortest PDF file (assuming it's the main document)
+            file = min(files, key=len) if files else None
+            return os.path.join(doc_directory_path, file)
+
+        for file in os.listdir(doc_directory_path):
+            if file.endswith(file_extension):
+                return os.path.join(doc_directory_path, file)
+        return None
+
+    def download_full_document(self, ids:list, out_folder:str = 'pmc_data'):
+        import requests
+        import wget
+        import tarfile
+        from bs4 import BeautifulSoup
+        import urllib.request
+
+        if not os.path.exists(out_folder):
+            os.makedirs(out_folder)
+
+        for id in ids:
+            response = requests.get(f'https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi?id={id}')
+            soup = BeautifulSoup(response.content)
+            if not soup.find('error'):
+                link = soup.find('link')['href']
+
+                # Handle FTP or HTTP/HTTPS download
+                if link.startswith('ftp://'):
+                    fname = os.path.join(out_folder, os.path.basename(link))
+                    urllib.request.urlretrieve(link, fname)
+                else:
+                    fname = wget.download(link, out=out_folder)
+
+                if fname.endswith("tar.gz"):
+                    with tarfile.open(fname, "r:gz") as tar:
+                        tar.extractall(path=out_folder)
+                        tar.close()
+                    os.remove(fname)
+
+    def process_csv(self, csv_file: str, limitIDs:bool=False, download_fulldata=False, database_description=None):
+
+        database_name = os.path.basename(os.path.dirname(csv_file))
+        self.database_id = self.ensure_database_exists(database_name, description=database_description)
+
+        df = pd.read_csv(csv_file)
+
+        if limitIDs:
+            # For DEMO, we limit our scope to preloaded PMCIDs (those that have PICO are in scope for the DEMO)
+            query = "SELECT DISTINCT documentId FROM DocumentPICO_enhanced"
+            results = self.mysql_interface.fetch_data_from_db(query)
+            df = df[df['PMID'].astype(str).isin([x[0] for x in results])]
+
+        # Process and insert data into the Document table
+        document_data = df[['PMID', 'Title', 'Authors', 'Publication Year']].copy()
+        document_data.columns = ['documentId', 'title', 'author', 'year']
+        document_data['documentId'] = document_data['documentId'].astype(str)
+
+        # Get PMCID using the PubMedHandler
+        pmids = [str(x) for x in document_data['documentId'].tolist()]
+        pmcid_dict = self.get_docID_mapper(pmids)
+
+        if download_fulldata:
+            document_data['PMCID'] = document_data['documentId'].map(pmcid_dict)
+
+            # Get IDs that got PMCID
+            ids = document_data[~document_data['PMCID'].isnull()]['PMCID'].tolist()
+            print(f"Downloading {len(ids)} full documents (out of {len(document_data)} abstracts).")
+
+            self.download_full_document(ids, out_folder='pmc_data')
+
+        doc_paths = {pmcid: self.get_first_file_by_type(os.path.join('pmc_data', pmcid), '.pdf') for pmcid in os.listdir('pmc_data')}
+        xml_paths = {pmcid: self.get_first_file_by_type(os.path.join('pmc_data', pmcid), '.nxml') for pmcid in os.listdir('pmc_data')}
+        fulltext_dict = {pmcid: self.parse_and_clean_xml(path) for pmcid, path in xml_paths.items()}
+
+        pmid_dict = {pmcid: pmid for pmid, pmcid in pmcid_dict.items()}
+        for pmcid, doc_path in doc_paths.items():
+            self.process_blob(doc_path, document_id=pmid_dict[pmcid], PMCID=pmcid, fulltext=fulltext_dict[pmcid])
+
+        # ========================================================================================================
+        # Some initial code to process the if is .nxml format
+        # objects = {pmcid: self.parse_and_clean_xml(path) for pmcid, path in doc_paths.items()}
+        # # Create a DataFrame for inserting into the DocumentFull table
+        # pmid_dict = {pmcid: pmid for pmid, pmcid in pmcid_dict.items()}
+        # document_full_data = pd.DataFrame(list(objects.items()), columns=['PMCID', 'pdfBlob'])
+        # document_full_data['documentId'] = document_full_data['PMCID'].map(pmid_dict)
+
+        # self.insert_df_to_db(document_full_data, document_id='PMCID')
+
+    # def insert_df_to_db(self, df: pd.DataFrame, document_id: str):
+    #     # Currently not in use and not tested -> This is dev for .nxml format
+    #     # Insert the data into the DocumentFull table
+    #     with self.mysql_interface.get_session() as session:
+    #         self.insert_data(session, 'DocumentFull', df)
+
+    #         # Insert mapping if it doesn't exist
+    #         mappings_to_add = self.get_mapping_if_not_exists(session, self.database_id, str(document_id))
+    #         if mappings_to_add :
+    #             self.insert_data(session, 'DocumentDatabaseMapping', mappings_to_add)
+
+    def process_blob(self, pdf_path: str, document_id: str, fulltext:str=None, PMCID: str = None):
+        # Ignore the database_name for now -- This is more for PRD
+        database_name = 'pubmed' #Default to pubmed for now
         self.database_id = self.ensure_database_exists(database_name)
 
         # Read the PDF binary data
@@ -235,6 +457,8 @@ class FullDocumentIngestor(Ingestor):
         # Create a DataFrame for inserting into the DocumentFull table
         document_full_data = pd.DataFrame({
             'documentId': [document_id],
+            'PMCID': [PMCID],
+            'fullText': [fulltext],
             'pdfBlob': [blob_data]
         })
 
@@ -242,10 +466,10 @@ class FullDocumentIngestor(Ingestor):
         with self.mysql_interface.get_session() as session:
             self.insert_data(session, 'DocumentFull', document_full_data)
 
-            # Insert mapping if it doesn't exist
-            mappings_to_add = self.get_mapping_if_not_exists(session, self.database_id, str(document_id))
-            if mappings_to_add :
-                self.insert_data(session, 'DocumentDatabaseMapping', mappings_to_add)
+            # # IGNORE for now, as will only be loading pre-existing IDs Insert mapping if it doesn't exist
+            # mappings_to_add = self.get_mapping_if_not_exists(session, self.database_id, str(document_id))
+            # if mappings_to_add :
+            #     self.insert_data(session, 'DocumentDatabaseMapping', mappings_to_add)
 
 if __name__ == "__main__":
     # Example for Abstract Ingestion

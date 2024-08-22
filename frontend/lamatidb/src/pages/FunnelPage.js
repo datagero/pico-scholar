@@ -34,7 +34,9 @@ const FunnelPage = () => {
 
   // useEffect to update displayPapers whenever displayIds or papers change
   useEffect(() => {
-    const filteredPapers = papers.filter(paper => displayIds.includes(paper.source_id));
+    const filteredPapers = displayIds
+      .map(id => papers.find(paper => paper.source_id === id))
+      .filter(paper => paper !== undefined);
     setDisplayPapers(filteredPapers);
   }, [displayIds, papers]);
 
@@ -195,7 +197,7 @@ const FunnelPage = () => {
                 className={styles.dropdown}
               >
                 <option value="All Fields">All Fields</option>
-                <option value="Abstract">Abstract</option>
+                <option value="Full Document">Full Document</option>
                 <option value="Patient">Patient</option>
                 <option value="Intervention">Intervention</option>
                 <option value="Comparison">Comparison</option>

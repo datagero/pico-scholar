@@ -50,8 +50,11 @@ CREATE TABLE IF NOT EXISTS `DocumentPICO_enhanced` (
   `pico_c` TEXT,
   `pico_o` TEXT
 );
+
 CREATE TABLE IF NOT EXISTS `DocumentFull` (
   `documentId` VARCHAR(255) PRIMARY KEY,
+  `PMCID` VARCHAR(255),
+  `fullText` LONGTEXT,
   `pdfBlob` LONGBLOB
 );
 

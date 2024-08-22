@@ -40,6 +40,7 @@ cryptography = "^43.0.0"
 llama-index-llms-ollama = "^0.2.2"
 llama-index-embeddings-llamafile = "^0.1.2"
 llama-index-llms-llamafile = "^0.1.2"
+wget = "^3.2"
 
 
 [build-system]
