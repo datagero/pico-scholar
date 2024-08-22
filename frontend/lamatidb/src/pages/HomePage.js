@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbtack, faUpload, faArrowRight, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import { searchQuery } from '../services/searchService';
 
 const HomePage = () => {
@@ -13,7 +13,7 @@ const HomePage = () => {
     { id: 3, text: 'Past Search 3: "Natural Language Processing in Healthcare"' },
   ]);
 
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     setQuery(e.target.value);
@@ -45,9 +45,14 @@ const HomePage = () => {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   return (
     <div className="homepage">
-      {/* Tagline and search bar section */}
       <h2>Your Gateway to Groundbreaking Research</h2>
       
       <div className="search-bar-container">
@@ -60,6 +65,7 @@ const HomePage = () => {
           className="search-bar" 
           value={query}
           onChange={handleInputChange}
+          onKeyDown={handleKeyDown}  // Add this line
         />
         {query && (
           <button className="clear-button" onClick={clearInput}>
@@ -116,7 +122,6 @@ const HomePage = () => {
         </div>
       )}
 
-      {/* Pinned searches section */}
       <div className="pinned-searches">
         <h3 className="pinned-title">Research Project: AI in Healthcare</h3>
         <ul>
@@ -132,7 +137,6 @@ const HomePage = () => {
         </ul>
       </div>
 
-      {/* Research Query Guideline section */}
       <div className="guideline-section">
         <h3 className="guideline-title">Research Query Guideline</h3>
         <div className="guideline-box">
@@ -147,8 +151,6 @@ const HomePage = () => {
           </p>
         </div>
       </div>
-      
-      {/* Add more content or sections here if needed */}
     </div>
   );
 };
