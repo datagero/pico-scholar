@@ -239,12 +239,6 @@ h2 {
   color: #007BFF;
 }
 
-.advanced-search-container {
-  text-align: left;
-  margin-top: 10px;
-  margin-left: 20%;
-}
-
 .advanced-search-popup {
   margin-top: 20px;
   background-color: #f9f9f9;
@@ -551,7 +545,7 @@ button:hover, .btn-primary:hover {
 
 .clear-button {
   position: absolute;
-  right: 80px;
+  right: 80px; /* Adjust to make room for the spinner */
   top: 50%;
   transform: translateY(-50%);
   background-color: transparent;
@@ -567,7 +561,7 @@ button:hover, .btn-primary:hover {
 
 .search-button {
   position: absolute;
-  right: 40px;
+  right: 40px; /* Adjust to make room for the spinner */
   top: 50%;
   transform: translateY(-50%);
   background-color: transparent;
@@ -583,7 +577,7 @@ button:hover, .btn-primary:hover {
 
 .spinner {
   position: absolute;
-  right: 10px;
+  right: 10px; /* Place it right after the search button */
   top: 50%;
   transform: translateY(-50%);
   font-size: 18px;
