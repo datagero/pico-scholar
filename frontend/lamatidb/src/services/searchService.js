@@ -1,12 +1,12 @@
 // searchService.js
-
+const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 // The folder contains utility functions and services that handle communication with the backend API.
 // Specific functions to handle search-related API requests.
 
 
 export const searchQuery = async (query) => {
     try {
-      const response = await fetch('http://localhost:8000/projects/1/search/', {
+      const response = await fetch(`${BASE_URL}/projects/1/search/`, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -42,7 +42,7 @@ export const semanticSearchQuery = async (query, fields=["All Fields"], sourceId
     };
 
     // Make the API call to backend
-    const response = await fetch('http://localhost:8000/projects/1/semantic_search/', {
+    const response = await fetch(`${BASE_URL}/projects/1/semantic_search/`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
