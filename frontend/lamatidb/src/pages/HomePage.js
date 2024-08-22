@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faThumbtack, faUpload, faArrowRight, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faThumbtack, faUpload, faArrowRight, faTimes, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { searchQuery } from '../services/searchService';
 
@@ -12,6 +12,7 @@ const HomePage = () => {
     { id: 2, text: 'Past Search 2: "AI Predictive Models for Disease"' },
     { id: 3, text: 'Past Search 3: "Natural Language Processing in Healthcare"' },
   ]);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -33,12 +34,15 @@ const HomePage = () => {
 
   const handleSearch = async () => {
     if (query.trim()) {
+      setLoading(true);
       try {
         const data = await searchQuery(query);
-        console.log('Search results:', data); // Handle the response data as needed
-        navigate('/results', { state: { results: data.results } }); // Pass results to FunnelPage
+        console.log('Search results:', data);
+        navigate('/results', { state: { results: data.results } });
       } catch (error) {
         console.error('Error during the search request:', error);
+      } finally {
+        setLoading(false);
       }
     } else {
       alert('Please enter a search query');
@@ -55,27 +59,37 @@ const HomePage = () => {
     <div className="homepage">
       <h2>Your Gateway to Groundbreaking Research</h2>
       
-      <div className="search-bar-container">
-        <button className="upload-button">
-          <FontAwesomeIcon icon={faUpload} />
-        </button>
-        <input 
-          type="text" 
-          placeholder="Ask a research query"  
-          className="search-bar" 
-          value={query}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}  // Add this line
-        />
-        {query && (
-          <button className="clear-button" onClick={clearInput}>
-            <FontAwesomeIcon icon={faTimes} />
-          </button>
-        )}
-        <button className="search-button" onClick={handleSearch}>
-          <FontAwesomeIcon icon={faArrowRight} />
-        </button>
+      <div className="search-container">
+  <div className="search-bar-container">
+    <button className="upload-button">
+      <FontAwesomeIcon icon={faUpload} />
+    </button>
+    <input 
+      type="text" 
+      placeholder="Ask a research query"  
+      className="search-bar" 
+      value={query}
+      onChange={handleInputChange}
+      onKeyDown={handleKeyDown}
+    />
+    {query && (
+      <button className="clear-button" onClick={clearInput}>
+        <FontAwesomeIcon icon={faTimes} />
+      </button>
+    )}
+    <button className="search-button" onClick={handleSearch}>
+      <FontAwesomeIcon icon={faArrowRight} />
+    </button>
+    {loading && (
+      <div className="spinner">
+        <FontAwesomeIcon icon={faSpinner} spin />
       </div>
+    )}
+  </div>
+</div>
+
+
+
 
       <div className="advanced-search-container">
         <label>
