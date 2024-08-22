@@ -104,7 +104,7 @@ const HomePage = () => {
       <h2>The Gateway to Research Relevant to You</h2>
       <div className="search-container">
         <div className="search-bar-container">
-        <button className="upload-button">
+          <button className="upload-button">
             <FontAwesomeIcon icon={faUpload} />
           </button>
           <input 
@@ -125,11 +125,12 @@ const HomePage = () => {
           </button>
           {loading && (
             <div className="spinner">
-              <FontAwesomeIcon icon={faSpinner} spin />            </div>
+              <FontAwesomeIcon icon={faSpinner} spin />
+            </div>
           )}
         </div>
       </div>
-
+      
       <div className="advanced-search-toggle">
         <label>
           <input 

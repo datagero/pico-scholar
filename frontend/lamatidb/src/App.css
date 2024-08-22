@@ -440,9 +440,45 @@ button:hover, .btn-primary:hover {
   width: 700px;
 }
 
+<<<<<<< HEAD
 .clear-button {
   position: absolute;
   right: 80px;
+=======
+.search-container {
+  display: flex;
+  align-items: center;
+}
+
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 700px; /* Adjust this value as needed */
+}
+
+.search-bar {
+  width: 100%;
+  padding-left: 40px; /* Space for the upload button */
+  padding-right: 120px; /* Space for the X button, search button, and spinner */
+}
+
+.upload-button {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #333;
+}
+
+.clear-button {
+  position: absolute;
+  right: 80px; /* Adjust to make room for the spinner */
+>>>>>>> 0267cbeb (Added spinner inside the search bar and adjusted layout)
   top: 50%;
   transform: translateY(-50%);
   background-color: transparent;
@@ -458,7 +494,11 @@ button:hover, .btn-primary:hover {
 
 .search-button {
   position: absolute;
+<<<<<<< HEAD
   right: 40px;
+=======
+  right: 40px; /* Adjust to make room for the spinner */
+>>>>>>> 0267cbeb (Added spinner inside the search bar and adjusted layout)
   top: 50%;
   transform: translateY(-50%);
   background-color: transparent;
@@ -474,7 +514,11 @@ button:hover, .btn-primary:hover {
 
 .spinner {
   position: absolute;
+<<<<<<< HEAD
   right: 10px;
+=======
+  right: 10px; /* Place it right after the search button */
+>>>>>>> 0267cbeb (Added spinner inside the search bar and adjusted layout)
   top: 50%;
   transform: translateY(-50%);
   font-size: 18px;
@@ -482,6 +526,7 @@ button:hover, .btn-primary:hover {
   display: flex;
   align-items: center;
 }
+<<<<<<< HEAD
  
 .advanced-search-wrapper {
   display: flex;
@@ -659,3 +704,5 @@ button:hover, .btn-primary:hover {
   width: 100%;
 }
 
+=======
+>>>>>>> 0267cbeb (Added spinner inside the search bar and adjusted layout)
