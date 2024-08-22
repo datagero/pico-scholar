@@ -1,10 +1,4 @@
 
-  // export const updateStatus = async (Array(ID), currentStatus, updatedStatus) => {
-  //   // e.g. updateStatus([16631576, 16630583], "Identified", "scoped");
-  //   // Bulk Update Status in DB
-  //   // Returns Updated view
-  // };
-
 export const filterByStatus = async (currentStatus, archived = false) => {
   try {
       // Construct the query string with the archived parameter
@@ -12,7 +6,7 @@ export const filterByStatus = async (currentStatus, archived = false) => {
         archived: archived.toString()  // Convert the boolean to a string ('true' or 'false')
       });
 
-      const response = await fetch(`/projects/1/get_status/${currentStatus}?${queryParams.toString()}`, {
+      const response = await fetch(`http://localhost:8000/projects/1/get_status/${currentStatus}?${queryParams.toString()}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -32,7 +26,7 @@ export const filterByStatus = async (currentStatus, archived = false) => {
 
 export const updateDocumentStatuses = async (documentIds, newStatus) => {
   try {
-    const response = await fetch(`/projects/1/documents/${documentIds.join(',')}/status/${newStatus}`, {
+    const response = await fetch(`http://localhost:8000/projects/1/documents/${documentIds.join(',')}/status/${newStatus}`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',

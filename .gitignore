@@ -5,6 +5,7 @@ mysql_data
 */persisted_models/
 .vscode/
 
+backend/lamatidb/interfaces/pmid.txt
 backend/datalake/pubmed/PMC-ids.csv
 
 */.idea

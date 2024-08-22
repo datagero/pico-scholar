@@ -2,7 +2,7 @@ import os
 import streamlit.web.bootstrap
 import streamlit.config as _config
 import webbrowser
-
+import subprocess
 
 
 def run(pmid):
@@ -20,5 +20,6 @@ def run(pmid):
     st_file = "streamlit_app.py"
     # Get the full path of the adjacent file
     st_file_path = os.path.join(current_directory, st_file)
-    streamlit.web.bootstrap.run(st_file_path,False,args,{})
-#run("16626815")
+
+    subprocess.Popen(["streamlit", "run", st_file_path])
+    # streamlit.web.bootstrap.run(st_file_path,False,args,{})

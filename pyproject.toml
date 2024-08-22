@@ -16,6 +16,7 @@ pymysql = "1.1.0"
 tidb-vector = "0.0.9"
 pydantic = "2.7.1"
 pydantic-core = "2.18.2"
+fastapi-cors = "^0.0.6"
 
 [tool.poetry.group.backend.dependencies]
 fastapi = {extras = ["standard"], version = "^0.112.1"}
