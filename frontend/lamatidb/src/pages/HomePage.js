@@ -52,6 +52,7 @@ const HomePage = () => {
     { id: 3, text: 'Past Search 3: "Natural Language Processing in Healthcare"' },
   ]);
   const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -131,6 +132,12 @@ const HomePage = () => {
           )}
         </div>
       </div>
+    )}
+  </div>
+</div>
+
+
+
 
       <div className="advanced-search-toggle">
         <label>

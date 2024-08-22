@@ -228,12 +228,6 @@ h2 {
   color: #007BFF;
 }
 
-.advanced-search-container {
-  text-align: left;
-  margin-top: 10px;
-  margin-left: 20%;
-}
-
 .advanced-search-popup {
   margin-top: 20px;
   background-color: #f9f9f9;
@@ -429,10 +423,22 @@ button:hover, .btn-primary:hover {
   width: 700px;
 }
 
+.search-container {
+  display: flex;
+  align-items: center;
+}
+
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 700px; /* Adjust this value as needed */
+}
+
 .search-bar {
   width: 100%;
-  padding-left: 40px;
-  padding-right: 120px;
+  padding-left: 40px; /* Space for the upload button */
+  padding-right: 120px; /* Space for the X button, search button, and spinner */
 }
 
 .upload-button {
@@ -449,7 +455,7 @@ button:hover, .btn-primary:hover {
 
 .clear-button {
   position: absolute;
-  right: 80px;
+  right: 80px; /* Adjust to make room for the spinner */
   top: 50%;
   transform: translateY(-50%);
   background-color: transparent;
@@ -465,7 +471,7 @@ button:hover, .btn-primary:hover {
 
 .search-button {
   position: absolute;
-  right: 40px;
+  right: 40px; /* Adjust to make room for the spinner */
   top: 50%;
   transform: translateY(-50%);
   background-color: transparent;
@@ -481,7 +487,7 @@ button:hover, .btn-primary:hover {
 
 .spinner {
   position: absolute;
-  right: 10px;
+  right: 10px; /* Place it right after the search button */
   top: 50%;
   transform: translateY(-50%);
   font-size: 18px;
@@ -555,15 +561,6 @@ button:hover, .btn-primary:hover {
 .field-label, .pico-item {
   text-align: left;
   width: 100%;
-}
-
-.field-name {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.field-inputs {
-  margin-bottom: 15px;
 }
 
 .pico-container {
