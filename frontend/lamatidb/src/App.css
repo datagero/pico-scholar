@@ -226,6 +226,15 @@ h2 {
 
 .search-button:hover {
   color: #007BFF;
+<<<<<<< HEAD
+=======
+}
+
+.advanced-search-container {
+  text-align: left;
+  margin-top: 10px;
+  margin-left: 20%;
+>>>>>>> f997dc5d (Advanced search on Home Page with Scientific Query)
 }
 
 .advanced-search-popup {
@@ -411,6 +420,7 @@ button:hover, .btn-primary:hover {
   color: #aaa;
 }
 
+<<<<<<< HEAD
 .search-container {
   display: flex;
   align-items: center;
@@ -423,6 +433,8 @@ button:hover, .btn-primary:hover {
   width: 700px;
 }
 
+=======
+>>>>>>> f997dc5d (Advanced search on Home Page with Scientific Query)
 .search-container {
   display: flex;
   align-items: center;
@@ -432,13 +444,13 @@ button:hover, .btn-primary:hover {
   display: flex;
   align-items: center;
   position: relative;
-  width: 700px; /* Adjust this value as needed */
+  width: 700px;
 }
 
 .search-bar {
   width: 100%;
-  padding-left: 40px; /* Space for the upload button */
-  padding-right: 120px; /* Space for the X button, search button, and spinner */
+  padding-left: 40px;
+  padding-right: 120px;
 }
 
 .upload-button {
@@ -455,7 +467,7 @@ button:hover, .btn-primary:hover {
 
 .clear-button {
   position: absolute;
-  right: 80px; /* Adjust to make room for the spinner */
+  right: 80px;
   top: 50%;
   transform: translateY(-50%);
   background-color: transparent;
@@ -471,7 +483,7 @@ button:hover, .btn-primary:hover {
 
 .search-button {
   position: absolute;
-  right: 40px; /* Adjust to make room for the spinner */
+  right: 40px;
   top: 50%;
   transform: translateY(-50%);
   background-color: transparent;
@@ -487,7 +499,7 @@ button:hover, .btn-primary:hover {
 
 .spinner {
   position: absolute;
-  right: 10px; /* Place it right after the search button */
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 18px;
@@ -563,8 +575,24 @@ button:hover, .btn-primary:hover {
   width: 100%;
 }
 
+<<<<<<< HEAD
+=======
+.field-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.field-inputs {
+  margin-bottom: 15px;
+}
+
+>>>>>>> f997dc5d (Advanced search on Home Page with Scientific Query)
 .pico-container {
   display: flex;
   flex-direction: column;
   gap: 10px;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> f997dc5d (Advanced search on Home Page with Scientific Query)
