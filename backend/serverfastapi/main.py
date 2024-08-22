@@ -18,8 +18,8 @@ from lamatidb.interfaces.database_interfaces.database_interface import DatabaseI
 from serverfastapi import models, schemas
 
 from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
-from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker
 

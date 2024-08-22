@@ -9,7 +9,7 @@ COPY requirements.txt /app/
 
 # Install dependencies
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+    pip install  --no-cache-dir -r requirements.txt
 
 # Install Model dependencies
 # CMD ["python", "pipelines/prepare_model.py"]

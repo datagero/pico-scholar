@@ -8,8 +8,6 @@ WORKDIR /app
 # Copy the application code into the container
 COPY . /app
 
-# RUN python -c "from transformers import AutoModel; AutoModel.from_pretrained('allenai/scibert_scivocab_uncased')"
-
 # Make port 8000 available to the world outside this container
 EXPOSE 8000 8080 5000
 
@@ -18,4 +16,4 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Run the application
-CMD ["fastapi", "dev", "serverfastapi/main.py", "--host", "0.0.0.0"]
+CMD ["uvicorn", "serverfastapi.main:app", "--host", "0.0.0.0"]

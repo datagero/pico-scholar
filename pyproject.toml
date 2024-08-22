@@ -6,42 +6,28 @@ authors = ["datagero <datagero@outlook.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.9.7 || >3.9.7,<4.0"
-haystack-ai = "^2.3.1"
+python = ">=3.9,<3.9.7"
 python-dotenv = "^1.0.1"
-datasets = ">=2.6.1"
-sentence-transformers = ">=2.2.0"
-click = "8.1.7"
 sqlalchemy = "2.0.30"
 llama-index = "0.10.29"
-llama-index-readers-web = "0.1.8"
 llama-index-vector-stores-tidbvector = "0.1.2"
+llama-index-embeddings-huggingface = "^0.2.2"
 pymysql = "1.1.0"
 tidb-vector = "0.0.9"
 pydantic = "2.7.1"
 pydantic-core = "2.18.2"
-dspy-ai = "2.4.9"
-langchain-community = "0.2.0"
-wikipedia = "1.4.0"
-pyvis = "0.3.1"
-openai = "1.27.0"
-fastapi = {extras = ["standard"], version = "^0.112.1"}
-uvicorn = "^0.30.3"
-jinja2 = "^3.1.4"
-xmltodict = "^0.13.0"
-pubmed-parser = "^0.4.0"
-llama-index-embeddings-huggingface = "^0.2.2"
-connexion = {version = "^2.6.0", extras = ["swagger-ui"]}
-swagger-ui-bundle = "^0.0.2"
-setuptools = "^21.0.0"
-adapters = "^1.0.0"
-streamlit = "^1.37.1"
-cryptography = "^43.0.0"
-llama-index-llms-ollama = "^0.2.2"
-llama-index-embeddings-llamafile = "^0.1.2"
-llama-index-llms-llamafile = "^0.1.2"
-wget = "^3.2"
 
+[tool.poetry.group.backend.dependencies]
+fastapi = {extras = ["standard"], version = "^0.112.1"}
+cryptography = "^43.0.0"
+uvicorn = "^0.30.3"
+streamlit = "^1.37.1"
+
+[tool.poetry.group.ingest.dependencies]
+wget = "^3.2"
+openai = "1.27.0"
+adapters = "^1.0.0"
+xmltodict = "^0.13.0"
 
 [build-system]
 requires = ["poetry-core"]
