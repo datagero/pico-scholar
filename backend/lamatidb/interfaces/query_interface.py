@@ -39,7 +39,8 @@ class QueryInterface:
             source = node.metadata['source']
             title = node.metadata.get('title')
             similarity = node.score
-            print(f"Document {source} Title: {title}, Similarity: {similarity}")
+            text = node.text[:60]
+            print(f"Document {source} Title: {title}, Similarity: {similarity}, Text: {text}")
 
     def build_rag_query_engine(self, similarity_top_k=None):
         self.query_engine = self.index.as_query_engine(similarity_top_k=similarity_top_k)

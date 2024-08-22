@@ -156,7 +156,7 @@ class AbstractIngestor(Ingestor):
         # After processing CSV, process PICO metadata
         self.process_pico_metadata(csv_file)
 
-    def process_pico_metadata(self, df: pd.DataFrame):
+    def process_pico_metadata(self, df: pd.DataFrame, local_llm:bool=False):
 
         # Process each abstract to extract PICO metadata
         bulk_insert_data = {'raw': [], 'enhanced': []}
@@ -171,7 +171,7 @@ class AbstractIngestor(Ingestor):
                 continue
 
             # Process the abstract using the metadata processor
-            processed_terms, enhanced_terms = self.metadata_processor.process_text([abstract_text])
+            processed_terms, enhanced_terms = self.metadata_processor.process_text([abstract_text], local_llm=local_llm)
 
             terms_dict = {'raw': processed_terms, 'enhanced': enhanced_terms}
 

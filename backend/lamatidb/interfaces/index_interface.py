@@ -59,7 +59,7 @@ class IndexInterface:
         # End timing
         end_time = time.time()
         elapsed_time = end_time - start_time
-        print(f"Time taken to load the index: {elapsed_time:.2f} seconds")
+        print(f"Time taken to load the index: {elapsed_time:.2f} seconds for table {self.vector_table_name}")
 
     def load_index_if_exists(self):
         """

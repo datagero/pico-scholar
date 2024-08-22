@@ -8,13 +8,12 @@ from lamatidb.interfaces.settings_manager import SettingsManager
 
 from lamatidb.interfaces.database_interfaces.database_interface import DatabaseInterface
 from lamatidb.interfaces.mysql_ingestors.abstract_ingestor import AbstractIngestor
-from lamatidb.interfaces.tidb_loaders.vector_loader_interface import LoaderPubMedAbstracts
+from lamatidb.interfaces.tidb_loaders.vector_loader_interface import LoaderPubMedAbstracts, LoaderPubMedPICO
 
 # Set global settings
-SettingsManager.set_global_settings()
+SettingsManager.set_global_settings(set_local=False)
 
 vector_table_options = ["scibert_alldata","scibert_smalldata","mocked_data"]
-
 
 # Database and vector table names
 DB_NAME = os.environ['TIDB_DB_NAME']
@@ -59,21 +58,46 @@ VECTOR_TABLE_NAME = vector_table_options[0]
 # # Adhoc generate PICOs and upsert to tables and vector databases
 # abstract_ingestor = AbstractIngestor(db_type='mysql', db_name='test_creation')
 # unprocessed_data = abstract_ingestor.fetch_unprocessed_pico_data()
-# abstract_ingestor.process_pico_metadata(unprocessed_data)
+# abstract_ingestor.process_pico_metadata(unprocessed_data, local_llm=True)
 
 # loader = LoaderPubMedAbstracts(db_type='mysql', db_name='test_creation')
 # loader.load_data()
-# # Then we'd need to re-create the index for the unprocessed_data
+# # Then we'd need to re-create/add to the index/VectorDB for the unprocessed_data
 
+# ==============================================================================================
+# Create PICO/Metadata Indexes - it is 15 combinations so it may take 10-20mins
+# Load data from MySQL and process it into LlamaIndex documents
+loader = LoaderPubMedPICO(db_type='mysql', db_name='test_creation')
+loader.load_data()
+loader.process_data()
 
+# Retrieve the documents and feed into LlamaIndex
+documents_dict = loader.get_documents_dict()
+
+for key, documents in documents_dict.items():
+    index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME+"_"+key)
+    index_interface.create_index(documents=documents) # Uncomment only if need to create / append to index
+
+# # Test Load a PICO Index
+# index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME+"_p")
+# index_interface.load_index_from_vector_store()
+# index = index_interface.get_index()
+
+# # Mock Similarity Search Results
+# from lamatidb.interfaces.query_interface import QueryInterface
+# query_interface = QueryInterface(index)
+# query_interface.configure_retriever(similarity_top_k=100)
+# source_nodes = query_interface.retriever.retrieve("children with Diabetes mellitus")
+# query_interface.inspect_similarity_scores(source_nodes)
+
+# ==============================================================================================
+
+################################################################################################
 
 # Load or create the index
 index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME)
 index_interface.load_index_from_vector_store()
 index = index_interface.get_index()
-
-
-##############################################################################################
 
 # Mock Similarity Search Results
 from lamatidb.interfaces.query_interface import QueryInterface
@@ -88,10 +112,10 @@ query_interface = QueryInterface(index)
 # response = query_interface.perform_query("Neurological and cerebral conditions.")
 # query_interface.inspect_similarity_scores(response.source_nodes)
 
-# # Example 1.1: More clean for simple semantic search, without synthesiser
-# query_interface.configure_retriever(similarity_top_k=100)
-# source_nodes = query_interface.retriever.retrieve("Neurological and cerebral conditions.")
-# query_interface.inspect_similarity_scores(source_nodes)
+# Example 1.1: More clean for simple semantic search, without synthesiser
+query_interface.configure_retriever(similarity_top_k=100)
+source_nodes = query_interface.retriever.retrieve("List all documents.")
+query_interface.inspect_similarity_scores(source_nodes)
 
 # # Example 2: RAG-based Query Engine
 # query_interface.build_rag_query_engine(similarity_top_k=100)

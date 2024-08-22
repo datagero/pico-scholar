@@ -1,7 +1,14 @@
+import enum
 from sqlalchemy import Column, Integer, Float, String, Text, Boolean, Enum
 from pydantic import BaseModel
-from . import models
 from typing import Union
+
+class FunnelEnum(enum.Enum):
+    IDENTIFIED = 'Identified'
+    SCREENED = 'Screened'
+    SOUGHT = 'Sought Retrieval'
+    ASSESSED = 'Assessed Eligibility'
+    FINAL = 'Included in Review'
 
 class ResultBase(BaseModel):
     source_id: int
@@ -14,7 +21,7 @@ class ResultBase(BaseModel):
     pico_i: Union[str, None] = None
     pico_c: Union[str, None] = None
     pico_o: Union[str, None] = None
-    funnel_stage: models.FunnelEnum
+    funnel_stage: FunnelEnum
     is_archived: bool = False
     has_pdf: bool = False
 

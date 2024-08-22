@@ -1,18 +1,12 @@
 # models.py
-import enum
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, Enum, TEXT
 from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from . import schemas
+
 
 Base = declarative_base()
-
-class FunnelEnum(enum.Enum):
-    IDENTIFIED = 'Identified'
-    SCREENED = 'Screened'
-    SOUGHT = 'Sought Retrieval'
-    ASSESSED = 'Assessed Eligibility'
-    FINAL = 'Included in Review'
 
 class Query(Base):
     __tablename__ = 'query'
@@ -35,8 +29,37 @@ class Result(Base):
     pico_i = Column(TEXT)
     pico_c = Column(TEXT)
     pico_o = Column(TEXT)
-    funnel_stage =Column(Enum(FunnelEnum, name='funnelenum'))
+    funnel_stage =Column(Enum(schemas.FunnelEnum, name='funnelenum'))
     is_archived = Column(Boolean, default=False)
     has_pdf = Column(Boolean, default=False)
 
     query = relationship("Query", back_populates="results")
+
+
+# crud.py
+from sqlalchemy.orm import Session
+from typing import List
+
+class crud:
+
+    def create_result(db: Session, result: schemas.ResultBase, query: schemas.Query):
+        db_result = Result(**result.model_dump(), query_id=query.id)
+        db.add(db_result)
+        db.commit()
+        db.refresh(db_result)
+        return db_result
+
+    def create_results(db: Session, results: List[schemas.ResultBase], query: schemas.Query):
+        db_results = [Result(**result.model_dump(), query_id=query.id) for result in results]
+        db.add_all(db_results)
+        db.commit()
+        for db_result in db_results:
+            db.refresh(db_result)
+        return db_results
+
+    def create_query(db: Session, query: schemas.QueryCreate):
+        db_query = Query(**query.model_dump())
+        db.add(db_query)
+        db.commit()
+        db.refresh(db_query)
+        return db_query

@@ -1,6 +1,7 @@
 from llama_index.core import Document
 # from lamatidb.interfaces.database_interfaces.mysql_interface import MySQLInterface
 from lamatidb.interfaces.database_interfaces.database_interface import DatabaseInterface
+import itertools
 
 class LoaderInterface:
     """
@@ -60,17 +61,8 @@ class LoaderPubMedAbstracts(LoaderInterface):
 
         self.raw_data = self.mysql_interface.fetch_data_from_db(query)
 
+    def clean_data(self):
 
-
-    def process_data(self):
-        """
-        Process and clean PubMed data to create Document objects for LlamaIndex.
-        
-        The process involves:
-        - Filtering out rows with empty abstracts.
-        - Creating a dictionary and list of documents based on the processed data.
-        """
-        
         def ignore_empty_abstract():
             """
             Filter out records without an abstract.
@@ -87,6 +79,18 @@ class LoaderPubMedAbstracts(LoaderInterface):
         self.sample_dict = {x[0]: {'text': x[3], 'title': x[1], 'authors': x[2], 'year': x[4], 
                                    'pico_p': x[5], 'pico_i': x[6], 'pico_c': x[7], 'pico_o': x[8]} for x in content}
         self.sample_text = [x['text'] for x in self.sample_dict.values()]
+
+
+    def process_data(self):
+        """
+        Process and clean PubMed data to create Document objects for LlamaIndex.
+        
+        The process involves:
+        - Filtering out rows with empty abstracts.
+        - Creating a dictionary and list of documents based on the processed data.
+        """
+        
+        self.clean_data() # initialise self.sample_dict
 
         # Create LlamaIndex Document objects
         self.documents = [
@@ -113,6 +117,89 @@ class LoaderPubMedAbstracts(LoaderInterface):
         :return: List of Document objects.
         """
         return self.documents
+
+
+class LoaderPubMedPICO(LoaderPubMedAbstracts):
+    """Loader class for fetching and processing PubMed data from MySQL."""
+    
+    def __init__(self, db_type='tidb', db_name='test_creation'):
+        """
+        Initialize LoaderPubMedAbstracts with a specific database.
+        
+        :param database_name: The name of the MySQL database to connect to.
+        """
+        super().__init__(db_type=db_type, db_name=db_name)
+        self.sample_dict = None
+        self.sample_text = None
+
+    def load_data(self):
+        """Load PubMed data from the MySQL database: Only those with PICO values"""
+        # query = """
+        # SELECT Document.documentId, title, author, abstract, `year`
+        # FROM Document
+        # INNER JOIN DocumentAbstract ON Document.documentId = DocumentAbstract.documentId;
+        # """
+
+        query = """
+        SELECT 
+            Document.documentId, 
+            title, 
+            author, 
+            abstract, 
+            `year`,
+            COALESCE(pico_p, '') AS pico_p,
+            COALESCE(pico_i, '') AS pico_i,
+            COALESCE(pico_c, '') AS pico_c,
+            COALESCE(pico_o, '') AS pico_o
+        FROM Document
+        INNER JOIN DocumentAbstract ON Document.documentId = DocumentAbstract.documentId
+        INNER JOIN DocumentPICO_enhanced ON Document.documentId = DocumentPICO_enhanced.documentId;
+        """
+
+        self.raw_data = self.mysql_interface.fetch_data_from_db(query)
+
+    def process_data(self):
+        """
+        Process and clean PubMed data to create Document objects for LlamaIndex.
+        
+        The process involves:
+        - Filtering out rows with empty abstracts.
+        - Creating a dictionary and list of documents based on the processed data.
+        """
+        
+        self.clean_data() # initialise self.sample_dict
+
+        # Define your columns
+        columns = ['pico_p', 'pico_i', 'pico_c', 'pico_o']
+
+        # Generate all combinations of the columns
+        combinations = []
+        for r in range(1, len(columns) + 1):
+            combinations += list(itertools.combinations(columns, r))
+
+        self.documents_dict = {}
+
+        # For each combination, generate a document with the concatenated values and metadata of doc_id
+        for combination in combinations:
+            index = "".join([x.split("_")[-1] for x in combination])
+            # Create LlamaIndex Document objects
+            self.documents_dict[index] = [
+                Document(
+                    text=" ".join([values[col] for col in combination]),
+                    metadata={
+                        "source": doc_id
+                    },
+                )
+                for doc_id, values in self.sample_dict.items()
+            ]
+
+    def get_documents_dict(self):
+        """
+        Retrieve the processed Document objects.
+        
+        :return: List of Document objects.
+        """
+        return self.documents_dict
 
 class LoaderPubMedFullText(LoaderInterface):
     pass

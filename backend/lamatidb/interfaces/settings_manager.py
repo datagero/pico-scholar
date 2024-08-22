@@ -2,26 +2,27 @@ import os
 from llama_index.core import Settings
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
+def set_local_llm():
+    from llama_index.embeddings.llamafile import LlamafileEmbedding
+    from llama_index.llms.llamafile import Llamafile
+    from llama_index.core import Settings
+    Settings.embed_model = LlamafileEmbedding(base_url="http://localhost:8080")
+    Settings.llm = Llamafile(
+        base_url="http://127.0.0.1:8080",
+        temperature=0,
+        seed=0
+    )
+
+    # response = Settings.llm.complete("Who is Laurie Voss? write in 10 words")
+
 class SettingsManager:
 
     @staticmethod
-    def set_global_settings():
-        # local_model_path = "persisted_models/allenai/scibert_scivocab_uncased"
-
-        # def save_contiguous_model(model, save_path):
-        #     for param in model.parameters():
-        #         if not param.is_contiguous():
-        #             param.data = param.data.contiguous()
-        #     model.save_pretrained(save_path)
-
-        # if not os.path.exists(local_model_path):
-        #     os.makedirs(local_model_path)
-        #     Settings.embed_model = HuggingFaceEmbedding(model_name="allenai/scibert_scivocab_uncased")
-        #     save_contiguous_model(Settings.embed_model._model, local_model_path)
-        # else:
-        #     HuggingFaceEmbedding(model_name=local_model_path)
-
-        Settings.embed_model = HuggingFaceEmbedding(model_name="allenai/scibert_scivocab_uncased")
+    def set_global_settings(set_local=False):
+        if set_local:
+            set_local_llm()
+        else:
+            Settings.embed_model = HuggingFaceEmbedding(model_name="allenai/scibert_scivocab_uncased")
 
     @staticmethod
     def get_db_name():

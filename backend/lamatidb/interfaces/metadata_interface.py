@@ -92,24 +92,34 @@ class PICO:
 
         return cleaned_terms
 
-    def enhance_text(self, texts, cleaned_terms):
+    def enhance_text(self, texts, cleaned_terms, local_llm=False):
         # Example enhancement logic
         enhanced_texts = []
 
-        client = openai.Client()
+        if local_llm:
+            #  Local LLM is gathered from initialised Llama Settings from the program
+            from llama_index.core import Settings
+        else:
+            client = openai.Client()
 
         for i, terms in enumerate(cleaned_terms):
             prompt = f"""For the given PICO Extraction (Patient, Intervention, Outcome) look at the source abstract and give me a short sentence that accurately represents PICO for the document. 
-You should return a dictionary with {{'pico_i': 'Generated Sentence Related to Intervention', 'pico_p': 'Generated Sentence Related to study Participant', 'pico_o': 'Generated Sentence Related to study Outputs', 'pico_c': 'Generated Sentence Related to Comparison'}}.
-The PICO terms are: {terms}
-The full abstract is: {texts[i]}"""
-            completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
-        )
-            generated_text = completion.choices[0].message.content
+    You should return a dictionary with {{'pico_i': 'Generated Sentence Related to Intervention', 'pico_p': 'Generated Sentence Related to study Participant', 'pico_o': 'Generated Sentence Related to study Outputs', 'pico_c': 'Generated Sentence Related to Comparison'}}.
+    The PICO terms are: {terms}
+    The full abstract is: {texts[i]}"""
+
+            if local_llm:
+                # Generate response using the local LLM
+                response = Settings.llm.complete(prompt)
+                generated_text = response.text
+            else:
+                completion = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "user", "content": prompt}
+                ]
+            )
+                generated_text = completion.choices[0].message.content
 
 
             # Define a function to extract the value associated with a specific key
@@ -143,11 +153,11 @@ class Metadata:
     def __init__(self):
         self.pico = PICO()
 
-    def process_text(self, texts):
+    def process_text(self, texts, local_llm):
         predictions, input_ids, offset_mapping = self.pico.classify_texts(texts, threshold=0.7)
         extracted_terms = self.pico.extract_terms(predictions, input_ids, offset_mapping)
         cleaned_terms = [self.pico.clean_extracted_terms(x) for x in extracted_terms]
-        enhanced_terms = self.pico.enhance_text(texts, cleaned_terms)
+        enhanced_terms = self.pico.enhance_text(texts, cleaned_terms, local_llm=local_llm)
         return cleaned_terms, enhanced_terms
 
 # Debug viewer
