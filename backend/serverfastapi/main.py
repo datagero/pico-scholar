@@ -8,6 +8,7 @@ load_dotenv()  # This will load the variables from the .env file
 
 from typing import List
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from lamatidb.interfaces.query_interface import QueryInterface
@@ -118,6 +119,18 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# Define the origins that should be allowed to make requests to your backend
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 @app.post("/projects/{project_id}/search/")
 @retry_decorator
@@ -261,6 +274,8 @@ def create_query_and_semantic_search(
 
 @app.post("/projects/{project_id}/chat/document/{document_id}")
 def start_streamlit_session(document_id):
+    from lamatidb.interfaces.run_streamlit import run
+    run("16626815")
     pass
 
 

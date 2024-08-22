@@ -68,3 +68,26 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+
+## Docker - Run Full Containerised application
+Create/Add frontend to a Docker Network for both services to communicate.
+Follow the backend instructions to make sure these are started on the network.
+
+
+From the `\frontend\lamatidb` directory, build the docker image
+
+```
+docker build -t my-react-app .
+```
+
+Join a network called `mynetwork` (as per backend instructions) with both the mysql-container and the pico-backend
+
+```
+export MYSQL_ROOT_PASSWORD=my-secret-pw
+docker network create mynetwork
+docker run -it --network mynetwork --name mysql-container -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -v $(pwd)/mysql_data:/var/lib/mysql -p 3306:3306 -d mysql:latest
+docker run -it --network mynetwork --env-file .env_docker --name pico-backend -p 8000:8000 pico-backend
+docker run -it --network mynetwork -p 3000:80 my-react-app
+```

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "private": true,
-  "proxy": "http://0.0.0.0:8000",
+  "proxy": "http://localhost:8000",
   "main": "index.js",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
@@ -270,7 +270,6 @@
     "fs-extra": "^10.1.0",
     "fs-monkey": "^1.0.6",
     "fs.realpath": "^1.0.0",
-    "fsevents": "^2.3.3",
     "function-bind": "^1.1.2",
     "function.prototype.name": "^1.1.6",
     "functions-have-names": "^1.2.3",
@@ -849,6 +848,9 @@
     "yargs": "^16.2.0",
     "yargs-parser": "^20.2.9",
     "yocto-queue": "^0.1.0"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.3.3"
   },
   "scripts": {
     "start": "react-scripts start",
