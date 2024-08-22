@@ -216,10 +216,6 @@ h2 {
   align-items: center;
 }
 
-.clear-button:hover {
-  color: #FF0000;
-}
-
 .search-button {
   position: absolute;
   right: 10px;
@@ -434,16 +430,10 @@ button:hover, .btn-primary:hover {
   width: 700px;
 }
 
-.clear-button {
-  position: absolute;
-  right: 80px;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  color: #333;
+.search-bar {
+  width: 100%;
+  padding-left: 40px;
+  padding-right: 120px;
 }
 
 .clear-button:hover {
@@ -545,7 +535,7 @@ button:hover, .btn-primary:hover {
 
 .clear-button {
   position: absolute;
-  right: 80px; /* Adjust to make room for the spinner */
+  right: 80px;
   top: 50%;
   transform: translateY(-50%);
   background-color: transparent;
@@ -561,7 +551,7 @@ button:hover, .btn-primary:hover {
 
 .search-button {
   position: absolute;
-  right: 40px; /* Adjust to make room for the spinner */
+  right: 40px;
   top: 50%;
   transform: translateY(-50%);
   background-color: transparent;
@@ -577,7 +567,7 @@ button:hover, .btn-primary:hover {
 
 .spinner {
   position: absolute;
-  right: 10px; /* Place it right after the search button */
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 18px;
@@ -652,3 +642,4 @@ button:hover, .btn-primary:hover {
   text-align: left;
   width: 100%;
 }
+
