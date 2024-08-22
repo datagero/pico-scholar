@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faThumbtack, faUpload, faArrowRight, faTimes, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faThumbtack, faUpload, faArrowRight, faTimes, faSpinner, faArrowRight as faArrowRightIcon } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import { searchQuery } from '../services/searchService';
+import Tooltip from '@mui/material/Tooltip';
 
 const HomePage = () => {
   const [query, setQuery] = useState('');
   const [isAdvancedSearch, setIsAdvancedSearch] = useState(false);
+  const [isScientificQueryVisible, setIsScientificQueryVisible] = useState(false);
   const [pinnedSearches, setPinnedSearches] = useState([
     { id: 1, text: 'Past Search 1: "Machine Learning in Medical Imaging"' },
     { id: 2, text: 'Past Search 2: "AI Predictive Models for Disease"' },
@@ -55,43 +57,44 @@ const HomePage = () => {
     }
   };
 
+  const handleScientificQueryClick = () => {
+    setIsScientificQueryVisible(true);
+  };
+
   return (
     <div className="homepage">
       <h2>Your Gateway to Groundbreaking Research</h2>
-      
+
       <div className="search-container">
-  <div className="search-bar-container">
-    <button className="upload-button">
-      <FontAwesomeIcon icon={faUpload} />
-    </button>
-    <input 
-      type="text" 
-      placeholder="Ask a research query"  
-      className="search-bar" 
-      value={query}
-      onChange={handleInputChange}
-      onKeyDown={handleKeyDown}
-    />
-    {query && (
-      <button className="clear-button" onClick={clearInput}>
-        <FontAwesomeIcon icon={faTimes} />
-      </button>
-    )}
-    <button className="search-button" onClick={handleSearch}>
-      <FontAwesomeIcon icon={faArrowRight} />
-    </button>
-    {loading && (
-      <div className="spinner">
-        <FontAwesomeIcon icon={faSpinner} spin />
+        <div className="search-bar-container">
+          <button className="upload-button">
+            <FontAwesomeIcon icon={faUpload} />
+          </button>
+          <input 
+            type="text" 
+            placeholder="Ask a research query"  
+            className="search-bar" 
+            value={query}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+          />
+          {query && (
+            <button className="clear-button" onClick={clearInput}>
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+          )}
+          <button className="search-button" onClick={handleSearch}>
+            <FontAwesomeIcon icon={faArrowRight} />
+          </button>
+          {loading && (
+            <div className="spinner">
+              <FontAwesomeIcon icon={faSpinner} spin />
+            </div>
+          )}
+        </div>
       </div>
-    )}
-  </div>
-</div>
 
-
-
-
-      <div className="advanced-search-container">
+      <div className="advanced-search-toggle">
         <label>
           <input 
             type="checkbox" 
@@ -103,36 +106,151 @@ const HomePage = () => {
       </div>
 
       {isAdvancedSearch && (
-        <div className="advanced-search-popup">
-          <h4>Filter by:</h4>
-          <label>
-            <input type="checkbox" /> Date
-            <input type="text" className="advanced-input" placeholder="Enter date..." />
-          </label>
-          <label>
-            <input type="checkbox" /> Location
-            <input type="text" className="advanced-input" placeholder="Enter location..." />
-          </label>
-          <label>
-            <input type="checkbox" /> Demographic
-            <input type="text" className="advanced-input" placeholder="Enter demographic..." />
-          </label>
-          <label>
-            <input type="checkbox" /> Design/methodology
-            <input type="text" className="advanced-input" placeholder="Enter design/methodology..." />
-          </label>
-          <label>
-            <input type="checkbox" /> Search strategy (add more keywords)
-            <input type="text" className="advanced-input" placeholder="Enter search strategy..." />
-          </label>
-          <label>
-            <input type="checkbox" /> Type of intervention
-            <input type="text" className="advanced-input" placeholder="Enter intervention type..." />
-          </label>
-          <label>
-            <input type="checkbox" /> PICO
-            <input type="text" className="advanced-input" placeholder="Enter PICO criteria..." />
-          </label>
+        <div className={`advanced-search-wrapper ${isScientificQueryVisible ? 'two-boxes' : 'one-box'}`}>
+          <div className="advanced-search-box">
+            <div className="advanced-search-content">
+              <div className="advanced-search-fields">
+                <label className="field-label">
+                  <Tooltip title="Specify the year range of publication">
+                    <span className="field-name">Year of Publication</span>
+                  </Tooltip>
+                  <div className="field-inputs">
+                    <input type="text" className="advanced-input" placeholder="From..." />
+                    <input type="text" className="advanced-input" placeholder="To..." />
+                  </div>
+                </label>
+                
+                <label className="field-label">
+                  <Tooltip title="Start typing the country name to filter the list">
+                    <span className="field-name">Country of Publication</span>
+                  </Tooltip>
+                  <input type="text" className="advanced-input" placeholder="Enter country..." list="countries" />
+                  <datalist id="countries">
+                    <option value="United States" />
+                    <option value="United Kingdom" />
+                    <option value="Canada" />
+                    <option value="Australia" />
+                  </datalist>
+                </label>
+                
+                <label className="field-label">
+                  <Tooltip title="Indicate whether the study uses a randomized trial methodology">
+                    <span className="field-name">Does the Study use Randomized Trial?</span>
+                  </Tooltip>
+                  <div className="field-inputs">
+                    <label>
+                      <input type="radio" name="randomizedTrial" value="Yes" /> Yes
+                    </label>
+                    <label>
+                      <input type="radio" name="randomizedTrial" value="No" /> No
+                    </label>
+                  </div>
+                </label>
+                
+                <label className="field-label">
+                  <Tooltip title="Search strategy based on PICO criteria">
+                    <span className="field-name">PICO</span>
+                  </Tooltip>
+                  <div className="pico-container">
+                    <div className="pico-item">
+                      <span className="field-name">P (Population)</span>
+                      <input type="text" className="advanced-input" placeholder="Enter population criteria..." />
+                    </div>
+                    <div className="pico-item">
+                      <span className="field-name">I (Intervention)</span>
+                      <input type="text" className="advanced-input" placeholder="Enter intervention criteria..." />
+                    </div>
+                    <div className="pico-item">
+                      <span className="field-name">C (Comparison)</span>
+                      <input type="text" className="advanced-input" placeholder="Enter comparison criteria..." />
+                    </div>
+                    <div className="pico-item">
+                      <span className="field-name">O (Outcome)</span>
+                      <input type="text" className="advanced-input" placeholder="Enter outcome criteria..." />
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {!isScientificQueryVisible && (
+            <div className="convert-button-container">
+              <button className="convert-button" onClick={handleScientificQueryClick}>
+                Scientific Query
+                <FontAwesomeIcon icon={faArrowRightIcon} />
+              </button>
+            </div>
+          )}
+
+          {isScientificQueryVisible && (
+            <div className="advanced-search-box">
+              <div className="advanced-search-content">
+                <div className="advanced-search-fields">
+                  <label className="field-label">
+                    <Tooltip title="Scientific year range for publication">
+                      <span className="field-name">Year of Publication (Scientific)</span>
+                    </Tooltip>
+                    <div className="field-inputs">
+                      <input type="text" className="advanced-input" placeholder="Scientific From..." />
+                      <input type="text" className="advanced-input" placeholder="Scientific To..." />
+                    </div>
+                  </label>
+                  
+                  <label className="field-label">
+                    <Tooltip title="Scientific filter by country">
+                      <span className="field-name">Country of Publication (Scientific)</span>
+                    </Tooltip>
+                    <input type="text" className="advanced-input" placeholder="Scientific country..." list="countries" />
+                    <datalist id="countries">
+                      <option value="United States" />
+                      <option value="United Kingdom" />
+                      <option value="Canada" />
+                      <option value="Australia" />
+                    </datalist>
+                  </label>
+                  
+                  <label className="field-label">
+                    <Tooltip title="Indicate scientific use of randomized trial methodology">
+                      <span className="field-name">Randomized Trial (Scientific)</span>
+                    </Tooltip>
+                    <div className="field-inputs">
+                      <label>
+                        <input type="radio" name="randomizedTrial" value="Yes" /> Yes
+                      </label>
+                      <label>
+                        <input type="radio" name="randomizedTrial" value="No" /> No
+                      </label>
+                    </div>
+                  </label>
+                  
+                  <label className="field-label">
+                    <Tooltip title="Scientific strategy based on PICO criteria">
+                      <span className="field-name">PICO (Scientific)</span>
+                    </Tooltip>
+                    <div className="pico-container">
+                      <div className="pico-item">
+                        <span className="field-name">P (Scientific Population)</span>
+                        <input type="text" className="advanced-input" placeholder="Scientific population..." />
+                      </div>
+                      <div className="pico-item">
+                        <span className="field-name">I (Scientific Intervention)</span>
+                        <input type="text" className="advanced-input" placeholder="Scientific intervention..." />
+                      </div>
+                      <div className="pico-item">
+                        <span className="field-name">C (Scientific Comparison)</span>
+                        <input type="text" className="advanced-input" placeholder="Scientific comparison..." />
+                      </div>
+                      <div className="pico-item">
+                        <span className="field-name">O (Scientific Outcome)</span>
+                        <input type="text" className="advanced-input" placeholder="Scientific outcome..." />
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -166,7 +284,7 @@ const HomePage = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 export default HomePage;
