@@ -7,19 +7,16 @@ import { semanticSearchQuery } from '../services/searchService';
 
 const FunnelPage = () => {
   const location = useLocation();
-
-  const extractSourceIds = (papersArray) => {
-    return papersArray.map(paper => paper.source_id);
-  };
-
   const initialResults = location.state?.results || []; // Get initial results from the main page search
   const [papers, setPapers] = useState(initialResults);
   const [sourceIds, setSourceIds] = useState(initialResults.map(paper => paper.source_id));
+  const [displayIds, setDisplayPaperIds] = useState(initialResults.map(paper => paper.source_id));
+  const [displayPapers, setDisplayPapers] = useState(initialResults);
   const [currentStatus, setCurrentStatus] = useState('Identified');
   const [selectedPapers, setSelectedPapers] = useState([]);
   const [semanticQuery, setSemanticSearchQuery] = useState('');
-  const [narrowSearch, setNarrowSearch] = useState(false);
-  const [narrowField, setNarrowField] = useState('All Fields');
+  // const [narrowSearch, setNarrowSearch] = useState(false);
+  const [narrowFields, setNarrowFields] = useState('All Fields');
 
   // Run handleFilters whenever currentStatus changes
   useEffect(() => {
@@ -34,6 +31,12 @@ const FunnelPage = () => {
       console.error('Failed to update statuses:', error);
     }
   };
+
+  // useEffect to update displayPapers whenever displayIds or papers change
+  useEffect(() => {
+    const filteredPapers = papers.filter(paper => displayIds.includes(paper.source_id));
+    setDisplayPapers(filteredPapers);
+  }, [displayIds, papers]);
 
 
   const handleSelectPaper = (paperId) => {
@@ -61,8 +64,10 @@ const FunnelPage = () => {
   const handleSemanticSearch = async () => {
     if (semanticQuery.trim()) {
       try {
-        const ids = await semanticSearchQuery(semanticQuery, "All Fields", sourceIds);
+        const semantic_search_results = await semanticSearchQuery(semanticQuery, [narrowFields], sourceIds);
+        const ids = semantic_search_results.source_ids;
         console.log('Semantic Search results:', ids);
+        setDisplayPaperIds(ids);
         // TODO -> Update the UI to reflect the search results. These should be a filtered subset of the papers state.
         // Ideally, we want these sorted on the same order as the ids returned by the search.
         // The UI should have a way to "Go back to all papers" or "Clear search results"
@@ -83,8 +88,17 @@ const FunnelPage = () => {
     try {
       console.log("Filtering papers for status:", currentStatus);
       const filteredPapers = await filterByStatus(currentStatus);
-      setPapers(filteredPapers.records);
-      setSourceIds(filteredPapers.records.map(paper => paper.source_id))
+      const newPapers = filteredPapers.records;
+      const newSourceIds = newPapers.map(paper => paper.source_id);
+
+      // Update the state with the new filtered data
+      setPapers(newPapers);
+      setSourceIds(newSourceIds);
+
+      // Set displayIds and displayPapers based on the newly filtered papers
+      setDisplayPaperIds(newSourceIds);
+      // setDisplayPapers(newPapers);
+
       // TODO -> We probably need to reset the counts for the funnel filters here (filteredPapers.funnel_count contains the counts after filters)
       console.log(filteredPapers); // Log filtered results for debugging
     } catch (error) {
@@ -163,18 +177,21 @@ const FunnelPage = () => {
           </div>
 
           <div className={styles.narrowSearchContainer}>
-            <label>
+            {/* <label>
               <input 
                 type="checkbox" 
                 checked={narrowSearch} 
-                onChange={() => setNarrowSearch(!narrowSearch)} 
+                onChange={() => {
+                  setNarrowSearch(!narrowSearch);
+                }} 
               />
               Narrow search to fields
-            </label>
-            {narrowSearch && (
+            </label> */}
+            {/* {narrowSearch && ( */}
+            Narrow search to fields
               <select 
-                value={narrowField} 
-                onChange={(e) => setNarrowField(e.target.value)} 
+                value={narrowFields} 
+                onChange={(e) => setNarrowFields(e.target.value)} 
                 className={styles.dropdown}
               >
                 <option value="All Fields">All Fields</option>
@@ -184,13 +201,13 @@ const FunnelPage = () => {
                 <option value="Comparison">Comparison</option>
                 <option value="Outcome">Outcome</option>
               </select>
-            )}
+            {/* )} */}
           </div>
         </div>
       </div>
 
       <FunnelTable
-        results={papers} // Use the papers state which contains filtered results
+        results={displayPapers} // Use the papers state which contains filtered results
         selectedPapers={selectedPapers}
         handleSelectPaper={handleSelectPaper}
         funnelStage={currentStatus}

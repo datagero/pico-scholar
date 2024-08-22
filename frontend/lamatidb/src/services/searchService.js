@@ -26,7 +26,7 @@ export const searchQuery = async (query) => {
   };
   
 
-export const semanticSearchQuery = async (query, field = "All Fields", sourceIds = []) => {
+export const semanticSearchQuery = async (query, fields=["All Fields"], sourceIds = []) => {
   try {
     // Ensure sourceIds is a list of strings
     sourceIds = sourceIds.map(id => String(id));
@@ -36,6 +36,7 @@ export const semanticSearchQuery = async (query, field = "All Fields", sourceIds
       query: {
         query_text: query,
       },
+      fields: fields,
       source_ids: sourceIds
     };
 
