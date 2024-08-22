@@ -1,3 +1,4 @@
+const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
 export const filterByStatus = async (currentStatus, archived = false) => {
   try {
@@ -6,7 +7,7 @@ export const filterByStatus = async (currentStatus, archived = false) => {
         archived: archived.toString()  // Convert the boolean to a string ('true' or 'false')
       });
 
-      const response = await fetch(`http://localhost:8000/projects/1/get_status/${currentStatus}?${queryParams.toString()}`, {
+      const response = await fetch(`${BASE_URL}/projects/1/get_status/${currentStatus}?${queryParams.toString()}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -26,7 +27,7 @@ export const filterByStatus = async (currentStatus, archived = false) => {
 
 export const updateDocumentStatuses = async (documentIds, newStatus) => {
   try {
-    const response = await fetch(`http://localhost:8000/projects/1/documents/${documentIds.join(',')}/status/${newStatus}`, {
+    const response = await fetch(`${BASE_URL}/projects/1/documents/${documentIds.join(',')}/status/${newStatus}`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',

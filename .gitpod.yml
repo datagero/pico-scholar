@@ -20,35 +20,40 @@ tasks:
       echo "FASTAPI_HOST=0.0.0.0" >> backend/.env_docker
       echo "FASTAPI_PORT=8000" >> backend/.env_docker
 
+  - name: "Set React API Base URL"
+    command: |
+      # Insert the port number after 'https://'
+      export REACT_APP_API_BASE_URL=$(echo $GITPOD_WORKSPACE_URL | sed -e 's#https://#https://8000-#')
+      echo "REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}" >> frontend/lamatidb/.env
+      export REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}
+
   - name: "Create Network"
     command: |
-      # Create a Docker network
-      docker network create mynetwork
+      # Docker Compose automatically manages the network, so this step is optional
+      docker network create mynetwork || true
   
-  - name: "Start MySQL"
+  - name: "Start Docker Compose Services"
     init: |
-      # Start MySQL container with a persistent volume
-      docker run --name mysql-container \
-        --network mynetwork \
-        -e MYSQL_ROOT_PASSWORD=my-secret-pw\
-        -v /workspace/mysql_data:/var/lib/mysql \
-        -p 3306:3306 \
-        -d mysql:latest
+      # Build and start all services defined in the docker-compose.yml
+      docker-compose up --build -d
 
     command: |
-      # Wait for MySQL service to be up and running
+      # Wait for MySQL to be up and running (optional)
       while ! docker logs mysql-container 2>&1 | grep "ready for connections"; do
         echo "Waiting for MySQL to be up..."
         sleep 1
       done
       echo "MySQL is up and running!"
+      sudo chmod -R 777 /workspace/pico-scholar/backend/mysql_data/
 
   - name: "Start Backend"
     command: |
-      # Build the backend Docker image
-      docker build -t pico-backend ./backend
-
+      # Collect TiDB password
       read -s -p 'Enter TiDB Password: ' TIDB_PASSWORD && echo "" && echo "TIDB_PASSWORD=$TIDB_PASSWORD" >> backend/.env_docker
 
-      # Run the backend application using the same Docker network and .env file
-      docker run --platform linux/amd64 -it --network mynetwork --env-file backend/.env_docker -p 8000:8000 pico-backend
+      # Restart the backend service to pick up the new .env_docker with the TiDB password
+      docker-compose restart backend
+
+ports:
+  - port: 3000
+    onOpen: open-preview
