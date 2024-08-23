@@ -35,6 +35,67 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
   // Handle page change
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  // Function to render the pagination
+  const renderPagination = () => {
+    const pages = [];
+    const firstPages = 5;
+    const lastPages = 2;
+
+    // Always show the first 5 pages
+    for (let i = 1; i <= Math.min(firstPages, totalPages); i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => paginate(i)}
+          className={`${styles.pageLink} ${currentPage === i ? styles.activePage : ''}`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // If there are more than firstPages + lastPages pages, show "..." and last 2 pages
+    if (totalPages > firstPages + lastPages) {
+      if (currentPage > firstPages + 1) {
+        pages.push(<span key="dots1">...</span>);
+      }
+
+      const startPage = Math.max(firstPages + 1, currentPage - 1);
+      const endPage = Math.min(totalPages - lastPages, currentPage + 1);
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(
+          <button
+            key={i}
+            onClick={() => paginate(i)}
+            className={`${styles.pageLink} ${currentPage === i ? styles.activePage : ''}`}
+          >
+            {i}
+          </button>
+        );
+      }
+
+      if (currentPage < totalPages - lastPages - 1) {
+        pages.push(<span key="dots2">...</span>);
+      }
+
+      // Show the last 2 pages
+      for (let i = totalPages - lastPages + 1; i <= totalPages; i++) {
+        pages.push(
+          <button
+            key={i}
+            onClick={() => paginate(i)}
+            className={`${styles.pageLink} ${currentPage === i ? styles.activePage : ''}`}
+          >
+            {i}
+          </button>
+        );
+      }
+    }
+
+    return pages;
+  };
+
   return (
     <div className={styles['table-container']}>
       <table className={styles.table}>
@@ -111,15 +172,7 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
         >
           Previous
         </button>
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i + 1}
-            onClick={() => paginate(i + 1)}
-            className={`${styles.pageLink} ${currentPage === i + 1 ? styles.activePage : ''}`}
-          >
-            {i + 1}
-          </button>
-        ))}
+        {renderPagination()}
         <button
           onClick={() => paginate(currentPage + 1)}
           disabled={currentPage === totalPages}
