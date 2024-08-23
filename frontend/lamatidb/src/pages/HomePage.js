@@ -102,7 +102,6 @@ const HomePage = () => {
   return (
     <div className="homepage">
       <h2>The Gateway to Research Relevant to You</h2>
-
       <div className="search-container">
         <div className="search-bar-container">
           <button className="upload-button">

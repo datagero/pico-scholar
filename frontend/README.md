@@ -69,6 +69,8 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
+
+=======
 ## Docker -> Build Image and host it
 Build the image to set-up our frontend environment. Since we're targeting the gitpod environment, then its best to build and push this to the registry from the gitpod env to avoid compatability issues.
 

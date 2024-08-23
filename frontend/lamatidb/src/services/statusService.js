@@ -1,5 +1,4 @@
 const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
-
 export const filterByStatus = async (currentStatus, show_archived = false) => {
   try {
       // Construct the query string with the archived parameter
