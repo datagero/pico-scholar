@@ -122,19 +122,6 @@ const FunnelPage = () => {
   return (
     <div className={styles.container}>
 
-          {/* Show Archived Toggle */}
-          <div className={styles.toggleContainer}>
-            <label className={styles.toggleLabel}>
-              Show Archived
-              <input
-                type="checkbox"
-                checked={showArchived}
-                onChange={handleToggle}
-                className={styles.toggleInput} // Apply any custom styles here
-              />
-            </label>
-          </div>
-
           {/* Status Buttons */}
 
       <div className={styles.statusButtonsContainer}>
@@ -171,68 +158,77 @@ const FunnelPage = () => {
       </div>
       
       <div className={styles.controlsContainer}>
-        <div className={styles.searchAndNarrowContainer}>
-          <div className={styles.searchContainer}>
-            <input
-              type="text"
-              className={styles.searchInput}
-              placeholder="Search in current list of papers."
-              value={semanticQuery}
-              onChange={(e) => setSemanticSearchQuery(e.target.value)}
-            />
-            <button className={styles.clearButton} onClick={clearSearch}>
-              &times;
-            </button>
-            <button className={styles.searchButton} onClick={handleSemanticSearch}>
-              ➔
-            </button>
-          </div>
+  <div className={styles.searchAndNarrowContainer}>
+    <div className={styles.searchContainer}>
+      <input
+        type="text"
+        className={styles.searchInput}
+        placeholder="Search in current list of papers."
+        value={semanticQuery}
+        onChange={(e) => setSemanticSearchQuery(e.target.value)}
+      />
+      <button className={styles.clearButton} onClick={clearSearch}>
+        &times;
+      </button>
+      <button className={styles.searchButton} onClick={handleSemanticSearch}>
+        ➔
+      </button>
+    </div>
 
-          <div className={styles.narrowSearchContainer}>
-            Narrow search to fields
-            <select 
-              value={narrowFields} 
-              onChange={(e) => setNarrowFields(e.target.value)} 
-              className={styles.dropdown}
-            >
-              <option value="All Fields">All Fields</option>
-              <option value="Full Document">Full Document</option>
-              <option value="Patient">Patient</option>
-              <option value="Intervention">Intervention</option>
-              <option value="Comparison">Comparison</option>
-              <option value="Outcome">Outcome</option>
-            </select>
-          </div>
-        </div>
+    <div className={styles.narrowSearchContainer}>
+      Narrow search to fields
+      <select 
+        value={narrowFields} 
+        onChange={(e) => setNarrowFields(e.target.value)} 
+        className={styles.dropdown}
+      >
+        <option value="All Fields">All Fields</option>
+        <option value="Full Document">Full Document</option>
+        <option value="Patient">Patient</option>
+        <option value="Intervention">Intervention</option>
+        <option value="Comparison">Comparison</option>
+        <option value="Outcome">Outcome</option>
+      </select>
+    </div>
+  </div>
 
-        <div className={styles.selectedAndStatusContainer}>
-          <div className={styles.selectAllContainer}>
-            <input
-              type="checkbox"
-              checked={selectAll}
-              onChange={handleSelectAllChange}
-            />
-            <label>Select All</label>
-          </div>
-          <span className={styles.selectedText}>Selected: {selectedPapers.length}</span>
-          <span className={styles.shownText}>Total Results for View: {papers.length}</span>
-          <span className={styles.shownText}>Currently Displaying: {displayPapers.length}</span>
-          <div className={styles.statusChange}>
-            <span>Change Status: </span>
-            <select 
-              value={currentStatus} 
-              onChange={handleStageChange} 
-              className={styles.dropdown}
-            >
-              <option value="Identified">Identified</option>
-              <option value="Screened">Screened</option>
-              <option value="Sought Retrieval">Sought Retrieval</option>
-              <option value="Assessed Eligibility">Assessed Eligibility</option>
-              <option value="Included in Review">Included in Review</option>
-            </select>
-          </div>
-        </div>
-      </div>
+  <div className={styles.selectedAndStatusContainer}>
+    <div className={styles.selectAllContainer}>
+      <input
+        type="checkbox"
+        checked={selectAll}
+        onChange={handleSelectAllChange}
+      />
+      <label>Select All</label>
+    </div>
+    <span className={styles.selectedText}>Selected: {selectedPapers.length}</span>
+    <div className={styles.statusChange}>
+      <span>Change Status: </span>
+      <select 
+        value={currentStatus} 
+        onChange={handleStageChange} 
+        className={styles.dropdown}
+      >
+        <option value="Identified">Identified</option>
+        <option value="Screened">Screened</option>
+        <option value="Sought Retrieval">Sought Retrieval</option>
+        <option value="Assessed Eligibility">Assessed Eligibility</option>
+        <option value="Included in Review">Included in Review</option>
+      </select>
+    </div>
+    <div className={styles.showArchivedContainer}>
+      <label className={styles.toggleLabel}>
+        Show Archived
+        <input
+          type="checkbox"
+          checked={showArchived}
+          onChange={handleToggle}
+          className={styles.toggleInput}
+        />
+      </label>
+    </div>
+  </div>
+</div>
 
       <FunnelTable
         results={displayPapers} // Use the papers state which contains filtered results
