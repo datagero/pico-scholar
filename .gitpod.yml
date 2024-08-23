@@ -29,7 +29,7 @@ tasks:
 
   - name: "Create Network"
     command: |
-      # Docker Compose automatically manages the network, so this step is optional
+      # Create Network do docker-compose can find it
       docker network create mynetwork || true
   
   - name: "Start Docker Compose Services"
