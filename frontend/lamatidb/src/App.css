@@ -2,74 +2,74 @@
 that should apply across the entire application. */
 
 html, body {
-  height: 100%; /* Ensure the body takes up the full height of the viewport */
+  height: 100%; 
   margin: 0;
   padding: 0;
-  font-family: 'Roboto', sans-serif; /* Set the primary font */
-  background-color: #FFFFFF; /* Use the specified background color */
-  color: #6C757D; /* Neutral Grey for body text */
+  font-family: 'Roboto', sans-serif; 
+  background-color: #FFFFFF; 
+  color: #6C757D;
 }
 
 #root {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Full viewport height */
+  min-height: 100vh;
 }
 
 .App {
-  flex: 1; /* Grow to fill the available space */
+  flex: 1; 
   display: flex;
   flex-direction: column;
-  padding: 0; /* Remove padding from the App to eliminate extra space */
+  padding: 0;
 }
 
 .content {
-  flex: 1; /* Grow and fill the available space */
-  padding: 0 20px; /* Only apply horizontal padding to avoid extra vertical space */
-  background-color: #fff; /* Content area background */
+  flex: 1; 
+  padding: 0 20px;
+  background-color: #fff;
 }
 
 .header {
   display: flex;
   align-items: center;
   padding: 10px;
-  background-color: #DAECFF; /* Updated background color */
+  background-color: #DAECFF;
 }
 
 .logo {
   height: 120px;
   margin-right: 20px;
-  border-radius: 50%; /* Ensure the logo is round */
+  border-radius: 50%;
 }
 
 .header-text {
-  font-size: 15px; /* Adjust font size as needed */
-  color: #333; /* Adjust color as needed */
-  margin: 0; /* Remove any default margin */
+  font-size: 15px;
+  color: #333;
+  margin: 0;
 }
 
 /* Footer */
 .footer {
-  margin-top: auto; /* Push the footer to the bottom */
+  margin-top: auto;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
-  background-color: #DAECFF; /* Updated background color */
+  background-color: #DAECFF;
   border-top: 1px solid #ddd;
   text-align: center;
 }
 
 .footer-section {
-  flex: 0 1 auto; /* Flex grow is set to 0, shrink is set to 1, and the width is determined by content */
+  flex: 0 1 auto;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 60px; /* Reduce margin between sections */
+  margin: 0 60px;
 }
 
 .footer-logo-img {
-  height: 120px; /* Adjust the height as needed */
+  height: 120px;
 }
 
 .footer-links ul {
@@ -91,18 +91,18 @@ html, body {
 .footer-social a {
   color: #333;
   font-size: 20px;
-  margin: 0 8px; /* Reduce margin between icons */
+  margin: 0 8px;
 }
 
 .footer-social a:hover {
-  color: #007BFF; /* Change color on hover */
+  color: #007BFF;
 }
 
 .navbar {
-  background-color: #DAECFF; /* Updated background color */
+  background-color: #DAECFF;
   padding: 10px 20px;
   display: flex;
-  justify-content: center; /* Aligns navigation links to the left */
+  justify-content: center;
   border-bottom: 1px solid #ddd;
 }
 
@@ -111,11 +111,11 @@ html, body {
   margin: 0;
   padding: 0;
   display: flex;
-  gap: 30px; /* Adds space between the links */
+  gap: 30px;
 }
 
 .nav-links li {
-  margin-right: 40px; /* Additional space between links */
+  margin-right: 40px;
 }
 
 .nav-links a {
@@ -126,54 +126,54 @@ html, body {
 }
 
 .nav-links a:hover {
-  color: #007BFF; /* Color when hovering over a link */
+  color: #007BFF;
 }
 
 .active-link {
-  color: #007BFF; /* Color for the active link */
+  color: #007BFF;
   font-weight: bold;
 }
 
 .inactive-link {
-  color: #555; /* Color for inactive links */
+  color: #555;
 }
 
 .homepage {
-  flex: 1; /* Ensure homepage takes up available space */
-  padding: 20px; /* Adjust padding to maintain space around content */
-  background-color: #f9f9f9;  /* Light background for the entire page */
-  text-align: center; /* Center align text by default */
+  flex: 1;
+  padding: 20px;
+  background-color: #f9f9f9;
+  text-align: center;
 }
 
 h2 {
-  margin-bottom: 20px; /* Space below the tagline */
-  font-size: 24px; /* Adjust the font size if needed */
+  margin-bottom: 20px;
+  font-size: 24px;
 }
 
 .search-bar-container {
-  margin: 20px auto; /* Center the search bar container */
-  width: 60%; /* Reduce the width of the search bar container */
-  display: flex; /* Align items inside the container */
+  margin: 20px auto;
+  width: 60%;
+  display: flex;
   align-items: center;
-  position: relative; /* For positioning the buttons */
+  position: relative;
 }
 
 .search-bar {
-  width: 100%; /* Full width within the container */
-  padding: 10px; /* Padding for the input field */
+  width: 100%;
+  padding: 10px;
   font-size: 16px;
-  border: 1px solid #CED4DA; /* Light grey border */
-  border-radius: 4px; /* Rounded corners */
-  padding-left: 40px; /* Make room for the upload button on the left */
-  padding-right: 80px; /* Make room for the clear and search buttons on the right */
+  border: 1px solid #CED4DA;
+  border-radius: 4px;
+  padding-left: 40px;
+  padding-right: 80px;
 }
 
 .search-bar:focus {
-  border-color: #007BFF; /* Focused state changes to Medical Blue */
+  border-color: #007BFF;
 }
 .upload-button {
   position: absolute;
-  left: 10px; /* Position the upload button at the left edge inside the input */
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
   background-color: transparent;
@@ -187,12 +187,12 @@ h2 {
 }
 
 .upload-button:hover {
-  color: #007BFF; /* Change color on hover */
+  color: #007BFF;
 }
 
 .clear-button {
   position: absolute;
-  right: 40px; /* Position the clear button to the left of the search button */
+  right: 40px;
   top: 50%;
   transform: translateY(-50%);
   background-color: transparent;
@@ -206,12 +206,12 @@ h2 {
 }
 
 .clear-button:hover {
-  color: #FF0000; /* Change color to red on hover */
+  color: #FF0000;
 }
 
 .search-button {
   position: absolute;
-  right: 10px; /* Position the search button at the right edge inside the input */
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   background-color: transparent;
@@ -225,13 +225,13 @@ h2 {
 }
 
 .search-button:hover {
-  color: #007BFF; /* Change color on hover */
+  color: #007BFF;
 }
 
 .advanced-search-container {
-  text-align: left; /* Align the checkbox to the left */
-  margin-top: 10px; /* Add some space between the search bar and the checkbox */
-  margin-left: 20%; /* Align the checkbox below the search bar, slightly indented */
+  text-align: left;
+  margin-top: 10px;
+  margin-left: 20%;
 }
 
 .advanced-search-popup {
@@ -247,13 +247,24 @@ h2 {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.advanced-search-popup h4 {
-  margin-bottom: 10px;
-}
-
 .advanced-search-popup label {
   display: block;
   margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.field-name {
+  font-size: 18px; /* Bold and larger text */
+  font-weight: bold; /* Bold text */
+  margin-bottom: 10px; /* Space between the field name and input */
+  color: #333;
+}
+
+.field-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Space between multiple inputs in the same column */
+  margin-bottom: 20px; /* Extra space between fields */
 }
 
 /* Center the pinned searches section */
@@ -264,14 +275,14 @@ h2 {
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 600px;  /* Set a max-width to fit the content */
+  max-width: 600px;
   margin-left: auto;
-  margin-right: auto;  /* Center the box */
+  margin-right: auto;
   text-align: left;
 }
 
 .pinned-title {
-  text-align: center;  /* Center the title */
+  text-align: center;
   color: #333;
   font-size: 18px;
   font-weight: bold;
@@ -293,7 +304,7 @@ h2 {
   font-size: 16px;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Add space between text and delete button */
+  justify-content: space-between;
 }
 
 .pinned-searches li:hover {
@@ -302,19 +313,19 @@ h2 {
 
 .pin-icon {
   margin-right: 10px;
-  color: #007BFF; /* Medical Blue */
+  color: #007BFF;
 }
 
 .past-search-link {
-  color: #333; /* Neutral color for the link */
-  text-decoration: none; /* Remove underline */
-  font-weight: 500; /* Slightly bold for elegance */
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
   transition: color 0.3s ease;
-  flex-grow: 1; /* Allow the link to take up available space */
+  flex-grow: 1;
 }
 
 .past-search-link:hover {
-  color: #007BFF; /* Subtle color change on hover */
+  color: #007BFF;
 }
 
 .delete-button {
@@ -322,11 +333,11 @@ h2 {
   border: none;
   cursor: pointer;
   font-size: 18px;
-  color: #FF0000; /* Red color for the delete button */
+  color: #FF0000;
 }
 
 .delete-button:hover {
-  color: #CC0000; /* Darker red on hover */
+  color: #CC0000;
 }
 
 /* Research Query Guideline section */
@@ -347,14 +358,14 @@ h2 {
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 800px; /* Set max width for the guideline text box */
+  max-width: 800px;
   margin-left: auto;
   margin-right: auto;
   text-align: justify;
 }
 
 .guideline-box p {
-  margin-bottom: 20px; /* Add space between paragraphs */
+  margin-bottom: 20px;
   font-size: 16px;
   color: #444;
   line-height: 1.6;
@@ -362,8 +373,8 @@ h2 {
 
 /* Buttons */
 button, .btn-primary {
-  background-color: #007BFF; /* Medical Blue */
-  color: #FFFFFF; /* White text */
+  background-color: #007BFF;
+  color: #FFFFFF;
   border-radius: 4px;
   border: none;
   padding: 10px 20px;
@@ -373,12 +384,12 @@ button, .btn-primary {
 }
 
 button:hover, .btn-primary:hover {
-  background-color: #0056b3; /* Slightly darker shade of blue */
+  background-color: #0056b3;
 }
 
 .btn-secondary {
-  background-color: #28A745; /* Research Green */
-  color: #FFFFFF; /* White text */
+  background-color: #28A745;
+  color: #FFFFFF;
   border-radius: 4px;
   border: none;
   padding: 10px 20px;
@@ -388,34 +399,175 @@ button:hover, .btn-primary:hover {
 }
 
 .btn-secondary:hover {
-  background-color: #218838; /* Slightly darker shade of green */
+  background-color: #218838;
 }
 
-/* Style for the advanced search input fields */
 .advanced-input {
-  width: 100%; /* Make the input field take up the full width of the label */
+  width: 100%;
   margin-top: 5px;
-  padding: 8px;
-  font-size: 14px;
+  padding: 10px;
+  font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
-  margin-bottom: 10px; /* Add space below each input */
+  margin-bottom: 10px;
 }
 
 .advanced-input::placeholder {
   color: #aaa;
 }
 
-/* Adjust the label and checkbox to ensure consistent styling */
-.advanced-search-popup label {
-  display: block;
-  margin-bottom: 15px;
-  font-size: 16px;
-  color: #333;
-  position: relative;
+.search-container {
+  display: flex;
+  align-items: center;
 }
 
-.advanced-search-popup label input[type="checkbox"] {
-  margin-right: 10px;
+.search-bar-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 700px;
+}
+
+.search-bar {
+  width: 100%;
+  padding-left: 40px;
+  padding-right: 120px;
+}
+
+.upload-button {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #333;
+}
+
+.clear-button {
+  position: absolute;
+  right: 80px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #333;
+}
+
+.clear-button:hover {
+  color: #FF0000;
+}
+
+.search-button {
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #333;
+}
+
+.search-button:hover {
+  color: #007BFF;
+}
+
+.spinner {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #007BFF;
+  display: flex;
+  align-items: center;
+}
+
+.advanced-search-container {
+  display: flex;
+  justify-content: space-between; /* Places the two boxes side by side */
+  margin-top: 20px;
+  position: relative; /* For positioning the buttons */
+}
+ 
+.advanced-search-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+  margin-top: 20px;
+  transition: all 0.3s ease-in-out;
+}
+
+.advanced-search-wrapper.one-box {
+  justify-content: center;
+}
+
+.advanced-search-wrapper.two-boxes {
+  justify-content: center; /* Center both boxes */
+  gap: 40px; /* Adjust the gap between the two boxes to bring them closer */
+}
+
+.advanced-search-box {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 400px;
+  flex: 1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.convert-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.convert-button {
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.convert-button:hover {
+  background-color: #0056b3;
+}
+
+.convert-button .fa-arrow-right {
+  margin-left: 8px;
+}
+
+.field-label, .pico-item {
+  text-align: left;
+  width: 100%;
+}
+
+.field-name {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.field-inputs {
+  margin-bottom: 15px;
+}
+
+.pico-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
