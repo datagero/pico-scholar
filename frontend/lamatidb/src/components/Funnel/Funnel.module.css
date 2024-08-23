@@ -278,7 +278,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px; /* Space between Selected and Change Status */
+  gap: 50px; /* Space between Selected, Show Archived, and other elements */
   width: 100%;
 }
 
@@ -413,15 +413,15 @@
 .selectedAndStatusContainer {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 50px; /* Increase gap to make the space between items twice as large */
   margin-top: 10px;
   justify-content: flex-start;
   width: 100%;
-  max-width: 800px; /* Adjust as needed */
+  max-width: 800; /* Adjust as needed */
 }
 
 .selectedText {
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .statusChange {
@@ -432,5 +432,12 @@
 .selectAllContainer {
   display: flex;
   align-items: center;
-  gap: 5px; /* Space between checkbox and label */
+  gap: 5px; /* Space between Select All checkbox and label */
+}
+
+/* Show Archived Container */
+.showArchivedContainer {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Space between Show Archived checkbox and label, same as Select All */
 }
