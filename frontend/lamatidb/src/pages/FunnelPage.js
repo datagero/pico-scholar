@@ -15,17 +15,17 @@ const FunnelPage = () => {
   const [currentStatus, setCurrentStatus] = useState('Identified');
   const [selectedPapers, setSelectedPapers] = useState([]);
   const [semanticQuery, setSemanticSearchQuery] = useState('');
-  // const [narrowSearch, setNarrowSearch] = useState(false);
+  const [selectAll, setSelectAll] = useState(false); // State for Select All checkbox
   const [narrowFields, setNarrowFields] = useState('All Fields');
 
   // Run handleFilters whenever currentStatus changes
   useEffect(() => {
     handleFilters();
   }, [currentStatus]);
+
   const handleUpdateStatuses = async (newStage) => {
     try {
       await updateDocumentStatuses(selectedPapers, newStage);
-      // Refresh the data or update the UI to reflect the status change
       handleFilters();
     } catch (error) {
       console.error('Failed to update statuses:', error);
@@ -40,23 +40,35 @@ const FunnelPage = () => {
     setDisplayPapers(filteredPapers);
   }, [displayIds, papers]);
 
+  const handleSelectPaper = (paperIds) => {
+    if (Array.isArray(paperIds)) {
+      setSelectedPapers(paperIds);
+    } else {
+      setSelectedPapers((prevSelected) => {
+        if (prevSelected.includes(paperIds)) {
+          return prevSelected.filter(id => id !== paperIds);
+        } else {
+          return [...prevSelected, paperIds];
+        }
+      });
+    }
+  };
 
-  const handleSelectPaper = (paperId) => {
-    setSelectedPapers((prevSelected) => {
-      if (prevSelected.includes(paperId)) {
-        return prevSelected.filter(id => id !== paperId);
-      } else {
-        return [...prevSelected, paperId];
-      }
-    });
+  const handleSelectAllChange = () => {
+    const allSelected = !selectAll;
+    setSelectAll(allSelected);
+    if (allSelected) {
+      const allPaperIds = displayPapers.map(paper => paper.source_id);
+      handleSelectPaper(allPaperIds);
+    } else {
+      handleSelectPaper([]);
+    }
   };
 
   const handleStageChange = (event) => {
     const newStage = event.target.value;
-    // Optional: Call an API to update the stage in the backend
-    // Example: updateStage(newStage, selectedPapers);
-    handleUpdateStatuses(newStage); // Update the current status with the new stage
-    setSelectedPapers([]); // Clear selection after status change
+    handleUpdateStatuses(newStage);
+    setSelectedPapers([]);
   };
 
   const handleStatusButtonClick = (status) => {
@@ -68,11 +80,7 @@ const FunnelPage = () => {
       try {
         const semantic_search_results = await semanticSearchQuery(semanticQuery, [narrowFields], sourceIds);
         const ids = semantic_search_results.source_ids;
-        console.log('Semantic Search results:', ids);
         setDisplayPaperIds(ids);
-        // TODO -> Update the UI to reflect the search results. These should be a filtered subset of the papers state.
-        // Ideally, we want these sorted on the same order as the ids returned by the search.
-        // The UI should have a way to "Go back to all papers" or "Clear search results"
       } catch (error) {
         console.error('Error during the search request:', error);
       }
@@ -81,28 +89,19 @@ const FunnelPage = () => {
     }
   };
 
-  
   const clearSearch = () => {
     setSemanticSearchQuery('');
   };
 
   const handleFilters = async () => {
     try {
-      console.log("Filtering papers for status:", currentStatus);
       const filteredPapers = await filterByStatus(currentStatus);
       const newPapers = filteredPapers.records;
       const newSourceIds = newPapers.map(paper => paper.source_id);
 
-      // Update the state with the new filtered data
       setPapers(newPapers);
       setSourceIds(newSourceIds);
-
-      // Set displayIds and displayPapers based on the newly filtered papers
       setDisplayPaperIds(newSourceIds);
-      // setDisplayPapers(newPapers);
-
-      // TODO -> We probably need to reset the counts for the funnel filters here (filteredPapers.funnel_count contains the counts after filters)
-      console.log(filteredPapers); // Log filtered results for debugging
     } catch (error) {
       console.error('Error in handleFilters:', error);
     }
@@ -144,23 +143,6 @@ const FunnelPage = () => {
       </div>
       
       <div className={styles.controlsContainer}>
-        <span className={styles.selectedText}>Selected: {selectedPapers.length}</span>
-        <div className={styles.statusChange}>
-          <span>Change Status: </span>
-          <select 
-            value={currentStatus} 
-            onChange={handleStageChange} 
-            className={styles.dropdown}
-          >
-            <option value="Identified">Identified</option>
-            <option value="Screened">Screened</option>
-            <option value="Sought Retrieval">Sought Retrieval</option>
-            <option value="Assessed Eligibility">Assessed Eligibility</option>
-            <option value="Included in Review">Included in Review</option>
-          </select>
-        </div>
-
-        {/* Search and Narrow Search under Selected and Change Status */}
         <div className={styles.searchAndNarrowContainer}>
           <div className={styles.searchContainer}>
             <input
@@ -179,31 +161,45 @@ const FunnelPage = () => {
           </div>
 
           <div className={styles.narrowSearchContainer}>
-            {/* <label>
-              <input 
-                type="checkbox" 
-                checked={narrowSearch} 
-                onChange={() => {
-                  setNarrowSearch(!narrowSearch);
-                }} 
-              />
-              Narrow search to fields
-            </label> */}
-            {/* {narrowSearch && ( */}
             Narrow search to fields
-              <select 
-                value={narrowFields} 
-                onChange={(e) => setNarrowFields(e.target.value)} 
-                className={styles.dropdown}
-              >
-                <option value="All Fields">All Fields</option>
-                <option value="Full Document">Full Document</option>
-                <option value="Patient">Patient</option>
-                <option value="Intervention">Intervention</option>
-                <option value="Comparison">Comparison</option>
-                <option value="Outcome">Outcome</option>
-              </select>
-            {/* )} */}
+            <select 
+              value={narrowFields} 
+              onChange={(e) => setNarrowFields(e.target.value)} 
+              className={styles.dropdown}
+            >
+              <option value="All Fields">All Fields</option>
+              <option value="Full Document">Full Document</option>
+              <option value="Patient">Patient</option>
+              <option value="Intervention">Intervention</option>
+              <option value="Comparison">Comparison</option>
+              <option value="Outcome">Outcome</option>
+            </select>
+          </div>
+        </div>
+
+        <div className={styles.selectedAndStatusContainer}>
+          <div className={styles.selectAllContainer}>
+            <input
+              type="checkbox"
+              checked={selectAll}
+              onChange={handleSelectAllChange}
+            />
+            <label>Select All</label>
+          </div>
+          <span className={styles.selectedText}>Selected: {selectedPapers.length}</span>
+          <div className={styles.statusChange}>
+            <span>Change Status: </span>
+            <select 
+              value={currentStatus} 
+              onChange={handleStageChange} 
+              className={styles.dropdown}
+            >
+              <option value="Identified">Identified</option>
+              <option value="Screened">Screened</option>
+              <option value="Sought Retrieval">Sought Retrieval</option>
+              <option value="Assessed Eligibility">Assessed Eligibility</option>
+              <option value="Included in Review">Included in Review</option>
+            </select>
           </div>
         </div>
       </div>

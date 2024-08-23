@@ -71,12 +71,3 @@ export MYSQL_ROOT_PASSWORD=my-secret-pw
 docker run -it --network mynetwork --name mysql-container -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -v $(pwd)/mysql_data:/var/lib/mysql -p 3306:3306 -d mysql:latest
 docker run -it --network mynetwork --env-file .env_docker --name pico-backend -p 8000:8000 pico-backend
 ```
-
-
-Test the build by running Docker Container:
-
-`docker run -it --env-file .env_docker -p 8000:8000 pico-backend`
-
-Go inside the container
-
-`docker exec -it d10bacbf42af /bin/bash`
