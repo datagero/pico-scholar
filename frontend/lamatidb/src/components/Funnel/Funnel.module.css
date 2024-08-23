@@ -12,6 +12,7 @@
   margin-top: 20px;
   background-color: #f9f9f9;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  table-layout: fixed; /* Ensure that column widths are respected */
   min-width: 800px; /* Minimum width to trigger scrolling if necessary */
 }
 
@@ -25,11 +26,69 @@
   border: 1px solid #ddd;
 }
 
+/* Set specific widths for each column */
+.headerCellSelect {
+  width: 4%; /* Smallest width for Select column */
+}
+
+.headerCellArchive {
+  width: 5%; /* Archive column width */
+}
+
+.headerCellSummary {
+  width: 24%; /* Summary column width */
+}
+
+.headerCellAbstract {
+  width: 35%; /* Larger width for Abstract column */
+}
+
+.headerCellPICO {
+  width: 26%; /* Adjusted width for PICO column */
+}
+
+.headerCellStatus {
+  width: 6%; /* Width for Status column */
+}
+
 /* Style the table rows and cells */
 .cell {
   padding: 12px;
   border: 1px solid #ddd;
   vertical-align: top;
+  word-wrap: break-word; /* Ensure text wraps inside the cell */
+}
+
+/* Specific width for each column cells */
+.selectCell {
+  text-align: center;
+  width: 5%; /* Smallest width for Select column */
+  border: 1px solid #ddd;
+}
+
+.archiveCell {
+  width: 5%; /* Archive column width */
+}
+
+.summaryCell {
+  width: 25%; /* Summary column width */
+}
+
+.abstractCell {
+  width: 30%; /* Larger width for Abstract column */
+}
+
+.picoCell {
+  width: 20%; /* Adjusted width for PICO column */
+}
+
+.statusCell {
+  width: 10%; /* Width for Status column */
+}
+
+/* Specific width for the Summary column cells */
+.summaryCell {
+  width: 30%; /* Set to 30% of the table width */
 }
 
 /* Style the checkbox and text cells */
