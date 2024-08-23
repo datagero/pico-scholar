@@ -436,9 +436,6 @@ button:hover, .btn-primary:hover {
   padding-right: 120px;
 }
 
-.clear-button:hover {
-  color: #FF0000;
-}
 
 .search-button {
   position: absolute;
