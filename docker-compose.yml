@@ -46,4 +46,4 @@ services:
 
 networks:
   mynetwork:
-    name: mynetwork
+    external: true
