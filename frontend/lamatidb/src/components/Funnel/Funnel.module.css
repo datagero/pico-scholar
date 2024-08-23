@@ -441,3 +441,22 @@
   align-items: center;
   gap: 5px; /* Space between Show Archived checkbox and label, same as Select All */
 }
+
+.iconContainer {
+  margin-top: 10px; /* Adjust the spacing as needed */
+}
+
+.icon {
+  font-size: 1.5rem; /* Adjust the size of the icon */
+  margin-left: 10px; /* Space between the icon and the previous content */
+  cursor: pointer;
+}
+
+.iconWithText {
+  display: flex;
+  align-items: center;
+}
+
+.iconWithText .icon {
+  margin-right: 10px; /* Increase the space between the icon and the text */
+}
