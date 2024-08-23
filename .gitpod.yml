@@ -38,7 +38,7 @@ tasks:
       read -s -p 'Enter TiDB Password: ' TIDB_PASSWORD && echo "" && echo "TIDB_PASSWORD=$TIDB_PASSWORD" >> backend/.env_docker
 
       # Build and start all services defined in the docker-compose.yml
-      docker-compose up --build -d
+      docker-compose up --build
 
     command: |
       # Wait for MySQL to be up and running (optional)
