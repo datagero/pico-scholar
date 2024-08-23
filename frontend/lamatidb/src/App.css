@@ -546,6 +546,18 @@ button:hover, .btn-primary:hover {
   color: #FF0000;
 }
 
+clear-button {
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #333;
+  }
+
 .search-button {
   position: absolute;
   right: 40px;

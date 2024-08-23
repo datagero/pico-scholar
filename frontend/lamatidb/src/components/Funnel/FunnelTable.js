@@ -60,7 +60,7 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
       </td>
       <td className={`${styles.cell} ${styles.archiveCell}`} data-label="Archive">
         <select
-          value={reviewStatuses[index]}
+          value={result.is_archived || 'No'}
           onChange={(e) => handleReviewChange(index, e.target.value)}
           className={styles.reviewDropdown}
         >

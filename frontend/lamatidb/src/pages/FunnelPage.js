@@ -109,6 +109,7 @@ const FunnelPage = () => {
       setPapers(newPapers);
       setSourceIds(newSourceIds);
       setDisplayPaperIds(newSourceIds);
+      console.log(filteredPapers); // Log filtered results for debugging
     } catch (error) {
       console.error('Error in handleFilters:', error);
     }
