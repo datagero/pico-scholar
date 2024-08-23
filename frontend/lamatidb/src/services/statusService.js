@@ -69,3 +69,26 @@ export const updateDocumentArchivedStatus = async (documentId, isArchived) => {
     throw error;
   }
 };
+
+export const startStreamlitSession = async (documentId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/projects/1/chat/document/${documentId.toString()}`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to start Streamlit session');
+    }
+
+    const result = await response.json();
+    console.log('Streamlit session started successfully:', result);
+    return result;
+  } catch (error) {
+    console.error('Error starting Streamlit session:', error);
+    throw error;
+  }
+};

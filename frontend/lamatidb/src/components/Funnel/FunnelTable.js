@@ -21,6 +21,19 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
     onStatusChange();
   };
 
+  const handlePdfClick = async (documentId) => {
+    try {
+      const result = await startStreamlitSession(documentId);
+      console.log('Streamlit session initiated:', result);
+      // Additional logic to handle the session start, such as navigation or displaying a message
+    } catch (error) {
+      console.error('Error starting Streamlit session:', error);
+      // Handle the error, such as showing a notification to the user
+    }
+  };
+  
+  
+
   const [currentPage, setCurrentPage] = useState(1);
   const papersPerPage = 10;
 
