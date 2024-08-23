@@ -52,3 +52,6 @@ tasks:
 ports:
   - port: 3000
     onOpen: open-preview
+    visibility: public
+  - port: 8000
+    visibility: public
