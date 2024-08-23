@@ -1,0 +1,49 @@
+version: '0.1'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+    volumes:
+      - ./backend/mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - mynetwork
+    restart: always
+
+  backend:
+    image: pico-backend:latest  # Use the prebuilt image if available
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pico-backend
+    env_file:
+      - ./backend/.env_docker
+    ports:
+      - "8000:8000"
+    networks:
+      - mynetwork
+    depends_on:
+      - mysql
+    restart: always
+
+  frontend:
+    image: my-react-app:latest  # Use the prebuilt image if available
+    build:
+      context: ./frontend/lamatidb
+      dockerfile: Dockerfile
+    container_name: my-react-app
+    ports:
+      - "3000:80"
+    networks:
+      - mynetwork
+    depends_on:
+      - backend
+    restart: always
+
+networks:
+  mynetwork:
+    name: mynetwork

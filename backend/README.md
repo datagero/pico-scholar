@@ -48,7 +48,9 @@ docker push datagero/pico-env-builder:latest
 
 Build the Docker Image:
 
-`docker build --no-cache  -t pico-backend .`
+```
+docker build --no-cache  -t pico-backend .
+```
 
 ## Docker - Run Full Containerised application
 Create a Docker Network for both services to communicate
@@ -63,12 +65,11 @@ No need to run this if backend has not changed since last build.
 Then, start a network with both the mysql-container and the pico-backend
 
 ```
-export MYSQL_ROOT_PASSWORD=my-secret-pw
 docker network create mynetwork
 
+export MYSQL_ROOT_PASSWORD=my-secret-pw
 docker run -it --network mynetwork --name mysql-container -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -v $(pwd)/mysql_data:/var/lib/mysql -p 3306:3306 -d mysql:latest
-
-docker run -it --network mynetwork --env-file .env_docker -p 8000:8000 pico-backend
+docker run -it --network mynetwork --env-file .env_docker --name pico-backend -p 8000:8000 pico-backend
 ```
 
 

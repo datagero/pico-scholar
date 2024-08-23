@@ -8,8 +8,10 @@ WORKDIR /app
 # Copy the application code into the container
 COPY . /app
 
+RUN pip install fastapi-cors>="^0.0.6"
+
 # Make port 8000 available to the world outside this container
-EXPOSE 8000 8080 5000
+EXPOSE 8000 8080 5000 3000 8501
 
 # Define environment variable
 ENV PYTHONDONTWRITEBYTECODE 1

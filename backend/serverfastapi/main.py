@@ -1,5 +1,6 @@
 # main.py
 import os
+import json
 import itertools
 import concurrent.futures
 
@@ -8,6 +9,7 @@ load_dotenv()  # This will load the variables from the .env file
 
 from typing import List
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from lamatidb.interfaces.query_interface import QueryInterface
@@ -118,36 +120,58 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 @app.post("/projects/{project_id}/search/")
 @retry_decorator
-def create_query_and_search(project_id: int, query: schemas.QueryCreate, db: Session = Depends(get_db)):
+def create_query_and_search(
+    project_id: int, 
+    query: schemas.QueryCreate, 
+    db: Session = Depends(get_db)
+):
+    """
+    Create a new query and perform a search within the project's dataset.
+
+    Args:
+        project_id (int): ID of the project where the search is performed.
+        query (schemas.QueryCreate): The search query details.
+        db (Session): Database session.
+
+    Returns:
+        dict: Contains the query details and the search results.
+    """
+    # Create the query record in the database
     db_query = crud.create_query(db, query=query)
 
+    # Configure and execute the search using the QueryInterface
     query_interface = QueryInterface(index)
     query_interface.configure_retriever(similarity_top_k=None)
     source_nodes = query_interface.retriever.retrieve(query.query_text)
-    # query_interface.inspect_similarity_scores(source_nodes) #for debug
 
-    # Find if the documentId has PDF available
+    # Check if documents have a PDF available by comparing with datastore
     query = "SELECT documentId FROM datastore.DocumentFull"
     fulldoc_result = tidb_interface.fetch_data_from_db(query)
     doc_ids = [x[0] for x in fulldoc_result]
+    
     for source_node in source_nodes:
         source_node.metadata['has_pdf'] = source_node.metadata['source'] in doc_ids
 
+    # Store the search results in the database
     db_results = crud.create_results(db, source_nodes, db_query)
 
-    # Mock a few with status Screened
-    db_results[0].funnel_stage = "Screened"
-    db_results[1].funnel_stage = "Screened"
-    db_results[2].funnel_stage = "Screened"
-    db_results[3].funnel_stage = "Screened"
+    # Mock some results with a 'Screened' status for demonstration
+    for idx in [0, 1, 2, 3]:
+        db_results[idx].funnel_stage = "Screened"
 
-    db_results[3].is_archived = True
-    db_results[8].is_archived = True
-    db_results[9].is_archived = True
-    db_results[13].is_archived = True
+    # Archive certain results for demonstration
+    for idx in [3, 8, 9, 13]:
+        db_results[idx].is_archived = True
 
     db.commit()
 
@@ -156,33 +180,27 @@ def create_query_and_search(project_id: int, query: schemas.QueryCreate, db: Ses
         "results": db_results
     }
 
-@app.patch("/projects/{project_id}/documents/{document_ids}/status/{status}")
-@retry_decorator
-def update_document_status(project_id: int, document_ids, status: str, db: Session = Depends(get_db)):
-    # Split the document_ids string into a list of integers
-    try:
-        document_id_list = [doc_id for doc_id in document_ids.split(',')]
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid document ID format")
-
-    # Query to fetch the documents by their IDs
-    documents = db.query(models.Result).filter(models.Result.source_id.in_(document_id_list)).all()
-
-    if not documents:
-        raise HTTPException(status_code=404, detail="Documents not found")
-
-    # Update the status of each document
-    for document in documents:
-        document.funnel_stage = status
-
-    db.commit()
-
-    return {"message": "Status updated successfully", "document_ids": document_ids, "new_status": status}
-
 @app.get("/projects/{project_id}/get_status/{status}")
 @retry_decorator
-def get_status(project_id: int, status: str, archived: bool, db: Session = Depends(get_db)):
-    # Changes revert to original...
+def get_status(
+    project_id: int, 
+    status: str, 
+    archived: bool, 
+    db: Session = Depends(get_db)
+):
+    """
+    Retrieve documents within a specific funnel stage and their status.
+
+    Args:
+        project_id (int): ID of the project.
+        status (str): Funnel stage to filter documents by.
+        archived (bool): Whether to include archived documents.
+        db (Session): Database session.
+
+    Returns:
+        dict: Contains the requested status, filtered records, and a count of documents in each funnel stage.
+    """
+    # Filter the documents by the given status and archived flag
     query = db.query(models.Result).filter(models.Result.funnel_stage == status)
 
     if not archived:
@@ -190,25 +208,171 @@ def get_status(project_id: int, status: str, archived: bool, db: Session = Depen
                              
     filtered_records = query.all()
 
-    # Query to count the number of documents in each funnel stage, considering the archived parameter
+    # Count the number of documents in each funnel stage, considering the archived status
     funnel_count_query = (
         db.query(models.Result.funnel_stage, models.Result.is_archived, func.count(models.Result.funnel_stage))
         .group_by(models.Result.funnel_stage, models.Result.is_archived)
     )
 
-    # Initialize the dictionary with all funnel stages from the enum
+    # Initialize a dictionary to hold the counts for each funnel stage
     funnel_count_dict = {stage.value: {"archived": 0, "active": 0} for stage in schemas.FunnelEnum}
 
     # Update the dictionary with actual counts from the query
-    for stage, is_reviewed, count in funnel_count_query:
-        stage_clean = stage.split('.')[-1]
-        key = "archived" if is_reviewed else "active"
-        funnel_count_dict[stage_clean][key] = count
+    for stage, is_archived, count in funnel_count_query:
+        key = "archived" if is_archived else "active"
+        funnel_count_dict[stage][key] = count
 
     return {
         "status": status,
         "records": filtered_records,
         "funnel_count": funnel_count_dict
+    }
+
+@app.patch("/projects/{project_id}/documents/{document_ids}/status/{status}")
+@retry_decorator
+def update_document_status(
+    project_id: int, 
+    document_ids: str, 
+    status: str, 
+    db: Session = Depends(get_db)
+):
+    """
+    Update the status of documents within a project.
+
+    Args:
+        project_id (int): ID of the project.
+        document_ids (str): Comma-separated list of document IDs to update.
+        status (str): New status to set for the documents.
+        db (Session): Database session.
+
+    Returns:
+        dict: Confirmation message with the updated document IDs and new status.
+    """
+    # Convert the comma-separated document IDs to a list
+    try:
+        document_id_list = [doc_id.strip() for doc_id in document_ids.split(',')]
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid document ID format")
+
+    # Fetch the documents by their IDs
+    documents = db.query(models.Result).filter(models.Result.source_id.in_(document_id_list)).all()
+
+    if not documents:
+        raise HTTPException(status_code=404, detail="Documents not found")
+
+    # Update the funnel stage of each document
+    for document in documents:
+        document.funnel_stage = status
+
+    db.commit()
+
+    return {"message": "Status updated successfully", "document_ids": document_ids, "new_status": status}
+
+@app.patch("/projects/{project_id}/documents/{document_id}/archive/")
+@retry_decorator
+def update_document_archived_status(
+    project_id: int, 
+    document_id: int, 
+    is_archived: bool, 
+    db: Session = Depends(get_db)
+):
+    """
+    Update the archived status of a single document within a project.
+
+    Args:
+        project_id (int): ID of the project to which the document belongs.
+        document_id (int): ID of the document to update.
+        is_archived (bool): The new archived status (True for archived, False for active).
+        db (Session): Database session.
+
+    Returns:
+        dict: Confirmation message with the updated document ID and new archived status.
+    """
+    # Fetch the document by its ID
+    document = db.query(models.Result).filter(
+        models.Result.source_id == document_id
+    ).first()
+
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    # Update the is_archived status of the document
+    document.is_archived = is_archived
+
+    db.commit()
+
+    return {
+        "message": "Archived status updated successfully", 
+        "document_id": document_id, 
+        "new_archived_status": is_archived
+    }
+
+@app.post("/translate_terms/")
+def translate_terms_via_chatgpt(terms: dict, db: Session = Depends(get_db)):
+    """
+    Translate plain language terms into scientific notation using ChatGPT.
+
+    Args:
+        terms (dict): A dictionary of terms to translate. 
+                      Example: {"Year of Publication": "After 2010", "P (Population)": "Adults over 25 years"}
+
+    Returns:
+        dict: A dictionary where keys are the original terms and values are their scientific notations.
+    """
+    # Step 1: Format the input for ChatGPT with detailed examples and technical notations
+    chatgpt_prompt = (
+        "Translate the following plain language terms into scientific notation. "
+        "Use appropriate scientific notations such as:\n"
+        "- '/' after an index term to indicate that all subheadings were selected.\n"
+        "- '*' before an index term to indicate the term was focused (major term).\n"
+        "- 'exp' before an index term to indicate the term was exploded.\n"
+        "- '.tw.' for title/abstract search, '.mp.' for free text search, '.pt.' for publication type.\n"
+        "- '$' for truncation, '?' for wildcards, and 'adj' for adjacency.\n\n"
+        "For example, if 'Adult over 25 years' is given, return 'age>=25/class=Adult.tw.'.\n\n"
+        "Translate the following keys into scientific notation and match them with their corresponding plain language values:\n\n"
+    )
+
+    # Append each term to the prompt in a more structured format
+    for key, value in terms.items():
+        chatgpt_prompt += f"Key: {key}\nValue: {value}\n"
+
+    chatgpt_prompt += (
+        "\nProvide the output in JSON format, where each key is the original plain language term "
+        "and the corresponding value is the translated scientific notation. Ensure the JSON structure is as follows:\n"
+        "{\n"
+        "  'Year of Publication': 'scientific notation here',\n"
+        "  'Country of Publication': 'scientific notation here',\n"
+        "  'Does the Study use Randomized Trial?': 'scientific notation here',\n"
+        "  'P (Population)': 'scientific notation here',\n"
+        "  'I (Intervention)': 'scientific notation here',\n"
+        "  'C (Comparison)': 'scientific notation here',\n"
+        "  'O (Outcome)': 'scientific notation here'\n"
+        "}"
+    )
+    try:
+        query_interface = QueryInterface(index)
+        response = query_interface.query_chatgpt(chatgpt_prompt)
+    except Exception as e:
+        print(response)
+        raise HTTPException(status_code=500, detail=f"Error communicating with ChatGPT: {str(e)}")
+
+    for attempt in range(3):
+        try:
+            translated_dict = json.loads(response)
+            break
+        except json.JSONDecodeError:
+            print("Failed to decode JSON from ChatGPT response. Retrying...")
+            if attempt < 2:  # If it's not the last attempt, continue trying
+                continue
+            else:  # On the third failure, return an error message
+                first_term_key = list(terms.keys())[0]  # Get the first key from the input terms
+                translated_dict = {
+                    first_term_key: "Failed to decode JSON from ChatGPT response. Please try again."
+                }
+
+    return {
+        "original_terms": terms,
+        "scientific_notation": translated_dict
     }
 
 
@@ -221,24 +385,37 @@ def create_query_and_semantic_search(
     source_ids: List[int] = [], 
     db: Session = Depends(get_db)
 ):
+    """
+    Perform a semantic search within the project's dataset.
 
+    Args:
+        project_id (int): ID of the project where the search is performed.
+        query (schemas.QueryCreate): The search query details.
+        fields (List[str]): Fields to focus the search on.
+        source_ids (List[int]): Specific document IDs to include in the search.
+        db (Session): Database session.
+
+    Returns:
+        dict: Contains the list of document source IDs that match the search criteria.
+    """
+    # Map PICO fields to corresponding metadata keys
     metadata_mapper = {
         'Patient': 'p',
         'Intervention': 'i',
         'Comparison': 'c',
         'Outcome': 'o'
-        }
+    }
 
-    # Make sure source_ids is a list of strings
+    # Ensure source_ids are strings for filtering
     source_ids = [str(source_id) for source_id in source_ids]
     filters = []
 
-    # Set index to filter
-    field = fields[0] # At the moment, just one field is supported
+    # Select the appropriate index based on the field
+    field = fields[0] 
     if field == "Full Document":
         semantic_index = index_fulltext
     elif field != "All Fields":
-        index_name = metadata_mapper.get(field, None)
+        index_name = metadata_mapper.get(field)
         semantic_index = metadata_indexes.get(index_name)
     else:
         semantic_index = index
@@ -246,23 +423,32 @@ def create_query_and_semantic_search(
     if source_ids:
         filters.append({"key": "source", "value": source_ids, "operator": "in"})
 
-    # Initialize the query interface with your index
+    # Initialize the QueryInterface and perform the retrieval
     query_interface = QueryInterface(semantic_index)
     query_interface.configure_retriever(similarity_top_k=None, metadata_filters=filters)
     retrieved_nodes = query_interface.retriever.retrieve(query.query_text)
+    
+    # Filter results based on similarity score threshold
     filtered_nodes = query_interface.filter_by_similarity_score(retrieved_nodes, 0.5)
-    # query_interface.inspect_similarity_scores(filtered_nodes) #for debug
 
-    # Extract source_ids from the filtered results
+    # Extract document source IDs from the filtered results
     source_ids = [int(node.metadata['source']) for node in filtered_nodes if 'source' in node.metadata]
 
-    # Return the list of source_ids
-    return {"source_ids": source_ids} # for some reason need to pass ints to front-end...
+    return {"source_ids": source_ids}
 
 @app.post("/projects/{project_id}/chat/document/{document_id}")
-def start_streamlit_session(document_id):
-    pass
+def start_streamlit_session(document_id: int):
+    """
+    Start a Streamlit session for exploring a specific document.
 
+    Args:
+        document_id (int): ID of the document to explore.
+
+    Note:
+        This function initiates a Streamlit session by calling an external script.
+    """
+    from lamatidb.interfaces.run_streamlit import run
+    run(str(document_id)) #"16626815"
 
 if __name__ == "__main__":
     import uvicorn
