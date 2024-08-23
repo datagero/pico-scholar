@@ -47,9 +47,9 @@ const HomePage = () => {
   }, [scientificNotations]);
 
   const [pinnedSearches, setPinnedSearches] = useState([
-    { id: 1, text: 'Past Search 1: "Machine Learning in Medical Imaging"' },
-    { id: 2, text: 'Past Search 2: "AI Predictive Models for Disease"' },
-    { id: 3, text: 'Past Search 3: "Natural Language Processing in Healthcare"' },
+    { id: 1, text: 'Project Query 1: "Effectiveness of Statins in Preventing Cardiovascular Events"' },
+    { id: 2, text: 'Project Query 2: "Comparative Effectiveness of Different Classes of Antihypertensive Drugs"' },
+    { id: 3, text: 'Project Query 3: "Impact of Lifestyle Changes on Cardiovascular Health"' },
   ]);
   const [loading, setLoading] = useState(false);
 
@@ -101,7 +101,7 @@ const HomePage = () => {
 
   return (
     <div className="homepage">
-      <h2>Your Gateway to Groundbreaking Research</h2>
+      <h2>The Gateway to Research Relevant to You</h2>
 
       <div className="search-container">
         <div className="search-bar-container">
@@ -110,7 +110,7 @@ const HomePage = () => {
           </button>
           <input 
             type="text" 
-            placeholder="Ask a research query"  
+            placeholder="Search for Evidence on Your Research Question"  
             className="search-bar" 
             value={query}
             onChange={handleInputChange}
@@ -387,7 +387,7 @@ const HomePage = () => {
       )}
 
       <div className="pinned-searches">
-        <h3 className="pinned-title">Research Project: AI in Healthcare</h3>
+        <h3 className="pinned-title">Project Question: <br></br> What are the most effective strategies for improving patient outcomes in cardiovascular diseases?</h3>
         <ul>
           {pinnedSearches.map(search => (
             <li key={search.id}>

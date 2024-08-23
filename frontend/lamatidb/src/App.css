@@ -43,9 +43,20 @@ html, body {
 }
 
 .header-text {
-  font-size: 15px;
-  color: #333;
+  font-size: 18px;
+  color: #1a3e59; /* A darker shade of blue for a more professional look */
   margin: 0;
+  font-family: 'Roboto', sans-serif; /* A clean and modern font */
+  font-weight: 600; /* Slightly bolder text for emphasis */
+  letter-spacing: 0.5px; /* Small letter spacing for readability */
+  text-transform: uppercase; /* Converts text to uppercase for uniformity */
+  text-shadow: 1px 1px 2px #ccc; /* A subtle shadow for depth */
+}
+
+.header-text:hover {
+  color: #003366; /* Slight color change on hover */
+  text-shadow: 2px 2px 5px #999; /* Enhanced shadow on hover for effect */
+  transition: all 0.3s ease-in-out; /* Smooth transition for the hover effect */
 }
 
 /* Footer */

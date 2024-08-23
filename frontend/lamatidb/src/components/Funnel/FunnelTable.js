@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
 import styles from './Funnel.module.css';
+import { updateDocumentArchivedStatus} from '../../services/statusService';
 
-const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper}) => {
+const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatusChange}) => {
   const [reviewStatuses, setReviewStatuses] = useState(
     results.map(result => result.is_archived || 'No') // Initialize the review statuses
   );
 
-  const handleReviewChange = (index, value) => {
+  const handleReviewChange = async (index, value) => {
     const updatedStatuses = [...reviewStatuses];
     updatedStatuses[index] = value;
     setReviewStatuses(updatedStatuses);
+  
+    // Convert the value to a boolean for the API call
+    const documentId = results[index].source_id.toString();
+    const isArchived = value === 'Yes';
+    await updateDocumentArchivedStatus(documentId, isArchived);
+
+    // Notify FunnelPage to refresh filters
+    onStatusChange();
   };
 
   const [currentPage, setCurrentPage] = useState(1);

@@ -17,11 +17,14 @@ const FunnelPage = () => {
   const [semanticQuery, setSemanticSearchQuery] = useState('');
   // const [narrowSearch, setNarrowSearch] = useState(false);
   const [narrowFields, setNarrowFields] = useState('All Fields');
+  const [showArchived, setShowArchived] = useState(false);
 
-  // Run handleFilters whenever currentStatus changes
+  // Run handleFilters whenever currentStatus (to bulk update selected items)
+  // or archivedStatus (individually select items) for a record changes
   useEffect(() => {
     handleFilters();
-  }, [currentStatus]);
+  }, [currentStatus, showArchived]);
+
   const handleUpdateStatuses = async (newStage) => {
     try {
       await updateDocumentStatuses(selectedPapers, newStage);
@@ -30,6 +33,10 @@ const FunnelPage = () => {
     } catch (error) {
       console.error('Failed to update statuses:', error);
     }
+  };
+
+  const handleArchiveRecord = () => {
+    handleFilters(); // Refresh the filters
   };
 
   // useEffect to update displayPapers whenever displayIds or papers change
@@ -81,15 +88,14 @@ const FunnelPage = () => {
     }
   };
 
-  
-  const clearSearch = () => {
-    setSemanticSearchQuery('');
+  const handleToggle = () => {
+    setShowArchived(prevState => !prevState);
   };
 
   const handleFilters = async () => {
     try {
       console.log("Filtering papers for status:", currentStatus);
-      const filteredPapers = await filterByStatus(currentStatus);
+      const filteredPapers = await filterByStatus(currentStatus, showArchived);
       const newPapers = filteredPapers.records;
       const newSourceIds = newPapers.map(paper => paper.source_id);
 
@@ -108,8 +114,28 @@ const FunnelPage = () => {
     }
   };
 
+  const clearSearch = () => {
+    setSemanticSearchQuery('');
+  };
+
   return (
     <div className={styles.container}>
+
+          {/* Show Archived Toggle */}
+          <div className={styles.toggleContainer}>
+            <label className={styles.toggleLabel}>
+              Show Archived
+              <input
+                type="checkbox"
+                checked={showArchived}
+                onChange={handleToggle}
+                className={styles.toggleInput} // Apply any custom styles here
+              />
+            </label>
+          </div>
+
+          {/* Status Buttons */}
+
       <div className={styles.statusButtonsContainer}>
         <button 
           className={`${styles.statusButton} ${currentStatus === 'Identified' ? styles.activeStatus : ''}`}
@@ -144,8 +170,10 @@ const FunnelPage = () => {
       </div>
       
       <div className={styles.controlsContainer}>
-        <span className={styles.selectedText}>Selected: {selectedPapers.length}</span>
-        <div className={styles.statusChange}>
+      <span className={styles.selectedText}>Selected: {selectedPapers.length}</span>
+      <span className={styles.shownText}>Total Results for View: {papers.length}</span>
+      <span className={styles.shownText}>Currently Displaying: {displayPapers.length}</span>
+      <div className={styles.statusChange}>
           <span>Change Status: </span>
           <select 
             value={currentStatus} 
@@ -210,6 +238,7 @@ const FunnelPage = () => {
 
       <FunnelTable
         results={displayPapers} // Use the papers state which contains filtered results
+        onStatusChange={handleArchiveRecord} 
         selectedPapers={selectedPapers}
         handleSelectPaper={handleSelectPaper}
         funnelStage={currentStatus}
