@@ -11,20 +11,15 @@ from query_interface import QueryInterface
 SettingsManager.set_global_settings()
 
 # Database and vector table names
-DB_NAME = "test_matias" #os.environ['TIDB_DB_NAME'] # set to test_matias as this has data loaded
-VECTOR_TABLE_NAME = "scibert_alldata"
+DB_NAME = "scibert_alldata_pico"
+VECTOR_TABLE_NAME = 'scibert_alldata_fulltext'
 
-CHAT_WITH_DATA_DB = "test"
-CHAT_WITH_DATA_VECTOR_TABLE_NAME = "Ben_full_docs_v3"
-CHAT_WITH_DATA_EMBEDDING_MODEL = "allenai/scibert_scivocab_uncased"
-
-# Load or create the index
-cwd_index_interface = IndexInterface(CHAT_WITH_DATA_DB,CHAT_WITH_DATA_VECTOR_TABLE_NAME,embedding_model_name=CHAT_WITH_DATA_EMBEDDING_MODEL)
-cwd_index_interface.load_index_from_vector_store()
-cwd_index = cwd_index_interface.get_index()
+index_interface_fulltext = IndexInterface(DB_NAME, VECTOR_TABLE_NAME+'_fulltext')
+index_interface_fulltext.load_index_from_vector_store()
+index_fulltext = index_interface_fulltext.get_index()
 
 def chat_with_documents(query:str, PMID=None)->str:
-    query_interface = QueryInterface(cwd_index)
+    query_interface = QueryInterface(index_fulltext)
     query_interface.configure_retriever(similarity_top_k=100)
     query_interface.configure_response_synthesizer()
     query_interface.assemble_query_engine()

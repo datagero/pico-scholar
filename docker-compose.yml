@@ -24,6 +24,7 @@ services:
       - ./backend/.env_docker
     ports:
       - "8000:8000"
+      - "8501:8501"
     networks:
       - mynetwork
     depends_on:

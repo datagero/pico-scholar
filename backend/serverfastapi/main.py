@@ -80,7 +80,7 @@ async def lifespan(app: FastAPI):
 
     index_interface_fulltext = IndexInterface(DB_NAME, VECTOR_TABLE_NAME+'_fulltext')
     index_interface_fulltext.load_index_from_vector_store()
-    index_fulltext = index_interface.get_index()
+    index_fulltext = index_interface_fulltext.get_index()
 
     # Load PICO indexes
     elements = ['p', 'i', 'c', 'o']
@@ -94,9 +94,9 @@ async def lifespan(app: FastAPI):
     # Function to load the index for a given combination
     def load_index(combination):
         key = ''.join(combination)
-        index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME+f"_{key}")
-        index_interface.load_index_from_vector_store()
-        return key, index_interface.get_index()
+        idx_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME+f"_{key}")
+        idx_interface.load_index_from_vector_store()
+        return key, idx_interface.get_index()
 
     # Using ThreadPoolExecutor to run the tasks in parallel
     with concurrent.futures.ThreadPoolExecutor() as executor:

@@ -13,7 +13,7 @@ def run(pmid):
     with open(pmid_file_path, "w") as file:
         file.write(pmid)
     
-    webbrowser.open('http://localhost:8501')
+    webbrowser.open('http://0.0.0.0:8501')
     _config.set_option("server.headless", True)
     args = []
 

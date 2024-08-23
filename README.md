@@ -26,7 +26,7 @@ FASTAPI_PORT=8000
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/new/#https://github.com/datagero/pico-scholar)
 
-You will have to manually paste a .env inside the backend/ folder to run the App.
+You will have to set your TIDB_PASSWORD for our cluster, and (optionally) OPENAI_API_KEY for access to all features..
 
 ## Swagger (to be replaced by FastAPI)
 To run the swagger/flask server (replace [PROJECT_ROOT_PATH])
