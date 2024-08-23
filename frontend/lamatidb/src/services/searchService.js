@@ -61,3 +61,42 @@ export const semanticSearchQuery = async (query, fields=["All Fields"], sourceId
     throw error;
   }
 };
+
+export const translateTerms = async (terms) => {
+  // For testing purposes, return a dummy output 
+  // (e.g. you'll need this if don't have OpenAI key available)
+  // const terms_output = {"scientific_notation": {
+  //   "Year of Publication": "",
+  //   "Country of Publication": "United States",
+  //   "Does the Study use Randomized Trial?": "Yes",
+  //   "P (Population)": "Adults over 25 years",
+  //   "I (Intervention)": "Drug A",
+  //   "C (Comparison)": "Placebo",
+  //   "O (Outcome)": "Reduction in symptoms"
+  // }};
+  // return terms_output;
+
+  try {
+    // Construct the request payload
+    const payload = terms;
+
+    // Make the API call to the backend translation service
+    const response = await fetch(`${BASE_URL}/translate_terms/`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error during the translation request:', error);
+    throw error;
+  }
+};
