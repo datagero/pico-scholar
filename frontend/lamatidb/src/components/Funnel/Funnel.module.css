@@ -392,3 +392,45 @@
   background-color: #f9f9f9;
   color: #333;
 }
+
+/* Adjust header cell padding for checkbox alignment */
+.headerCell input[type="checkbox"] {
+  margin-right: 5px; /* Adjust spacing between checkbox and label */
+  vertical-align: middle; /* Align the checkbox vertically */
+}
+
+.selectAllContainer {
+  margin-top: 10px; /* Space from the Narrow search fields */
+  display: flex;
+  align-items: left;
+}
+
+.selectAllContainer label {
+  margin-left: 5px;
+}
+
+/* Container for Selected, Change Status, and Select All */
+.selectedAndStatusContainer {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 10px;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 800px; /* Adjust as needed */
+}
+
+.selectedText {
+  font-size: 18px;
+}
+
+.statusChange {
+  display: flex;
+  align-items: center;
+}
+
+.selectAllContainer {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Space between checkbox and label */
+}

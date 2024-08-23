@@ -216,10 +216,6 @@ h2 {
   align-items: center;
 }
 
-.clear-button:hover {
-  color: #FF0000;
-}
-
 .search-button {
   position: absolute;
   right: 10px;
@@ -237,12 +233,6 @@ h2 {
 
 .search-button:hover {
   color: #007BFF;
-}
-
-.advanced-search-container {
-  text-align: left;
-  margin-top: 10px;
-  margin-left: 20%;
 }
 
 .advanced-search-popup {
@@ -440,21 +430,12 @@ button:hover, .btn-primary:hover {
   width: 700px;
 }
 
-.clear-button {
-  position: absolute;
-  right: 80px;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  color: #333;
+.search-bar {
+  width: 100%;
+  padding-left: 40px;
+  padding-right: 120px;
 }
 
-.clear-button:hover {
-  color: #FF0000;
-}
 
 .search-button {
   position: absolute;
@@ -564,6 +545,18 @@ button:hover, .btn-primary:hover {
 .clear-button:hover {
   color: #FF0000;
 }
+
+clear-button {
+    position: absolute;
+    right: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: #333;
+  }
 
 .search-button {
   position: absolute;

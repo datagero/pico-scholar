@@ -130,7 +130,7 @@ const HomePage = () => {
           )}
         </div>
       </div>
-
+      
       <div className="advanced-search-toggle">
         <label>
           <input 
