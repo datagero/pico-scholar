@@ -268,11 +268,11 @@ def update_document_status(
 
     return {"message": "Status updated successfully", "document_ids": document_ids, "new_status": status}
 
-@app.patch("/projects/{project_id}/documents/{document_id}/archive/")
+@app.patch("/projects/{project_id}/document/{document_id}/archive/{is_archived}")
 @retry_decorator
 def update_document_archived_status(
     project_id: int, 
-    document_id: int, 
+    document_id: str, 
     is_archived: bool, 
     db: Session = Depends(get_db)
 ):

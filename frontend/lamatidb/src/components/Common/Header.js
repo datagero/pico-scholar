@@ -6,7 +6,7 @@ const Header = () => {
   return (
     <header className="header">
       <img src={logo} alt="Logo" className="logo" />
-      <h1 className="header-text">Empowering Medical Research with Precision.</h1>
+      <h1 className="header-text">To the Edge of Human & AI Knowledge</h1>
       {/* Other header content */}
     </header>
   );
