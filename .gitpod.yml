@@ -29,13 +29,16 @@ tasks:
 
   - name: "Create Network"
     command: |
-      # Docker Compose automatically manages the network, so this step is optional
+      # Create Network do docker-compose can find it
       docker network create mynetwork || true
   
   - name: "Start Docker Compose Services"
     init: |
+      # Collect TiDB password
+      read -s -p 'Enter TiDB Password: ' TIDB_PASSWORD && echo "" && echo "TIDB_PASSWORD=$TIDB_PASSWORD" >> backend/.env_docker
+
       # Build and start all services defined in the docker-compose.yml
-      docker-compose up --build -d
+      docker-compose up --build
 
     command: |
       # Wait for MySQL to be up and running (optional)
@@ -46,14 +49,9 @@ tasks:
       echo "MySQL is up and running!"
       sudo chmod -R 777 /workspace/pico-scholar/backend/mysql_data/
 
-  - name: "Start Backend"
-    command: |
-      # Collect TiDB password
-      read -s -p 'Enter TiDB Password: ' TIDB_PASSWORD && echo "" && echo "TIDB_PASSWORD=$TIDB_PASSWORD" >> backend/.env_docker
-
-      # Restart the backend service to pick up the new .env_docker with the TiDB password
-      docker-compose restart backend
-
 ports:
   - port: 3000
     onOpen: open-preview
+    visibility: public
+  - port: 8000
+    visibility: public
