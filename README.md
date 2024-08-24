@@ -1,6 +1,13 @@
 We recommend you try the app through Gitpod (below) which provides all you need to get started.
 
-For your local development / use:
+## Try it!
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/new/#https://github.com/datagero/pico-scholar)
+
+You will have to set your TIDB_PASSWORD for our cluster, and (optionally) OPENAI_API_KEY for access to all features...
+
+## For your local development / use:
+
 1. Get your OpenAI key: https://platform.openai.com/docs/quickstart
 2. You need to set-up the below environment variables on a .env file at project level (and .env_docker at the backend folder)
 
@@ -23,12 +30,6 @@ PYTHONPATH=./backend
 FASTAPI_HOST=0.0.0.0
 FASTAPI_PORT=8000
 ```
-
-## Try it!
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/new/#https://github.com/datagero/pico-scholar)
-
-You will have to set your TIDB_PASSWORD for our cluster, and (optionally) OPENAI_API_KEY for access to all features...
 
 ## Docker Compose to run the containerised app
 ```
