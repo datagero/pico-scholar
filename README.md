@@ -1,3 +1,10 @@
+This project is built as part of the [TiDB Future App Hackathon 2024](https://tidbhackathon2024.devpost.com/?ref_feature=challenge&ref_medium=your-open-hackathons&ref_content=Submissions+open)
+
+Please read through the project inspiration and objectives, as well as a DEMO:
+https://devpost.com/software/pico-scholar
+
+This project will be made public and its technical components fully documented at that time.
+
 We recommend you try the app through Gitpod (below) which provides all you need to get started.
 
 ## Try it!
