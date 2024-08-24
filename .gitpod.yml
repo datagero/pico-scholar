@@ -20,7 +20,7 @@ tasks:
       echo "FASTAPI_HOST=0.0.0.0" >> backend/.env_docker
       echo "FASTAPI_PORT=8000" >> backend/.env_docker
       echo "TIDB_PASSWORD=0xOZGPxNiEW7Utj6" >> backend/.env_docker
-      echo "OPENAI_API_KEY=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"
+      echo "OPENAI_API_KEY=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" >> backend/.env_docker
 
   - name: "Set React API Base URL"
     command: |
