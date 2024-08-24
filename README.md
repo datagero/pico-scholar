@@ -1,9 +1,11 @@
+We recommend you try the app through Gitpod (below) which provides all you need to get started.
 
-1. For the demo scripts, get your OpenAI key: https://platform.openai.com/docs/quickstart
-2. You need to set-up the below environment variables on a .env file at project level
+For your local development / use:
+1. Get your OpenAI key: https://platform.openai.com/docs/quickstart
+2. You need to set-up the below environment variables on a .env file at project level (and .env_docker at the backend folder)
 
 ```
-DEVELOPER_NAME=
+OPENAI_API_KEY=
 
 TIDB_HOST=
 TIDB_USERNAME=
@@ -26,22 +28,23 @@ FASTAPI_PORT=8000
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/new/#https://github.com/datagero/pico-scholar)
 
-You will have to set your TIDB_PASSWORD for our cluster, and (optionally) OPENAI_API_KEY for access to all features..
+You will have to set your TIDB_PASSWORD for our cluster, and (optionally) OPENAI_API_KEY for access to all features...
 
-## Swagger (to be replaced by FastAPI)
-To run the swagger/flask server (replace [PROJECT_ROOT_PATH])
-
+## Docker Compose to run the containerised app
 ```
-export PROJECTROOTPATH=/Users/datagero/Documents/offline_repos
-export PYTHONPATH=$PYTHONPATH:/$PROJECTROOTPATH/lamatidb/server
-python -m swagger_server
+docker-compose up
 ```
 
-Once the server is running, you can visit `http://localhost:8080//ui/` to review documentation and test the API.
+## Front-end local run
+go to `frontend/lamatidb`
 
-For now, the server runs on test by default (with hardcoded outputs). You can modify this in `server/swagger_server/__main__.py`
+```
+npm install
+npm start
+```
+You can access the frontend through localhost:3000
 
-## FastAPI
+## Back-end FastAPI local run
 First, set-up MySQL container with persistent local storage
 
 ```
