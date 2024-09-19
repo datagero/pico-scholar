@@ -6,19 +6,19 @@ image:
 tasks:
   - name: "Set up .env_docker"
     command: |
-      echo "DEVELOPER_NAME=$DEVELOPER_NAME" >> backend/.env_docker
-      echo "TIDB_HOST=$TIDB_HOST" >> backend/.env_docker
-      echo "TIDB_USERNAME=$TIDB_USERNAME" >> backend/.env_docker
-      echo "TIDB_PORT=$TIDB_PORT" >> backend/.env_docker
-      echo "TIDB_DB_NAME=$TIDB_DB_NAME" >> backend/.env_docker
-      echo "MYSQL_HOST=$MYSQL_HOST" >> backend/.env_docker
-      echo "MYSQL_USERNAME=$MYSQL_USERNAME" >> backend/.env_docker
-      echo "MYSQL_PASSWORD=$MYSQL_PASSWORD" >> backend/.env_docker
-      echo "MYSQL_PORT=$MYSQL_PORT" >> backend/.env_docker
-      echo "MYSQL_DB_NAME=$MYSQL_DB_NAME" >> backend/.env_docker
-      echo "PYTHONPATH=$PYTHONPATH" >> backend/.env_docker
-      echo "FASTAPI_HOST=$FASTAPI_HOST" >> backend/.env_docker
-      echo "FASTAPI_PORT=$FASTAPI_PORT" >> backend/.env_docker
+      echo "DEVELOPER_NAME=" >> backend/.env_docker
+      echo "TIDB_HOST=" >> backend/.env_docker
+      echo "TIDB_USERNAME=" >> backend/.env_docker
+      echo "TIDB_PORT=" >> backend/.env_docker
+      echo "TIDB_DB_NAME=" >> backend/.env_docker
+      echo "MYSQL_HOST=mysql-container" >> backend/.env_docker
+      echo "MYSQL_USERNAME=root" >> backend/.env_docker
+      echo "MYSQL_PASSWORD=my-secret-pw" >> backend/.env_docker
+      echo "MYSQL_PORT=3306" >> backend/.env_docker
+      echo "MYSQL_DB_NAME=docker_test" >> backend/.env_docker
+      echo "PYTHONPATH=./backend" >> backend/.env_docker
+      echo "FASTAPI_HOST=0.0.0.0" >> backend/.env_docker
+      echo "FASTAPI_PORT=8000" >> backend/.env_docker
 
   - name: "Set React API Base URL"
     command: |
