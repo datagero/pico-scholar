@@ -1,6 +1,27 @@
 # PICO Scholar Project Overview 🚀
 
-Welcome to **PICO Scholar**, an innovative platform created for researchers to manage, extract, and categorize critical PICO elements (Population, Intervention, Comparison, Outcome) from scientific documents. This project is part of the [TiDB Future App Hackathon 2024](https://devpost.com/software/pico-scholar) and aims to streamline the research process by enabling fast, efficient, and accurate document search and PICO extraction through advanced AI models.
+**PICO Scholar** is an AI-driven platform revolutionizing how researchers conduct systematic reviews by automating the extraction, categorization, and retrieval of PICO elements (Population, Intervention, Comparison, Outcome) from scientific documents. The platform is part of the [TiDB Future App Hackathon 2024](https://devpost.com/software/pico-scholar) (link contains DEMO video) and empowers researchers to efficiently manage large volumes of literature with precision and speed.
+
+Explore our [launch blog](https://medium.com/p/68ab9a1f4377/edit) to discover how we built PICO Scholar, its core features, and how it enhances systematic literature reviews by guiding researchers' attention to the highest-value tasks.
+
+PICO Scholar goes beyond basic PICO extraction by leveraging **fine-tuned models for semantic search** and **Retrieval-Augmented Generation (RAG)** systems, with future support for **re-ranking** based on relevance and user feedback. It integrates advanced engineering methods to automate routine tasks, allowing researchers to focus on high-value analysis and decision-making. By offloading time-consuming, manual processes, PICO Scholar maximizes the productivity and attention of researchers, enabling them to engage with the most critical studies while automating more mundane aspects of the review process.
+
+With PICO Scholar, researchers can:
+
+- **Search and Rank Documents** using fine-tuned semantic search models, retrieving the most relevant studies.
+- **Extract PICO Elements** automatically from abstracts, providing concise, human-readable summaries.
+- **Apply Custom Filters** with scientific notations for more accurate search results.
+- **(Coming Soon) AI-Powered Re-Ranking** to enhance search precision and relevance.
+- **(Coming Soon) AI Feedback Loops** that continuously refine classification and retrieval processes through user input.
+
+## Screenshots
+
+### Search Screen
+![Search Screen](assets/search-screen.png)
+
+### Funnel Screen
+![Funnel Screen](assets/funnel-screen.png)
+
 
 ## Important Note on Setup
 
@@ -86,4 +107,10 @@ mysql -h 127.0.0.1 -P 3306 -u root -p
 - **Frontend**: React-based interface for managing research queries and document reviews.
 
 # Contributors
+
+PICO Scholar aims to evolve by integrating live model training, improving search granularity, expanding to new domains, and enhancing collaborative features for team-based research. The long-term vision is to transform systematic reviews across various disciplines by leveraging AI to enhance efficiency and accuracy.
+
+If you'd like to contribute or learn more, reach out at datagero@outlook.com.
+
 By: Matias V, Cristina DeLisle, Ben K, Will Gleason
+
