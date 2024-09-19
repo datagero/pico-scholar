@@ -2,7 +2,7 @@
 
 **PICO Scholar** is an AI-driven platform revolutionizing how researchers conduct systematic reviews by automating the extraction, categorization, and retrieval of PICO elements (Population, Intervention, Comparison, Outcome) from scientific documents. The platform is part of the [TiDB Future App Hackathon 2024](https://devpost.com/software/pico-scholar) (link contains DEMO video) and empowers researchers to efficiently manage large volumes of literature with precision and speed.
 
-Explore our [launch blog](https://medium.com/p/68ab9a1f4377/edit) to discover how we built PICO Scholar, its core features, and how it enhances systematic literature reviews by guiding researchers' attention to the highest-value tasks.
+Explore our [launch blog](https://medium.com/@datagero/pico-scholar-poc-exploring-llms-role-for-systematic-literature-reviews-68ab9a1f4377) to discover how we built PICO Scholar, its core features, and how it enhances systematic literature reviews by guiding researchers' attention to the highest-value tasks.
 
 PICO Scholar goes beyond basic PICO extraction by leveraging **fine-tuned models for semantic search** and **Retrieval-Augmented Generation (RAG)** systems, with future support for **re-ranking** based on relevance and user feedback. It integrates advanced engineering methods to automate routine tasks, allowing researchers to focus on high-value analysis and decision-making. By offloading time-consuming, manual processes, PICO Scholar maximizes the productivity and attention of researchers, enabling them to engage with the most critical studies while automating more mundane aspects of the review process.
 
