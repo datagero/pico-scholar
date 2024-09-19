@@ -73,10 +73,10 @@ class PICO:
         unwanted_tokens = ['[PAD]', '[CLS]', '[SEP]']
 
         # Convert labels to a expected name
-        original_labels_mapper = {'I-INT':'pico_p', 'I-PAR': 'pico_i', 'I-OUT': 'pico_c', 'I-OUT':'pico_o'}
+        original_labels_mapper = {'I-INT':'pico_p', 'I-PAR': 'pico_i', '0': 'pico_c', 'I-OUT':'pico_o'}
 
         for label_org, terms in extracted_terms.items():
-            if label_org not in original_labels_mapper.values():
+            if label_org not in original_labels_mapper.keys():
                 continue
             label = original_labels_mapper[label_org]
             cleaned_label_terms = []
@@ -153,10 +153,10 @@ class Metadata:
     def __init__(self):
         self.pico = PICO()
 
-    def process_text(self, texts, enhanced_pico, local_llm):
+    def process_text(self, texts, enhanced_pico=False, local_llm=False):
         predictions, input_ids, offset_mapping = self.pico.classify_texts(texts, threshold=0.7)
         extracted_terms = self.pico.extract_terms(predictions, input_ids, offset_mapping)
-        cleaned_terms = extracted_terms # [self.pico.clean_extracted_terms(x) for x in extracted_terms]
+        cleaned_terms =[self.pico.clean_extracted_terms(x) for x in extracted_terms]
         
         if enhanced_pico:
             enhanced_terms = self.pico.enhance_text(texts, extracted_terms, local_llm=local_llm)

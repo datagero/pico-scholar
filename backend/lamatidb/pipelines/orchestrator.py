@@ -43,13 +43,13 @@ datastore_db_name = os.environ['MYSQL_DB_NAME']
 # mysql_interface.create_tables("database/schemas.sql")
 
 # # # abstract_csv_file = 'datalake/mock_data/abstracts2.csv'
-# abstract_csv_file = 'datalake/pubmed/pubmed24n0541.csv'
+abstract_csv_file = 'datalake/pubmed/pubmed24n0541.csv'
 # abstract_ingestor = AbstractIngestor(db_type=datastore_db, db_name=datastore_db_name)
 # abstract_ingestor.process_csv(abstract_csv_file, enhanced_pico=False, database_description="Sampled PubMed datasets for abstracts and fulltext")
 
-# Recovery of PICO Data into the database
-abstract_ingestor = AbstractIngestor(db_type=datastore_db, db_name=datastore_db_name)
-abstract_ingestor.recovery_load_pico_enhanced('datalake/pubmed/recovered_pico_data.json')
+# # Recovery of PICO Data into the database
+# abstract_ingestor = AbstractIngestor(db_type=datastore_db, db_name=datastore_db_name)
+# abstract_ingestor.recovery_load_pico_enhanced('datalake/pubmed/recovered_pico_data.json')
 
 # # Load data from MySQL and process it into LlamaIndex documents
 # loader = LoaderPubMedAbstracts(db_type=datastore_db, db_name=datastore_db_name)
@@ -66,10 +66,10 @@ abstract_ingestor.recovery_load_pico_enhanced('datalake/pubmed/recovered_pico_da
 #                   (only if needed to load data/create index)
 #           ----------------------------------------------------------------------
 
-abstract_csv_file = 'datalake/pubmed/pubmed24n0541.csv'
-mapping_id_file = 'datalake/pubmed/PMC-ids-small.csv'
-fulltext_ingestor = FullDocumentIngestor(mapping_file=mapping_id_file, db_type=datastore_db, db_name=datastore_db_name)
-fulltext_ingestor.process_csv(abstract_csv_file, limitIDs=True, database_description="Mock Abstracts Database")
+# abstract_csv_file = 'datalake/pubmed/pubmed24n0541.csv'
+# mapping_id_file = 'datalake/pubmed/PMC-ids-small.csv'
+# fulltext_ingestor = FullDocumentIngestor(mapping_file=mapping_id_file, db_type=datastore_db, db_name=datastore_db_name)
+# fulltext_ingestor.process_csv(abstract_csv_file, limitIDs=True, database_description="Mock Abstracts Database")
 
 # # # Load data from MySQL and process it into LlamaIndex documents
 # loader = LoaderPubMedFullText(db_type=datastore_db, db_name=datastore_db_name)
@@ -84,9 +84,9 @@ fulltext_ingestor.process_csv(abstract_csv_file, limitIDs=True, database_descrip
 
 
 # # Adhoc generate PICOs and upsert to tables and vector databases
-# abstract_ingestor = AbstractIngestor(db_type=datastore_db, db_name=datastore_db_name)
+abstract_ingestor = AbstractIngestor(db_type=datastore_db, db_name=datastore_db_name)
 # unprocessed_data = abstract_ingestor.fetch_unprocessed_pico_data()
-# abstract_ingestor.process_pico_metadata(unprocessed_data, local_llm=True)
+abstract_ingestor.process_pico_metadata(abstract_csv_file, local_llm=False)
 
 # loader = LoaderPubMedAbstracts(db_type=datastore_db, db_name=datastore_db_name)
 # loader.load_data()

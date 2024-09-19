@@ -9,7 +9,7 @@ readme = "README.md"
 python = ">=3.9,<3.9.7"
 python-dotenv = "^1.0.1"
 sqlalchemy = "2.0.30"
-llama-index = "0.10.29"
+llama-index = "^0.10.29"
 llama-index-vector-stores-tidbvector = "0.1.2"
 llama-index-embeddings-huggingface = "^0.2.2"
 pymysql = "1.1.0"
@@ -17,6 +17,8 @@ tidb-vector = "0.0.9"
 pydantic = "2.7.1"
 pydantic-core = "2.18.2"
 fastapi-cors = "^0.0.6"
+together = "^1.2.9"
+llama-index-llms-together = "0.1.3"
 
 [tool.poetry.group.backend.dependencies]
 fastapi = {extras = ["standard"], version = "^0.112.1"}
@@ -26,7 +28,7 @@ streamlit = "^1.37.1"
 
 [tool.poetry.group.ingest.dependencies]
 wget = "^3.2"
-openai = "1.27.0"
+openai = ">=1.40.0,<2.0.0"
 adapters = "^1.0.0"
 xmltodict = "^0.13.0"
 

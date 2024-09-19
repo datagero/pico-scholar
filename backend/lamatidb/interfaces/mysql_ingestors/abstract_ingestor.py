@@ -10,7 +10,6 @@ import pickle
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from lamatidb.interfaces.database_interfaces.mysql_interface import MySQLInterface
 from lamatidb.interfaces.database_interfaces.database_interface import DatabaseInterface
 from lamatidb.interfaces.metadata_interface import Metadata
 from sqlalchemy import text
@@ -50,7 +49,6 @@ def generate_hash_key(input_str, length=16):
 class Ingestor:
     def __init__(self, db_type, db_name):
         self.mysql_interface = DatabaseInterface(db_type=db_type, db_name=db_name)
-        # self.mysql_interface = MySQLInterface()
         self.mysql_interface.setup_database()
         self.engine = self.mysql_interface.engine
         self.metadata_processor = Metadata()  # Initialize the Metadata class
@@ -162,7 +160,7 @@ class AbstractIngestor(Ingestor):
         # After processing CSV, process PICO metadata
         self.process_pico_metadata(csv_file, enhanced_pico)
 
-    def process_pico_metadata(self, csv_filepath:str, enhanced_pico, local_llm:bool=False):
+    def process_pico_metadata(self, csv_filepath:str, enhanced_pico:bool=False, local_llm:bool=False):
 
         df = pd.read_csv(csv_filepath)
 
@@ -195,11 +193,48 @@ class AbstractIngestor(Ingestor):
                     term.update({'documentId': document_id})
                     bulk_insert_data[label].append(term)
 
+        # tmp functions to clean pico data so we can write it to datastore.
+        def truncate_text(text, max_length):
+            """
+            Truncate the text to ensure it doesn't exceed the maximum length.
+            """
+            if isinstance(text, str) and len(text) > max_length:
+                return text[:max_length]  # Truncate the text if it's too long
+            return text
+
+        def clean_non_scalar(row, column_lengths):
+            """
+            Cleans the row, converting lists to strings, ensuring scalar values, 
+            and truncating text fields to fit within database limits.
+            
+            :param row: Row from the DataFrame.
+            :param column_lengths: A dictionary specifying the maximum length for each column.
+            """
+            for col in row.index:
+                max_length = column_lengths.get(col, 255)  # Default max length to 255 if not specified
+                if isinstance(row[col], list):  # Convert list to string
+                    row[col] = ', '.join(row[col]) if row[col] else None
+                elif isinstance(row[col], str):  # Truncate text to fit column size
+                    row[col] = truncate_text(row[col], max_length)
+                elif pd.isnull(row[col]):  # Handle None/NaN
+                    row[col] = None
+            return row
+
+        column_max_lengths = {
+            'pico_p': 200,  # Truncate to 200 characters
+            'pico_o': 200,  # Adjust as needed
+            'pico_i': 200,  # Adjust as needed
+            'pico_c': 200   # Adjust as needed, even though we set it to None initially
+        }
+
         # Convert lists to DataFrames and perform bulk insert
         with self.mysql_interface.get_session() as session:
             for label, data in bulk_insert_data.items():
                 if data:  # Ensure there is data to insert
                     pico_df = pd.DataFrame(data)
+                    # Write null column
+                    pico_df['pico_c'] = None
+                    pico_df = pico_df.apply(clean_non_scalar, axis=1, args=(column_max_lengths,))
                     self.insert_data(session, f'DocumentPICO_{label}', pico_df)
     
     def recovery_load_pico_enhanced(self, json_filepath:str):

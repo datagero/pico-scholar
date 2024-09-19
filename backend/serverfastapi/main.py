@@ -1,5 +1,6 @@
 # main.py
 import os
+import re
 import json
 import itertools
 import concurrent.futures
@@ -337,7 +338,7 @@ def translate_terms_via_chatgpt(terms: dict, db: Session = Depends(get_db)):
         chatgpt_prompt += f"Key: {key}\nValue: {value}\n"
 
     chatgpt_prompt += (
-        "\nProvide the output in JSON format, where each key is the original plain language term "
+        "\Return the output exclusively in JSON format (no other text), where each key is the original plain language term "
         "and the corresponding value is the translated scientific notation. Ensure the JSON structure is as follows:\n"
         "{\n"
         "  'Year of Publication': 'scientific notation here',\n"
@@ -351,15 +352,25 @@ def translate_terms_via_chatgpt(terms: dict, db: Session = Depends(get_db)):
     )
     try:
         query_interface = QueryInterface(index)
-        response = query_interface.query_chatgpt(chatgpt_prompt)
+        response = query_interface.query_llm(chatgpt_prompt)
     except Exception as e:
         print(response)
         raise HTTPException(status_code=500, detail=f"Error communicating with ChatGPT: {str(e)}")
 
     for attempt in range(3):
         try:
-            translated_dict = json.loads(response)
-            break
+            if attempt == 0:
+                translated_dict = json.loads(response)
+                break
+            if attempt == 1:
+                match = re.search(r'\{(.*)\}', response, re.DOTALL)
+                if match:
+                    extracted_text = match.group(0)  # Use group(0) to get the whole match including the braces
+                    print(extracted_text)
+                else:
+                    print("No match found.")
+                translated_dict = json.loads(extracted_text)
+                break
         except json.JSONDecodeError:
             print("Failed to decode JSON from ChatGPT response. Retrying...")
             if attempt < 2:  # If it's not the last attempt, continue trying

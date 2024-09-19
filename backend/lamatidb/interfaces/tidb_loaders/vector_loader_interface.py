@@ -1,5 +1,4 @@
 from llama_index.core import Document
-# from lamatidb.interfaces.database_interfaces.mysql_interface import MySQLInterface
 from lamatidb.interfaces.database_interfaces.database_interface import DatabaseInterface
 import itertools
 

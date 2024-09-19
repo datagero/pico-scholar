@@ -6,6 +6,7 @@ mysql_data
 .vscode/
 
 assets/*.jpg
+*drawio.bkp
 frontend/lamatidb/package-lock.json
 backend/lamatidb/interfaces/pmid.txt
 backend/datalake/pubmed/PMC-ids.csv

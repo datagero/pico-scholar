@@ -2,6 +2,10 @@
 
 import streamlit as st
 import os
+
+from dotenv import load_dotenv
+load_dotenv()  # This will load the variables from the .env file
+
 # Set up orchestrator (maybe we move to different file)
 from index_interface import IndexInterface
 from settings_manager import SettingsManager

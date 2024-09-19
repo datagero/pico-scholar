@@ -6,21 +6,19 @@ image:
 tasks:
   - name: "Set up .env_docker"
     command: |
-      echo "DEVELOPER_NAME=matias" >> backend/.env_docker
-      echo "TIDB_HOST=gateway01.us-east-1.prod.aws.tidbcloud.com" >> backend/.env_docker
-      echo "TIDB_USERNAME=6K9ZXKTM8XD1n73.root" >> backend/.env_docker
-      echo "TIDB_PORT=4000" >> backend/.env_docker
-      echo "TIDB_DB_NAME=scibert_alldata_pico" >> backend/.env_docker
-      echo "MYSQL_HOST=mysql-container" >> backend/.env_docker
-      echo "MYSQL_USERNAME=root" >> backend/.env_docker
-      echo "MYSQL_PASSWORD=my-secret-pw" >> backend/.env_docker
-      echo "MYSQL_PORT=3306" >> backend/.env_docker
-      echo "MYSQL_DB_NAME=docker_test" >> backend/.env_docker
-      echo "PYTHONPATH=./backend" >> backend/.env_docker
-      echo "FASTAPI_HOST=0.0.0.0" >> backend/.env_docker
-      echo "FASTAPI_PORT=8000" >> backend/.env_docker
-      echo "TIDB_PASSWORD=0xOZGPxNiEW7Utj6" >> backend/.env_docker
-      echo "OPENAI_API_KEY=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" >> backend/.env_docker
+      echo "DEVELOPER_NAME=$DEVELOPER_NAME" >> backend/.env_docker
+      echo "TIDB_HOST=$TIDB_HOST" >> backend/.env_docker
+      echo "TIDB_USERNAME=$TIDB_USERNAME" >> backend/.env_docker
+      echo "TIDB_PORT=$TIDB_PORT" >> backend/.env_docker
+      echo "TIDB_DB_NAME=$TIDB_DB_NAME" >> backend/.env_docker
+      echo "MYSQL_HOST=$MYSQL_HOST" >> backend/.env_docker
+      echo "MYSQL_USERNAME=$MYSQL_USERNAME" >> backend/.env_docker
+      echo "MYSQL_PASSWORD=$MYSQL_PASSWORD" >> backend/.env_docker
+      echo "MYSQL_PORT=$MYSQL_PORT" >> backend/.env_docker
+      echo "MYSQL_DB_NAME=$MYSQL_DB_NAME" >> backend/.env_docker
+      echo "PYTHONPATH=$PYTHONPATH" >> backend/.env_docker
+      echo "FASTAPI_HOST=$FASTAPI_HOST" >> backend/.env_docker
+      echo "FASTAPI_PORT=$FASTAPI_PORT" >> backend/.env_docker
 
   - name: "Set React API Base URL"
     command: |
@@ -36,9 +34,9 @@ tasks:
   
   - name: "Start Docker Compose Services"
     init: |
-      # Collect TiDB password and OpenAI key (this are offered in private repo for demo)
-      #read -s -p 'Enter TiDB Password: ' TIDB_PASSWORD && echo "" && echo "TIDB_PASSWORD=$TIDB_PASSWORD" >> backend/.env_docker
-      #read -s -p 'Enter OPENAI_API_KEY: ' OPENAI_API_KEY && echo "" && echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> backend/.env_docker
+      # Collect TiDB password and OpenAI key for application
+      read -s -p 'Enter TiDB Password: ' TIDB_PASSWORD && echo "" && echo "TIDB_PASSWORD=$TIDB_PASSWORD" >> backend/.env_docker
+      read -s -p 'Enter OPENAI_API_KEY: ' OPENAI_API_KEY && echo "" && echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> backend/.env_docker
 
       # Build and start all services defined in the docker-compose.yml
       docker-compose up --build
