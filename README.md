@@ -66,9 +66,9 @@ OPENAI_API_KEY=<your-openai-api-key>
    ```
 
 2. **Run Docker Compose**:
-   To spin up the containerized app, run:
+   To build and spin up the containerized app, run:
    ```sh
-   docker-compose up
+   docker-compose up --build
    ```
 
 3. Alternatively, spin up the individual components

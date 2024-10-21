@@ -352,11 +352,11 @@ def translate_terms_via_chatgpt(terms: dict, db: Session = Depends(get_db)):
     )
     try:
         query_interface = QueryInterface(index)
-        response = query_interface.query_llm(chatgpt_prompt)
+        response = query_interface.query_chatgpt(chatgpt_prompt)
     except Exception as e:
-        print(response)
         raise HTTPException(status_code=500, detail=f"Error communicating with ChatGPT: {str(e)}")
 
+    translated_dict = {}
     for attempt in range(3):
         try:
             if attempt == 0:
