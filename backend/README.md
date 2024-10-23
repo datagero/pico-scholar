@@ -80,7 +80,7 @@ backend/
    docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -v $(pwd)/mysql_data:/var/lib/mysql -p 3306:3306 -d mysql:latest
    ```
 
-2. **Connect to the MySQL server**:
+2. [Optional test] **Connect to the MySQL server**:
    ```sh
    docker exec -it mysql-container mysql -uroot -p
    ```

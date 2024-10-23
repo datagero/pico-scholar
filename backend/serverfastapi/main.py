@@ -166,18 +166,20 @@ def create_query_and_search(
     # Store the search results in the database
     db_results = crud.create_results(db, source_nodes, db_query)
 
-    # Mock some results with a 'Screened' status for demonstration
-    for idx in [0, 1, 2, 3]:
-        db_results[idx].funnel_stage = "Screened"
+    print(f"First results: {db_results[0]}")
 
-    # Archive certain results for demonstration
-    for idx in [3, 8, 9, 13]:
-        db_results[idx].is_archived = True
+    # # Mock some results with a 'Screened' status for demonstration
+    # for idx in [0, 1, 2, 3]:
+    #     db_results[idx].funnel_stage = "Screened"
+
+    # # Archive certain results for demonstration
+    # for idx in [3, 8, 9, 13]:
+    #     db_results[idx].is_archived = True
 
     db.commit()
 
     return {
-        "query": db_query,
+        "query": db_query.query_text,
         "results": db_results
     }
 

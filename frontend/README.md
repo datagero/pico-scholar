@@ -4,7 +4,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
-In the project directory (`front-end/lamatidb`), you can run:
+In the project directory (`frontend/lamatidb`), you can run:
 
 ### `npm start`
 

@@ -86,7 +86,7 @@ abstract_csv_file = 'datalake/pubmed/pubmed24n0541.csv'
 # # Adhoc generate PICOs and upsert to tables and vector databases
 abstract_ingestor = AbstractIngestor(db_type=datastore_db, db_name=datastore_db_name)
 # unprocessed_data = abstract_ingestor.fetch_unprocessed_pico_data()
-abstract_ingestor.process_pico_metadata(abstract_csv_file, local_llm=False)
+# abstract_ingestor.process_pico_metadata(abstract_csv_file, local_llm=False)
 
 # loader = LoaderPubMedAbstracts(db_type=datastore_db, db_name=datastore_db_name)
 # loader.load_data()
@@ -161,6 +161,7 @@ filters = [
 
 # Case 3.1 Just Retrieval
 query_interface.configure_retriever(similarity_top_k=100, metadata_filters=filters)
+query_interface.configure_retriever(similarity_top_k=100)
 source_nodes = query_interface.retriever.retrieve("Neurological and cerebral conditions.")
 
 # Case 3.2 With Syntesiser (By Default - requires LLM with metadata/context_window/etc...)
