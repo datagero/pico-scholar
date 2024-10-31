@@ -35,7 +35,7 @@ class QueryInterface:
             index=self.index,
             similarity_top_k=similarity_top_k,
             embedding_model=Settings.embed_model,
-            filters=metadata_filters,
+            filters=metadata_filters if metadata_filters else None,
         )
 
     def configure_response_synthesizer(self):
