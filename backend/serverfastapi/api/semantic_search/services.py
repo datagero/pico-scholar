@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
 from typing import List, Dict, Optional
-from api.semantic_search.models import Query, Result, SemanticQuery, SemanticResult
-from api.semantic_search.schemas import QueryCreate, SemanticQueryCreate
+from serverfastapi.api.semantic_search.models import Query, Result, SemanticQuery, SemanticResult
+from serverfastapi.api.semantic_search.schemas import QueryCreate, SemanticQueryCreate
 from lamatidb.interfaces.query_interface import QueryInterface
 from lamatidb.interfaces.database_interfaces.database_interface import DatabaseInterface
-from core.logger import logger
+from serverfastapi.core.logger import logger
 
 def perform_search(
     db: Session, 

@@ -2,8 +2,8 @@ import logging
 from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from api.semantic_search.schemas import QueryCreate, SemanticQueryCreate, ResultBase, Result
-from api.semantic_search.services import (
+from serverfastapi.api.semantic_search.schemas import QueryCreate, SemanticQueryCreate, ResultBase, Result
+from serverfastapi.api.semantic_search.services import (
     perform_search,
     perform_semantic_search,
     create_semantic_query,
@@ -12,7 +12,7 @@ from api.semantic_search.services import (
     update_document_status, 
     update_document_archived_status
 )
-from core.db import get_db
+from serverfastapi.core.db import get_db
 
 # Set up logging according to policy
 logging.basicConfig(

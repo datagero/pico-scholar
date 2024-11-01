@@ -6,16 +6,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
 from sqlalchemy.exc import OperationalError
 from contextlib import asynccontextmanager
+# from dotenv import load_dotenv
+# load_dotenv()  # This will load the variables from the .env file
 
 # Set up paths and imports
-sys.path.append("/Users/datagero/Documents/offline_repos/lamatidb/backend/serverfastapi")
-from core.config import settings
+from serverfastapi.core.config import settings
 # from api.project_management.routes import router as project_router
 # from api.document_management.routes import router as document_router
-from api.semantic_search.routes import router as search_router
+from serverfastapi.api.semantic_search.routes import router as search_router
 # from api.translation.routes import router as translation_router
 # from api.rag_system.routes import router as rag_router
-from app_init import initialize_services
+from serverfastapi.app_init import initialize_services
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -30,7 +31,7 @@ async def lifespan(app: FastAPI):
     app.state.services = services
 
     # Create all database tables
-    from core.db import Base
+    from serverfastapi.core.db import Base
     Base.metadata.create_all(bind=services["engine"])
 
     yield  # The app is now running and serving requests

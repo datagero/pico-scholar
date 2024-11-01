@@ -1,6 +1,6 @@
 # Stage 2: Copy application code and use cached dependencies
 # The current stage `pico-env-builder` already contains dependencies.
-FROM datagero/pico-env-builder:latest AS pico-env-builder
+FROM datagero/pico-env-builder:latest AS pico-backend
 
 # Set the working directory in the container
 WORKDIR /app

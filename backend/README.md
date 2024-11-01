@@ -119,6 +119,13 @@ docker tag pico-env-builder datagero/pico-env-builder:latest
 docker push datagero/pico-env-builder:latest
 ```
 
+If you need to build the pico-backend environment and push it to docker:
+```sh
+docker build --no-cache --target pico-backend -f Dockerfile .
+docker tag pico-backend datagero/pico-backend:latest
+docker push datagero/pico-backend:latest
+```
+
 ## API Endpoints 🌐
 
 | Endpoint | Method | Description |

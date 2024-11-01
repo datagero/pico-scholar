@@ -1,5 +1,5 @@
 import logging
-from core.config import settings
+from serverfastapi.core.config import settings
 
 # Configure the logging level based on environment variables
 logging.basicConfig(

@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, TEXT, Boolean, ForeignKey, JSON
 from sqlalchemy.orm import relationship
-from core.db import Base
+from serverfastapi.core.db import Base
 
 class Query(Base):
     __tablename__ = 'query'
