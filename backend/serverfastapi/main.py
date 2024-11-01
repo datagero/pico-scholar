@@ -8,7 +8,7 @@ import concurrent.futures
 from dotenv import load_dotenv
 load_dotenv()  # This will load the variables from the .env file
 
-from typing import List
+from typing import List, Optional
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -25,6 +25,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker
+import nest_asyncio
 
 crud = models.crud
 
@@ -182,6 +183,66 @@ def create_query_and_search(
         "query": db_query.query_text,
         "results": db_results
     }
+
+nest_asyncio.apply()
+@app.post("/projects/{project_id}/advanced_search/")
+@retry_decorator
+async def create_query_and_search(
+    project_id: int, 
+    query: schemas.QueryCreate, 
+    db: Session = Depends(get_db),
+    num_gen_queries: Optional[int] = 3
+):
+    """
+    Generated new queries based on input query and perform a search within 
+    the project's dataset using all generated queries.
+
+    Args:
+        project_id (int): ID of the project where the search is performed.
+        query (schemas.QueryCreate): The search query details.
+        db (Session): Database session.
+        num_gen_queries (int): Total number of queries to be generated.
+                    
+
+    Returns:
+        dict: Contains the query details and the search results.
+    """
+    # Create the query record in the database
+    db_query = crud.create_query(db, query=query)
+
+    # Configure and execute the search using the QueryInterface
+    query_interface = QueryInterface(index)
+    query_interface.configure_advanced_retriever(similarity_top_k=100, num_queries = num_gen_queries + 1)
+    source_nodes = query_interface.retriever.retrieve(query.query_text)
+
+    # Check if documents have a PDF available by comparing with datastore
+    query = "SELECT documentId FROM datastore.DocumentFull"
+    fulldoc_result = tidb_interface.fetch_data_from_db(query)
+    doc_ids = [x[0] for x in fulldoc_result]
+    
+    for source_node in source_nodes:
+        source_node.metadata['has_pdf'] = source_node.metadata['source'] in doc_ids
+
+    # Store the search results in the database
+    db_results = crud.create_results(db, source_nodes, db_query)
+
+    print(f"First results: {db_results[0]}")
+
+    # # Mock some results with a 'Screened' status for demonstration
+    # for idx in [0, 1, 2, 3]:
+    #     db_results[idx].funnel_stage = "Screened"
+
+    # # Archive certain results for demonstration
+    # for idx in [3, 8, 9, 13]:
+    #     db_results[idx].is_archived = True
+
+    db.commit()
+
+    return {
+        "query": db_query.query_text,
+        "results": db_results
+    }
+
 
 @app.get("/projects/{project_id}/get_status/{status}")
 @retry_decorator
@@ -465,4 +526,4 @@ def start_streamlit_session(document_id: int):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host=os.environ['FASTAPI_HOST'], port=int(os.environ['FASTAPI_PORT']), reload=True)
+    uvicorn.run("main:app", host=os.environ['FASTAPI_HOST'], port=int(os.environ['FASTAPI_PORT']), reload=True, loop="asyncio")
