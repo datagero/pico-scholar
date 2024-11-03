@@ -460,3 +460,23 @@
 .iconWithText .icon {
   margin-right: 10px; /* Increase the space between the icon and the text */
 }
+
+.summaryBox {
+  border: 1px solid #ccc;               /* Light border */
+  padding: 15px;                        /* Inner padding */
+  margin-top: 20px;                     /* Space above the box */
+  background-color: #f9f9f9;            /* Light background color */
+  font-size: 14px;                      /* Font size */
+  color: #333;                          /* Text color */
+  min-height: 50px;                     /* Minimum height */
+  max-width: 95%;                       /* Wider than the search bar */
+  margin-left: auto;                    /* Center the box */
+  margin-right: auto;                   /* Center the box */
+  overflow-wrap: break-word;            /* Wrap long words */
+  word-wrap: break-word;
+  display: flex;                        /* Flexbox for dynamic content */
+  align-items: flex-start;              /* Align content to the top */
+  justify-content: flex-start;
+  flex-direction: column;               /* Arrange content vertically */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Light shadow for emphasis */
+}

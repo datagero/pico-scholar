@@ -18,6 +18,12 @@ const FunnelPage = () => {
   const [selectAll, setSelectAll] = useState(false); // State for Select All checkbox
   const [narrowFields, setNarrowFields] = useState('All Fields');
   const [showArchived, setShowArchived] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1); // Track the current page
+
+    // Function to update the current page
+  const updateCurrentPage = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   // Run handleFilters whenever currentStatus (to bulk update selected items)
   // or archivedStatus (individually select items) for a record changes
@@ -118,6 +124,7 @@ const FunnelPage = () => {
   const clearSearch = () => {
     setSemanticSearchQuery('');
   };
+  
 
   return (
     <div className={styles.container}>
@@ -230,12 +237,18 @@ const FunnelPage = () => {
   </div>
 </div>
 
+      {/* Summary Box */}
+      <div className={styles.summaryBox}>
+        <p>{`AI Summary of items found on Page ${currentPage}.`}</p>
+      </div>
+
       <FunnelTable
-        results={displayPapers} // Use the papers state which contains filtered results
+        results={displayPapers} 
         onStatusChange={handleArchiveRecord} 
         selectedPapers={selectedPapers}
         handleSelectPaper={handleSelectPaper}
         funnelStage={currentStatus}
+        updateCurrentPage={updateCurrentPage} // Pass the function to update the page
       />
     </div>
   );

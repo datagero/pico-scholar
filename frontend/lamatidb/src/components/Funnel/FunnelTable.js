@@ -4,10 +4,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilePdf, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { updateDocumentArchivedStatus } from '../../services/statusService';
 
-const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatusChange }) => {
-  const [reviewStatuses, setReviewStatuses] = useState(
-    results.map(result => result.is_archived || 'No') // Initialize the review statuses
-  );
+const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatusChange, updateCurrentPage }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const papersPerPage = 10;
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    updateCurrentPage(pageNumber); // Update page in FunnelPage
+  };
+
+  const totalPages = Math.ceil(results.length / papersPerPage);
+  const indexOfLastPaper = currentPage * papersPerPage;
+  const indexOfFirstPaper = indexOfLastPaper - papersPerPage;
+  const currentPapers = results.slice(indexOfFirstPaper, indexOfLastPaper);
 
   const handleReviewChange = async (index, value) => {
     const updatedStatuses = [...reviewStatuses];
@@ -25,25 +34,11 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
     try {
       const result = await startStreamlitSession(documentId);
       console.log('Streamlit session initiated:', result);
-      // Additional logic to handle the session start, such as navigation or displaying a message
     } catch (error) {
       console.error('Error starting Streamlit session:', error);
-      // Handle the error, such as showing a notification to the user
     }
   };
   
-  
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const papersPerPage = 10;
-
-  const totalPages = Math.ceil(results.length / papersPerPage);
-  const indexOfLastPaper = currentPage * papersPerPage;
-  const indexOfFirstPaper = indexOfLastPaper - papersPerPage;
-  const currentPapers = results.slice(indexOfFirstPaper, indexOfLastPaper);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   const renderPagination = () => {
     const pages = [];
     const firstPages = 5;
@@ -107,7 +102,7 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
         <thead>
           <tr>
             <th className={`${styles.headerCell} ${styles.headerCellSelect}`}>Select</th>
-            <th className={`${styles.headerCell} ${styles.headerCellArchive}`}>Archive</th> {/* Archive column */}
+            <th className={`${styles.headerCell} ${styles.headerCellArchive}`}>Archive</th>
             <th className={`${styles.headerCell} ${styles.headerCellSummary}`}>Summary</th>
             <th className={`${styles.headerCell} ${styles.headerCellAbstract}`}>Abstract</th>
             <th className={`${styles.headerCell} ${styles.headerCellPICO}`} title="PICO: Patient, Intervention, Comparison, Outcome">PICO</th>
@@ -175,33 +170,22 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
 
       {/* Pagination Controls */}
       <div className={styles.pagination}>
-        <button
-          onClick={() => paginate(1)}
-          disabled={currentPage === 1}
-          className={styles.pageLink}
-        >
+        {/* Single Set of First and Previous Buttons */}
+        <button onClick={() => paginate(1)} disabled={currentPage === 1} className={styles.pageLink}>
           First
         </button>
-        <button
-          onClick={() => paginate(currentPage - 1)}
-          disabled={currentPage === 1}
-          className={styles.pageLink}
-        >
+        <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} className={styles.pageLink}>
           Previous
         </button>
+
+        {/* Page Number Buttons */}
         {renderPagination()}
-        <button
-          onClick={() => paginate(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className={styles.pageLink}
-        >
+
+        {/* Single Set of Next and Last Buttons */}
+        <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} className={styles.pageLink}>
           Next
         </button>
-        <button
-          onClick={() => paginate(totalPages)}
-          disabled={currentPage === totalPages}
-          className={styles.pageLink}
-        >
+        <button onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} className={styles.pageLink}>
           Last
         </button>
       </div>
