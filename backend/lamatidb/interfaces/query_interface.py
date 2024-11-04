@@ -1,13 +1,15 @@
 import openai # Temporarily as paid LLM
 # from together import Together
-from llama_index.core.retrievers import VectorIndexRetriever
+from llama_index.core.retrievers import VectorIndexRetriever, QueryFusionRetriever
+
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.postprocessor import SimilarityPostprocessor
 from llama_index.core import VectorStoreIndex, get_response_synthesizer
 from llama_index.core.vector_stores.types import MetadataFilter, MetadataFilters
 from llama_index.core import Settings
 from llama_index.core.llms import ChatMessage
-# from llama_index.llms.together import TogetherLLM
+from llama_index.llms.together import TogetherLLM
+
 
 class QueryInterface:
     def __init__(self, index):
@@ -25,8 +27,17 @@ class QueryInterface:
         #     model="meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"
         # )
         return
-
-
+    
+    def get_query_gen_prompt(self):
+        QUERY_GEN_PROMPT = (
+            "You are a helpful assistant that generates multiple search queries based on a "
+            "single input query. The input queries are related to medical field. Generate {num_queries} search queries "
+            "related to the following input query:\n"
+            "Query: {query}\n"
+            "Queries:\n"
+        )
+        return QUERY_GEN_PROMPT
+    
     def configure_retriever(self, similarity_top_k=100, metadata_filters=None):
         if metadata_filters:
             metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in metadata_filters])
@@ -37,6 +48,31 @@ class QueryInterface:
             embedding_model=Settings.embed_model,
             filters=metadata_filters if metadata_filters else None,
         )
+
+
+    def configure_advanced_retriever(self, similarity_top_k=100, metadata_filters=None, num_queries = 4):
+        if metadata_filters:
+            metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in metadata_filters])
+    
+        index_retriever = VectorIndexRetriever(
+            index=self.index,
+            similarity_top_k=similarity_top_k,
+            embedding_model=Settings.embed_model,
+            filters=metadata_filters,
+        )
+        #
+        
+        self.retriever = QueryFusionRetriever(
+            [index_retriever],
+            similarity_top_k=similarity_top_k,
+            num_queries=num_queries,  # set this to 1 to disable query generation
+            mode="reciprocal_rerank",
+            use_async=True,
+            verbose=True,
+            query_gen_prompt=self.get_query_gen_prompt(),  # we could override the query generation prompt here
+        )
+
+
 
     def configure_response_synthesizer(self):
         if not self.llm:
