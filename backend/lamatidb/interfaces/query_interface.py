@@ -74,6 +74,31 @@ class QueryInterface:
 
 
 
+
+    def configure_advanced_retriever(self, similarity_top_k=100, metadata_filters=None, num_queries = 4):
+        if metadata_filters:
+            metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in metadata_filters])
+    
+        index_retriever = VectorIndexRetriever(
+            index=self.index,
+            similarity_top_k=similarity_top_k,
+            embedding_model=Settings.embed_model,
+            filters=metadata_filters,
+        )
+        #
+        
+        self.retriever = QueryFusionRetriever(
+            [index_retriever],
+            similarity_top_k=similarity_top_k,
+            num_queries=num_queries,  # set this to 1 to disable query generation
+            mode="reciprocal_rerank",
+            use_async=True,
+            verbose=True,
+            query_gen_prompt=self.get_query_gen_prompt(),  # we could override the query generation prompt here
+        )
+
+
+
     def configure_response_synthesizer(self):
         if not self.llm:
             self.configure_llm()
