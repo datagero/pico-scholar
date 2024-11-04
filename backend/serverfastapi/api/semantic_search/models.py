@@ -1,3 +1,5 @@
+# Define or update the database schema/models for queries and search results.
+
 from sqlalchemy import Column, Integer, String, Float, TEXT, Boolean, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from serverfastapi.core.db import Base

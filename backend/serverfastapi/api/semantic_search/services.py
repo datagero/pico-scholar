@@ -1,12 +1,15 @@
+# This file will handle the core logic, including creating queries, retrieving documents, checking metadata, and storing results.
+
 from sqlalchemy.orm import Session
 from typing import List, Dict, Optional
 from serverfastapi.api.semantic_search.models import Query, Result, SemanticQuery, SemanticResult
-from serverfastapi.api.semantic_search.schemas import QueryCreate, SemanticQueryCreate
+from serverfastapi.api.semantic_search.schemas import QueryCreate, SemanticQueryCreate, FunnelEnum
 from lamatidb.interfaces.query_interface import QueryInterface
 from lamatidb.interfaces.database_interfaces.database_interface import DatabaseInterface
 from serverfastapi.core.logger import logger
+from sqlalchemy import func
 
-def perform_search(
+def execute_simple_search(
     db: Session, 
     project_id: int,
     query: QueryCreate, 
@@ -21,11 +24,50 @@ def perform_search(
 
     # Configure and execute the search
     query_interface = QueryInterface(index)
-    query_interface.configure_retriever(similarity_top_k=2)
+    query_interface.configure_retriever(similarity_top_k=None)
     logger.info("Executing search.")
     source_nodes = query_interface.retriever.retrieve(query.query_text)
 
     # Check if documents have a PDF available by querying the datastore
+    logger.info("Checking for PDF availability in datastore.")
+    pdf_check_query = "SELECT documentId FROM datastore.DocumentFull"
+    fulldoc_result = datastore_db.fetch_data_from_db(pdf_check_query)
+    doc_ids_with_pdf = {x[0] for x in fulldoc_result}
+
+    for source_node in source_nodes:
+        source_node.metadata['has_pdf'] = source_node.metadata['source'] in doc_ids_with_pdf
+
+    # Store the search results in the database
+    orm_results = create_results(db, source_nodes, db_query)
+    db.commit()
+
+    return {
+        "query": db_query.query_text,
+        "results": [result.to_dict() for result in orm_results]
+    }
+
+def execute_advanced_search(
+    db: Session, 
+    project_id: int,
+    query: QueryCreate, 
+    index: QueryInterface, 
+    datastore_db: DatabaseInterface,
+    num_gen_queries: int = 3
+) -> Dict:
+    """
+    Generate additional queries based on the input query, perform a search, 
+    and store results in the database.
+    """
+    logger.info("Creating query record in database.")
+    db_query = create_query(db, query=query)
+
+    # Configure and execute the search using the QueryInterface
+    query_interface = QueryInterface(index)
+    query_interface.configure_advanced_retriever(similarity_top_k=100, num_queries = num_gen_queries + 1)
+    logger.info("Executing search with advanced retriever.")
+    source_nodes = query_interface.retriever.retrieve(query.query_text)
+
+    # Check if documents have a PDF available in the datastore
     logger.info("Checking for PDF availability in datastore.")
     pdf_check_query = "SELECT documentId FROM datastore.DocumentFull"
     fulldoc_result = datastore_db.fetch_data_from_db(pdf_check_query)
@@ -151,12 +193,49 @@ def get_index_for_field(fields: List[str], services: Dict) -> QueryInterface:
         return services["index"]
 
 
-def get_status(db: Session, status: str, archived: bool):
-    """Retrieve documents with a specific funnel stage."""
+def get_status(
+    db: Session, 
+    status: str, 
+    archived: bool
+):
+    """
+    Retrieve documents within a specific funnel stage and their status.
+    
+    Args:
+        status (str): Funnel stage to filter documents by.
+        archived (bool): Whether to include archived documents.
+        db (Session): Database session.
+    
+    Returns:
+        dict: Contains the requested status, filtered records, and a count of documents in each funnel stage.
+    """
+    # Filter documents by the specified status and archived flag
     query = db.query(Result).filter(Result.funnel_stage == status)
+    
     if not archived:
         query = query.filter(Result.is_archived == False)
-    return query.all()
+        
+    filtered_records = query.all()
+
+    # Count documents in each funnel stage, grouped by archived status
+    funnel_count_query = (
+        db.query(Result.funnel_stage, Result.is_archived, func.count(Result.funnel_stage))
+        .group_by(Result.funnel_stage, Result.is_archived)
+    )
+    
+    # Initialize a dictionary with counts for each funnel stage
+    funnel_count_dict = {stage.value: {"archived": 0, "active": 0} for stage in FunnelEnum}
+    
+    # Update dictionary with actual counts from the query results
+    for stage, is_archived, count in funnel_count_query:
+        key = "archived" if is_archived else "active"
+        funnel_count_dict[stage][key] = count
+    
+    return {
+        "status": status,
+        "records": [result.to_dict() for result in filtered_records],
+        "funnel_count": funnel_count_dict
+    }
 
 def update_document_status(db: Session, document_ids: List[int], status: str):
     """Update the status of multiple documents."""

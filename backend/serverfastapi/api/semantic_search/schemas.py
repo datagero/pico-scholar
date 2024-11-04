@@ -1,3 +1,5 @@
+# Defines the request and response schemas for the API endpoint, validating the data format.
+
 from pydantic import BaseModel
 from typing import Optional, List
 import enum
