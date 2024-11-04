@@ -9,11 +9,12 @@ from dotenv import load_dotenv
 load_dotenv()  # This will load the variables from the .env file
 
 from typing import List
+from openai import OpenAI
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from lamatidb.interfaces.query_interface import QueryInterface
+from lamatidb.interfaces.query_interface import QueryInterface, FilterCondition
 from lamatidb.interfaces.index_interface import IndexInterface
 from lamatidb.interfaces.settings_manager import SettingsManager
 from lamatidb.interfaces.database_interfaces.database_interface import DatabaseInterface
@@ -119,6 +120,7 @@ async def lifespan(app: FastAPI):
 
     yield  # After this point, the application is running and serving requests
 
+
 app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
@@ -128,6 +130,7 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
 )
+
 
 @app.post("/projects/{project_id}/search/")
 @retry_decorator
@@ -182,6 +185,60 @@ def create_query_and_search(
         "query": db_query.query_text,
         "results": db_results
     }
+
+@app.post("/projects/{project_id}/summarize")
+@retry_decorator
+def get_rag_summaries(
+    project_id: int,
+    doc_ids: List[int],
+    #condition: FilterCondition.OR,
+):
+    """
+    Generate and return summary top ten documents for a project
+
+    Args:
+        project_id (int): ID of the project where the search is performed
+        doc_ids (List[int]): List of top 10 document IDs from the search
+    """
+    try:
+        DB_NAME = os.environ['TIDB_DB_NAME']
+        filters = [
+            {
+                "key": "source",
+                "value": doc_id,
+                "operator": "==",
+            } for doc_id in doc_ids
+        ]
+        # Initialize and configure IndexInterface
+        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        sum_index_interface = IndexInterface(DB_NAME, "scibert_alldata") # Vector table name should go here
+        sum_index_interface.load_index_from_vector_store()
+        index = sum_index_interface.get_index()
+
+        # Initialize and configure QueryInterface
+        sum_query_interface = QueryInterface(index)
+        sum_query_interface.configure_retriever(similarity_top_k=10, metadata_filters=filters, condition=FilterCondition.OR)
+        sum_query_interface.configure_response_synthesizer()
+        sum_query_interface.assemble_query_engine()
+
+        prompt = f"""You are a skilled researcher and summarization expert. Your task is to summarize the academic articles based on their abstracts into one cohesive description. Each article may come from a different field or focus on different aspects (theory, experiments, reviews, etc.), so ensure your summary reflects the key points accurately for each one.  
+        Form a cohesive paragraph that explains what the abstracts are generally about. Ensure you encapsulate the following topics from each of the abstracts:
+
+        1. Discipline or Topic: Identify the general areas of exploration for each abstract, if many overlap just include the overlapping topic once
+        2. Objective or Focus: Describe the main question, objective, or hypothesis the articles.
+        3. Methodology or Approach: Mention the type of study (e.g., experiment, survey, case study, literature review) and any notable techniques used.
+
+        Be concise but thorough, extracting only the most important information from the abstracts. Do not list each article one at a time but rather refer to the general idea of all articles. Keep your summary to a maximum of 75 words."""
+    
+        
+        response = sum_query_interface.query_chatgpt(prompt)
+
+        return {
+            "summary": response
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error during summarization")
+
 
 @app.get("/projects/{project_id}/get_status/{status}")
 @retry_decorator
