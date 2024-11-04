@@ -1,4 +1,5 @@
 Dockerfile
-docker-compose.yml
 
-# persisted_models
+.env
+.env_docker
+mysql_data

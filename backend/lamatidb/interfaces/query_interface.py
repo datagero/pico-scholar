@@ -46,9 +46,8 @@ class QueryInterface:
             index=self.index,
             similarity_top_k=similarity_top_k,
             embedding_model=Settings.embed_model,
-            filters=metadata_filters,
+            filters=metadata_filters if metadata_filters else None,
         )
-
 
     def configure_advanced_retriever(self, similarity_top_k=100, metadata_filters=None, num_queries = 4):
         if metadata_filters:
@@ -60,7 +59,6 @@ class QueryInterface:
             embedding_model=Settings.embed_model,
             filters=metadata_filters,
         )
-        #
         
         self.retriever = QueryFusionRetriever(
             [index_retriever],
@@ -71,8 +69,6 @@ class QueryInterface:
             verbose=True,
             query_gen_prompt=self.get_query_gen_prompt(),  # we could override the query generation prompt here
         )
-
-
 
     def configure_response_synthesizer(self):
         if not self.llm:

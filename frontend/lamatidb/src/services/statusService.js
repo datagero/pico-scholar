@@ -6,7 +6,7 @@ export const filterByStatus = async (currentStatus, show_archived = false) => {
         archived: show_archived.toString()  // Convert the boolean to a string ('true' or 'false')
       });
 
-      const response = await fetch(`${BASE_URL}/projects/1/get_status/${currentStatus}?${queryParams.toString()}`, {
+      const response = await fetch(`${BASE_URL}/search/projects/1/get_status/${currentStatus}?${queryParams.toString()}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -26,7 +26,7 @@ export const filterByStatus = async (currentStatus, show_archived = false) => {
 
 export const updateDocumentStatuses = async (documentIds, newStatus) => {
   try {
-    const response = await fetch(`${BASE_URL}/projects/1/documents/${documentIds.join(',')}/status/${newStatus}`, {
+    const response = await fetch(`${BASE_URL}/search/projects/1/documents/${documentIds.join(',')}/status/${newStatus}`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',
@@ -49,7 +49,7 @@ export const updateDocumentStatuses = async (documentIds, newStatus) => {
 
 export const updateDocumentArchivedStatus = async (documentId, isArchived) => {
   try {
-    const response = await fetch(`${BASE_URL}/projects/1/document/${documentId.toString()}/archive/${isArchived}`, {
+    const response = await fetch(`${BASE_URL}/search/projects/1/document/${documentId.toString()}/archive/${isArchived}`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',

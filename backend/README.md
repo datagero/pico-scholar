@@ -112,11 +112,17 @@ backend/
 
 ### Development Setup for Python Environment
 
-If you're working in development and need to build the Python environment:
+If you're working in development and need to build the Python environment and (optionally) push it to the registry:
 ```sh
 docker build --no-cache -t pico-env-builder --target pico-env-builder -f Dockerfile.stage1 .
 docker tag pico-env-builder datagero/pico-env-builder:latest
 docker push datagero/pico-env-builder:latest
+```
+
+If you need to build the pico-backend environment and push it to docker registry:
+```sh
+docker build --no-cache --platform linux/amd64 --target pico-backend -t datagero/pico-backend:latest -f Dockerfile .
+docker push datagero/pico-backend:latest
 ```
 
 ## API Endpoints 🌐
