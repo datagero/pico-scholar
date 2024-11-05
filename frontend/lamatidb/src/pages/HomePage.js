@@ -11,7 +11,23 @@ const HomePage = () => {
   const [scientificNotations, setScientificNotations] = useState({});
   const [isScientificQueryVisible, setIsScientificQueryVisible] = useState(false);
 
-  // State to capture human-readable user inputs
+  const [aiOptimiserChecked, setAiOptimiserChecked] = useState(false);
+  const [aiQuestions, setAiQuestions] = useState([
+    "What is the best treatment?",
+    "What is the average outcome?",
+    "What is the control data?",
+    "What are the intervention steps?",
+    "What is the outcome?"
+  ]);
+
+  const handleAiOptimiserChange = () => {
+    setAiOptimiserChecked(!aiOptimiserChecked);
+  };
+
+  const deleteAiQuestion = (index) => {
+    setAiQuestions(prevQuestions => prevQuestions.filter((_, i) => i !== index));
+  };
+
   const [yearFrom, setYearFrom] = useState('');
   const [yearTo, setYearTo] = useState('');
   const [country, setCountry] = useState('');
@@ -34,17 +50,11 @@ const HomePage = () => {
 
     try {
       const translatedTerms = await translateTerms(terms);
-      console.log('Translated Terms:', translatedTerms); // Add this line to debug
       setScientificNotations(translatedTerms.scientific_notation);
     } catch (error) {
       console.error('Translation failed:', error);
-      // Handle error (e.g., show notification)
     }
   };
-
-  React.useEffect(() => {
-    console.log('Updated scientificNotations:', scientificNotations);
-  }, [scientificNotations]);
 
   const [pinnedSearches, setPinnedSearches] = useState([
     { id: 1, text: 'Project Query 1: "Effectiveness of Statins in Preventing Cardiovascular Events"' },
@@ -76,7 +86,6 @@ const HomePage = () => {
       setLoading(true);
       try {
         const data = await searchQuery(query);
-        console.log('Search results:', data);
         navigate('/results', { state: { results: data.results } });
       } catch (error) {
         console.error('Error during the search request:', error);
@@ -85,12 +94,6 @@ const HomePage = () => {
       }
     } else {
       alert('Please enter a search query');
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
     }
   };
 
@@ -113,7 +116,7 @@ const HomePage = () => {
             className="search-bar" 
             value={query}
             onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
           {query && (
             <button className="clear-button" onClick={clearInput}>
@@ -130,7 +133,37 @@ const HomePage = () => {
           )}
         </div>
       </div>
-      
+
+      {/* AI Query Optimiser Checkbox */}
+      <div className="ai-query-optimiser-toggle">
+        <label>
+          <input 
+            type="checkbox" 
+            checked={aiOptimiserChecked} 
+            onChange={handleAiOptimiserChange} 
+          />
+          AI Query Optimiser
+        </label>
+      </div>
+
+      {/* AI Query Optimiser Box */}
+      {aiOptimiserChecked && (
+        <div className="advanced-search-box ai-query-box" style={{ textAlign: 'center' }}>
+          <div className="advanced-search-content" style={{ display: 'inline-block', textAlign: 'left' }}>
+            <div className="advanced-search-fields">
+              {aiQuestions.map((question, index) => (
+                <div key={index} className="ai-question" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>{question}</span>
+                  <button onClick={() => deleteAiQuestion(index)} className="clear-button">
+                    <FontAwesomeIcon icon={faTimes} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="advanced-search-toggle">
         <label>
           <input 
@@ -275,107 +308,107 @@ const HomePage = () => {
             </div>
           )}
 
-      {isScientificQueryVisible && (
-        <div className="advanced-search-box">
-          <div className="advanced-search-content">
-            <div className="advanced-search-fields">
-              <label className="field-label">
-                <Tooltip title="Scientific year range for publication">
-                  <span className="field-name">Scientific Notation Translation</span>
-                </Tooltip>
-                <div className="field-inputs">
-                  <input
-                    type="text"
-                    className="advanced-input"
-                    placeholder="Scientific From..."
-                    value={scientificNotations['Year of Publication'] ? scientificNotations['Year of Publication'].split(' ')[0] : ''}
-                  />
-                  <input
-                    type="text"
-                    className="advanced-input"
-                    placeholder="Scientific To..."
-                    value={scientificNotations['Year of Publication'] ? scientificNotations['Year of Publication'].split(' ')[1] : ''}
-                  />
-                </div>
-              </label>
-              
-              <label className="field-label">
-                <Tooltip title="Scientific filter by country">
-                  <span className="field-name">~</span>
-                </Tooltip>
-                <input
-                  type="text"
-                  className="advanced-input"
-                  placeholder="Scientific country..."
-                  value={scientificNotations['Country of Publication'] || ''}
-                />
-              </label>
-              
-              <label className="field-label">
-                <Tooltip title="Indicate scientific use of randomized trial methodology">
-                  <span className="field-name">~</span>
-                </Tooltip>
-                <div className="field-inputs">
-                  <label>
-                    <input
-                      type="radio"
-                      name="randomizedTrial"
-                      value="Yes"
-                      checked={scientificNotations['Does the Study use Randomized Trial?'] === 'Yes'}
-                    /> Yes
+          {isScientificQueryVisible && (
+            <div className="advanced-search-box">
+              <div className="advanced-search-content">
+                <div className="advanced-search-fields">
+                  <label className="field-label">
+                    <Tooltip title="Scientific year range for publication">
+                      <span className="field-name">Scientific Notation Translation</span>
+                    </Tooltip>
+                    <div className="field-inputs">
+                      <input
+                        type="text"
+                        className="advanced-input"
+                        placeholder="Scientific From..."
+                        value={scientificNotations['Year of Publication'] ? scientificNotations['Year of Publication'].split(' ')[0] : ''}
+                      />
+                      <input
+                        type="text"
+                        className="advanced-input"
+                        placeholder="Scientific To..."
+                        value={scientificNotations['Year of Publication'] ? scientificNotations['Year of Publication'].split(' ')[1] : ''}
+                      />
+                    </div>
                   </label>
-                  <label>
+                  
+                  <label className="field-label">
+                    <Tooltip title="Scientific filter by country">
+                      <span className="field-name">~</span>
+                    </Tooltip>
                     <input
-                      type="radio"
-                      name="randomizedTrial"
-                      value="No"
-                      checked={scientificNotations['Does the Study use Randomized Trial?'] === 'No'}
-                    /> No
+                      type="text"
+                      className="advanced-input"
+                      placeholder="Scientific country..."
+                      value={scientificNotations['Country of Publication'] || ''}
+                    />
                   </label>
-                </div>
-              </label>
-              
-              <label className="field-label">
-                <Tooltip title="Scientific strategy based on PICO criteria">
-                  <span className="field-name">~</span>
-                </Tooltip>
-                <div className="pico-container">
-                  <div className="pico-item">
-                    <span className="field-name">~</span>
-                    <input
-                      type="text"
-                      className="advanced-input"
-                      placeholder="Scientific population..."
-                      value={scientificNotations['P (Population)'] || ''}
-                    />
-                  </div>
-                  <div className="pico-item">
-                    <span className="field-name">~</span>
-                    <input
-                      type="text"
-                      className="advanced-input"
-                      placeholder="Scientific intervention..."
-                      value={scientificNotations['I (Intervention)'] || ''}
-                    />
-                  </div>
-                  <div className="pico-item">
-                    <span className="field-name">~</span>
-                    <input
-                      type="text"
-                      className="advanced-input"
-                      placeholder="Scientific comparison..."
-                      value={scientificNotations['C (Comparison)'] || ''}
-                    />
-                  </div>
-                  <div className="pico-item">
-                    <span className="field-name">~</span>
-                    <input
-                      type="text"
-                      className="advanced-input"
-                      placeholder="Scientific outcome..."
-                      value={scientificNotations['O (Outcome)'] || ''}
-                    />
-                  </div>
+                  
+                  <label className="field-label">
+                    <Tooltip title="Indicate scientific use of randomized trial methodology">
+                      <span className="field-name">~</span>
+                    </Tooltip>
+                    <div className="field-inputs">
+                      <label>
+                        <input
+                          type="radio"
+                          name="randomizedTrial"
+                          value="Yes"
+                          checked={scientificNotations['Does the Study use Randomized Trial?'] === 'Yes'}
+                        /> Yes
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="randomizedTrial"
+                          value="No"
+                          checked={scientificNotations['Does the Study use Randomized Trial?'] === 'No'}
+                        /> No
+                      </label>
+                    </div>
+                  </label>
+                  
+                  <label className="field-label">
+                    <Tooltip title="Scientific strategy based on PICO criteria">
+                      <span className="field-name">~</span>
+                    </Tooltip>
+                    <div className="pico-container">
+                      <div className="pico-item">
+                        <span className="field-name">~</span>
+                        <input
+                          type="text"
+                          className="advanced-input"
+                          placeholder="Scientific population..."
+                          value={scientificNotations['P (Population)'] || ''}
+                        />
+                      </div>
+                      <div className="pico-item">
+                        <span className="field-name">~</span>
+                        <input
+                          type="text"
+                          className="advanced-input"
+                          placeholder="Scientific intervention..."
+                          value={scientificNotations['I (Intervention)'] || ''}
+                        />
+                      </div>
+                      <div className="pico-item">
+                        <span className="field-name">~</span>
+                        <input
+                          type="text"
+                          className="advanced-input"
+                          placeholder="Scientific comparison..."
+                          value={scientificNotations['C (Comparison)'] || ''}
+                        />
+                      </div>
+                      <div className="pico-item">
+                        <span className="field-name">~</span>
+                        <input
+                          type="text"
+                          className="advanced-input"
+                          placeholder="Scientific outcome..."
+                          value={scientificNotations['O (Outcome)'] || ''}
+                        />
+                      </div>
                     </div>
                   </label>
                 </div>
@@ -415,7 +448,7 @@ const HomePage = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default HomePage;

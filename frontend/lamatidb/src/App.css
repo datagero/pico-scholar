@@ -652,3 +652,64 @@ clear-button {
   width: 100%;
 }
 
+/* Styles for the AI Query Optimiser box */
+.ai-query-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 600px;
+  margin: 20px auto;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+/* Container for each AI question */
+.advanced-search-content {
+  display: inline-block;
+  width: 100%;
+}
+
+/* Styling for each query field */
+.ai-question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  margin-bottom: 8px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  position: relative;
+}
+
+.ai-question:hover {
+  background-color: #f0f0f0;
+}
+
+/* Text inside each query field */
+.ai-question span {
+  font-size: 16px;
+  color: #333;
+}
+
+/* X button to delete each query, aligned to the right inside the field */
+.ai-question .clear-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+  padding: 0;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.ai-question .clear-button:hover {
+  color: #FF0000;
+}
