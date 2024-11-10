@@ -4,7 +4,6 @@ assets
 # Work in progress
 backend/serverfastapi/api/document_management
 backend/serverfastapi/api/project_management
-backend/serverfastapi/api/rag_system
 backend/serverfastapi/api/translation
 backend/lamatidb/pipelines/my_tests.py
 
