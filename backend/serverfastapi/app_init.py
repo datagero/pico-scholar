@@ -26,7 +26,7 @@ def initialize_services():
     VECTOR_TABLE_NAME = 'scibert_alldata'
 
     # Load indexes using the operations database
-    index = _load_index(VECTOR_TABLE_NAME, DB_NAME)
+    index = _load_index("scibert_synergy", DB_NAME)
     index_fulltext = _load_index(f'{VECTOR_TABLE_NAME}_fulltext', DB_NAME)
 
     # Load PICO indexes in parallel

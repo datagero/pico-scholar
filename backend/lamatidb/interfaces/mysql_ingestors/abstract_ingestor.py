@@ -130,6 +130,9 @@ class AbstractIngestor(Ingestor):
 
         df = pd.read_csv(csv_file)
 
+        # Drop if publication year is "unknown"
+        df = df[df['Publication Year'] != 'Unknown']
+
         # Process and insert data into the Document table
         document_data = df[['PMID', 'Title', 'Authors', 'Publication Year']].copy()
         document_data.columns = ['documentId', 'title', 'author', 'year']
