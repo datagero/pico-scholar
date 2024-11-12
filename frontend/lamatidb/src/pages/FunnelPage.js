@@ -21,7 +21,7 @@ const FunnelPage = () => {
   const [showOnlyItemsWithPDFs, setShowOnlyItemsWithPDFs] = useState(false); // New state for "Show Only Items with PDFs"
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
 
-    // Function to update the current page
+  // Function to update the current page
   const updateCurrentPage = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -119,32 +119,29 @@ const FunnelPage = () => {
 
       setPapers(newPapers);
       setSourceIds(newSourceIds);
-      setDisplayPaperIds(newSourceIds);
-      console.log(filteredPapers); // Log filtered results for debugging
+      setDisplayPapers(showOnlyItemsWithPDFs ? newPapers.filter(p => p.has_pdf) : newPapers); // Filter by PDFs if toggled on
     } catch (error) {
       console.error('Error in handleFilters:', error);
     }
   };
 
-    // Update the displayed papers based on the PDF filter
-    useEffect(() => {
-      if (showOnlyItemsWithPDFs) {
-        setDisplayPapers(papers.filter((paper) => paper.has_pdf)); // Assuming each paper has a `hasPDF` boolean
-      } else {
-        setDisplayPapers(papers); // Reset to show all papers if PDF filter is off
-      }
-    }, [showOnlyItemsWithPDFs, papers]);
+  // Update the displayed papers based on the PDF filter
+  useEffect(() => {
+    if (showOnlyItemsWithPDFs) {
+      setDisplayPapers(papers.filter((paper) => paper.has_pdf)); // Assuming each paper has a `hasPDF` boolean
+    } else {
+      setDisplayPapers(papers); // Reset to show all papers if PDF filter is off
+    }
+  }, [showOnlyItemsWithPDFs, papers]);
 
   const clearSearch = () => {
     setSemanticSearchQuery('');
   };
-  
 
   return (
     <div className={styles.container}>
 
-          {/* Status Buttons */}
-
+      {/* Status Buttons */}
       <div className={styles.statusButtonsContainer}>
         <button 
           className={`${styles.statusButton} ${currentStatus === 'Identified' ? styles.activeStatus : ''}`}
@@ -179,86 +176,86 @@ const FunnelPage = () => {
       </div>
       
       <div className={styles.controlsContainer}>
-  <div className={styles.searchAndNarrowContainer}>
-    <div className={styles.searchContainer}>
-      <input
-        type="text"
-        className={styles.searchInput}
-        placeholder="Search in current list of papers."
-        value={semanticQuery}
-        onChange={(e) => setSemanticSearchQuery(e.target.value)}
-      />
-      <button className={styles.clearButton} onClick={clearSearch}>
-        &times;
-      </button>
-      <button className={styles.searchButton} onClick={handleSemanticSearch}>
-        ➔
-      </button>
-    </div>
-
-    <div className={styles.narrowSearchContainer}>
-      Narrow search to fields
-      <select 
-        value={narrowFields} 
-        onChange={(e) => setNarrowFields(e.target.value)} 
-        className={styles.dropdown}
-      >
-        <option value="All Fields">All Fields</option>
-        <option value="Full Document">Full Document</option>
-        <option value="Patient">Patient</option>
-        <option value="Intervention">Intervention</option>
-        <option value="Comparison">Comparison</option>
-        <option value="Outcome">Outcome</option>
-      </select>
-    </div>
-  </div>
-
-  <div className={styles.selectedAndStatusContainer}>
-    <div className={styles.selectAllContainer}>
-      <input
-        type="checkbox"
-        checked={selectAll}
-        onChange={handleSelectAllChange}
-      />
-      <label>Select All</label>
-    </div>
-    <span className={styles.selectedText}>Selected: {selectedPapers.length}</span>
-    <div className={styles.statusChange}>
-      <span>Change Status: </span>
-      <select 
-        value={currentStatus} 
-        onChange={handleStageChange} 
-        className={styles.dropdown}
-      >
-        <option value="Identified">Identified</option>
-        <option value="Screened">Screened</option>
-        <option value="Sought Retrieval">Sought Retrieval</option>
-        <option value="Assessed Eligibility">Assessed Eligibility</option>
-        <option value="Included in Review">Included in Review</option>
-      </select>
-    </div>
-    <div className={styles.filterControlsContainer}>
-      <label className={styles.filterLabel}>
-        Show Archived
-        <input
-          type="checkbox"
-          checked={showArchived}
-          onChange={handleToggle}
-          className={styles.toggleInput}
-        />
-      </label>
-      <label className={styles.filterLabel}>
-      Show Only Items with PDFs
-        <input
-              type="checkbox"
-              checked={showOnlyItemsWithPDFs}
-              onChange={handleToggleShowOnlyItemsWithPDFs}
-              className={styles.toggleInput}
+        <div className={styles.searchAndNarrowContainer}>
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Search in current list of papers."
+              value={semanticQuery}
+              onChange={(e) => setSemanticSearchQuery(e.target.value)}
             />
-          </label>
-    </div>
-  </div>
-</div>
+            <button className={styles.clearButton} onClick={clearSearch}>
+              &times;
+            </button>
+            <button className={styles.searchButton} onClick={handleSemanticSearch}>
+              ➔
+            </button>
+          </div>
+
+          <div className={styles.narrowSearchContainer}>
+            Narrow search to fields
+            <select 
+              value={narrowFields} 
+              onChange={(e) => setNarrowFields(e.target.value)} 
+              className={styles.dropdown}
+            >
+              <option value="All Fields">All Fields</option>
+              <option value="Full Document">Full Document</option>
+              <option value="Patient">Patient</option>
+              <option value="Intervention">Intervention</option>
+              <option value="Comparison">Comparison</option>
+              <option value="Outcome">Outcome</option>
+            </select>
+          </div>
+        </div>
+
+        <div className={styles.selectedAndStatusContainer}>
+          <div className={styles.selectAllContainer}>
+            <input
+              type="checkbox"
+              checked={selectAll}
+              onChange={handleSelectAllChange}
+            />
+            <label>Select All</label>
+          </div>
+          <span className={styles.selectedText}>Selected: {selectedPapers.length}</span>
+          <div className={styles.statusChange}>
+            <span>Change Status: </span>
+            <select 
+              value={currentStatus} 
+              onChange={handleStageChange} 
+              className={styles.dropdown}
+            >
+              <option value="Identified">Identified</option>
+              <option value="Screened">Screened</option>
+              <option value="Sought Retrieval">Sought Retrieval</option>
+              <option value="Assessed Eligibility">Assessed Eligibility</option>
+              <option value="Included in Review">Included in Review</option>
+            </select>
+          </div>
+          <div className={styles.filterControlsContainer}>
+            <label className={styles.filterLabel}>
+              Show Archived
+              <input
+                type="checkbox"
+                checked={showArchived}
+                onChange={handleToggle}
+                className={styles.toggleInput}
+              />
+            </label>
+            <label className={styles.filterLabel}>
+              Show Only Items with PDFs
+              <input
+                type="checkbox"
+                checked={showOnlyItemsWithPDFs}
+                onChange={handleToggleShowOnlyItemsWithPDFs}
+                className={styles.toggleInput}
+              />
+            </label>
+          </div>
+        </div>
+      </div>
 
       {/* Summary Box */}
       <div className={styles.summaryBox}>
@@ -272,6 +269,14 @@ const FunnelPage = () => {
         handleSelectPaper={handleSelectPaper}
         funnelStage={currentStatus}
         updateCurrentPage={updateCurrentPage} // Pass the function to update the page
+        renderSummaryColumn={(paper) => (
+          <>
+            <div>PDF Available</div>
+            {paper.has_pdf && (
+              <button className={styles.pdfAssistantButton}>PDF AI Assistant</button>
+            )}
+          </>
+        )}
       />
     </div>
   );

@@ -22,7 +22,7 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
     const updatedStatuses = [...reviewStatuses];
     updatedStatuses[index] = value;
     setReviewStatuses(updatedStatuses);
-  
+
     const documentId = results[index].source_id.toString();
     const isArchived = value === 'Yes';
     await updateDocumentArchivedStatus(documentId, isArchived);
@@ -30,15 +30,6 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
     onStatusChange();
   };
 
-  const handlePdfClick = async (documentId) => {
-    try {
-      const result = await startStreamlitSession(documentId);
-      console.log('Streamlit session initiated:', result);
-    } catch (error) {
-      console.error('Error starting Streamlit session:', error);
-    }
-  };
-  
   const renderPagination = () => {
     const pages = [];
     const firstPages = 5;
@@ -138,6 +129,7 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
                     <div className={styles.iconWithText}>
                       <FontAwesomeIcon icon={faFilePdf} className={styles.icon} title="PDF Available" />
                       <span>PDF Available</span>
+                      <button className={styles.pdfAssistantButton}>PDF AI Assistant</button>
                     </div>
                   ) : (
                     <div className={styles.iconWithText}>
@@ -170,18 +162,13 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
 
       {/* Pagination Controls */}
       <div className={styles.pagination}>
-        {/* Single Set of First and Previous Buttons */}
         <button onClick={() => paginate(1)} disabled={currentPage === 1} className={styles.pageLink}>
           First
         </button>
         <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} className={styles.pageLink}>
           Previous
         </button>
-
-        {/* Page Number Buttons */}
         {renderPagination()}
-
-        {/* Single Set of Next and Last Buttons */}
         <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} className={styles.pageLink}>
           Next
         </button>

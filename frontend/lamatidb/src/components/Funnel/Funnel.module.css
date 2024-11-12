@@ -510,3 +510,20 @@
   white-space: nowrap; /* Prevent text from wrapping */
   padding-right: 20px; /* Space between labels and checkboxes */
 }
+
+/* Styles for the PDF AI Assistant Button */
+.pdfAssistantButton {
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-top: 5px;
+  display: inline-block;
+}
+
+.pdfAssistantButton:hover {
+  background-color: #0056b3;
+}
