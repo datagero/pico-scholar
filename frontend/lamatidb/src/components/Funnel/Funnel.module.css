@@ -406,7 +406,13 @@
 }
 
 .selectAllContainer label {
-  margin-left: 5px;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap; /* Prevent text from wrapping */
+  gap: 10px; /* Space between each filter option */
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 /* Container for Selected, Change Status, and Select All */
@@ -422,11 +428,19 @@
 
 .selectedText {
   font-size: 17px;
+  white-space: nowrap; /* Prevent text from wrapping */
+  gap: 10px; /* Space between each filter option */
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .statusChange {
   display: flex;
   align-items: center;
+  gap: 10px; /* Space between each filter option */
+  margin-top: 10px;
+  margin-bottom: 10px;
+  white-space: nowrap; /* Prevent text from wrapping */
 }
 
 .selectAllContainer {
@@ -479,4 +493,20 @@
   justify-content: flex-start;
   flex-direction: column;               /* Arrange content vertically */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Light shadow for emphasis */
+}
+
+/* New Filter Controls Container to handle spacing */
+.filterControlsContainer {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Space between each filter option */
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.filterLabel {
+  display: flex;
+  align-items: center;
+  white-space: nowrap; /* Prevent text from wrapping */
+  padding-right: 20px; /* Space between labels and checkboxes */
 }

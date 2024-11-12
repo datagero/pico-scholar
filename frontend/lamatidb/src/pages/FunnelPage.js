@@ -18,6 +18,7 @@ const FunnelPage = () => {
   const [selectAll, setSelectAll] = useState(false); // State for Select All checkbox
   const [narrowFields, setNarrowFields] = useState('All Fields');
   const [showArchived, setShowArchived] = useState(false);
+  const [showOnlyItemsWithPDFs, setShowOnlyItemsWithPDFs] = useState(false); // New state for "Show Only Items with PDFs"
   const [currentPage, setCurrentPage] = useState(1); // Track the current page
 
     // Function to update the current page
@@ -42,6 +43,10 @@ const FunnelPage = () => {
 
   const handleArchiveRecord = () => {
     handleFilters(); // Refresh the filters
+  };
+
+  const handleToggleShowOnlyItemsWithPDFs = () => {
+    setShowOnlyItemsWithPDFs((prevState) => !prevState);
   };
 
   // useEffect to update displayPapers whenever displayIds or papers change
@@ -120,6 +125,15 @@ const FunnelPage = () => {
       console.error('Error in handleFilters:', error);
     }
   };
+
+    // Update the displayed papers based on the PDF filter
+    useEffect(() => {
+      if (showOnlyItemsWithPDFs) {
+        setDisplayPapers(papers.filter((paper) => paper.has_pdf)); // Assuming each paper has a `hasPDF` boolean
+      } else {
+        setDisplayPapers(papers); // Reset to show all papers if PDF filter is off
+      }
+    }, [showOnlyItemsWithPDFs, papers]);
 
   const clearSearch = () => {
     setSemanticSearchQuery('');
@@ -223,8 +237,8 @@ const FunnelPage = () => {
         <option value="Included in Review">Included in Review</option>
       </select>
     </div>
-    <div className={styles.showArchivedContainer}>
-      <label className={styles.toggleLabel}>
+    <div className={styles.filterControlsContainer}>
+      <label className={styles.filterLabel}>
         Show Archived
         <input
           type="checkbox"
@@ -233,6 +247,15 @@ const FunnelPage = () => {
           className={styles.toggleInput}
         />
       </label>
+      <label className={styles.filterLabel}>
+      Show Only Items with PDFs
+        <input
+              type="checkbox"
+              checked={showOnlyItemsWithPDFs}
+              onChange={handleToggleShowOnlyItemsWithPDFs}
+              className={styles.toggleInput}
+            />
+          </label>
     </div>
   </div>
 </div>

@@ -713,3 +713,30 @@ clear-button {
 .ai-question .clear-button:hover {
   color: #FF0000;
 }
+
+/* Ensures checkboxes align horizontally */
+.controlsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.showOptionsContainer {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #333;
+  white-space: nowrap;
+  padding-right: 100px; /* Direct padding for spacing between labels */
+  min-width: 200px; /* Set minimum width to force each label to take up space */
+}
+
+.toggleInput {
+  margin-left: 8px;
+}
