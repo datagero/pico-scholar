@@ -1,12 +1,48 @@
 import pandas as pd
 from lamatidb.interfaces.ingestion_interfaces.pubmed_handler import PubMedHandler
 
+MAX_METADATA_LENGTH = 1024
+MAX_AUTHORS = 5
 
 def get_last_part(pmid):
     if isinstance(pmid, str):  # Check if pmid is a string
         parts = pmid.split('/')
         return parts[-1] if parts else pmid  # Return last part if available
     return pmid  # Return as is if not a string (e.g., NaN)
+
+# Define the utility functions
+def find_large_metadata_records(documents, max_length=MAX_METADATA_LENGTH):
+    """
+    Identify records with metadata exceeding the specified length.
+    """
+    large_metadata_records = []
+    
+    for doc in documents:
+        metadata_length = len(str(doc.metadata)) if doc.metadata else 0
+        if metadata_length > max_length:
+            large_metadata_records.append(doc)
+    
+    return large_metadata_records
+
+def reduce_authors_in_metadata(metadata, max_authors=MAX_AUTHORS):
+    """
+    Reduce the author list in metadata to a specified number and add 'et al.' if shortened.
+    
+    Parameters:
+        metadata (dict): Metadata of a document containing an 'authors' key with a comma-separated string of authors.
+        max_authors (int): Maximum number of authors to keep.
+        
+    Returns:
+        dict: Updated metadata with a reduced author list.
+    """
+    if 'authors' in metadata and isinstance(metadata['authors'], str):
+        authors_list = [author.strip() for author in metadata['authors'].split(',')]  # Split and strip each author
+        if len(authors_list) > max_authors:
+            # Keep only the first max_authors and add 'et al.'
+            metadata['authors'] = ', '.join(authors_list[:max_authors]) + ', et al.'
+        else:
+            metadata['authors'] = ', '.join(authors_list)  # Rejoin without "et al." if within limit
+    return metadata
 
 
 def clean_dataframe_prioritize_included(df, id_column="pmid_clean", label_column="label_included"):
@@ -37,7 +73,8 @@ def clean_dataframe_prioritize_included(df, id_column="pmid_clean", label_column
 
 if __name__ == "__main__":
     # Example usage
-    synergy_data_path = "datalake/synergy/Appenzeller-Herzog_2019_ids.csv"
+    study_name = 'Menon_2022'
+    synergy_data_path = f"datalake/synergy/{study_name}_ids.csv"
     synergy_df = pd.read_csv(synergy_data_path)
 
     # Get pmids from the synergy data
@@ -61,12 +98,12 @@ if __name__ == "__main__":
 
     # Add additional metadata
     for item in pubmed_data:
-        item['study_name'] = 'Appenzeller-Herzog_2019'
+        item['study_name'] = study_name
         item['included_in_study'] = pmid_to_included[item['PMID']]
 
     # Save as CSV
     pubmed_df = pd.DataFrame(pubmed_data)
-    pubmed_df.to_csv("datalake/synergy/processed_Appenzeller-Herzog_2019_pubmed.csv", index=False)
+    pubmed_df.to_csv(f"datalake/synergy/processed_{study_name}_pubmed.csv", index=False)
 
 # ==============================================================================================
     # Now, we want to load the CSV through our ingestor.
@@ -81,12 +118,12 @@ if __name__ == "__main__":
     datastore_db_name = os.environ['MYSQL_DB_NAME']
 
     # ## Create the tables if they don't exist
-    # ## Delete all existing tables
-    # mysql_interface = DatabaseInterface(db_type=datastore_db, db_name=datastore_db_name, force_recreate_db=True)
-    # mysql_interface.setup_database()
-    # mysql_interface.create_tables("database/schemas.sql")
+    ## Delete all existing tables
+    mysql_interface = DatabaseInterface(db_type=datastore_db, db_name=datastore_db_name, force_recreate_db=True)
+    mysql_interface.setup_database()
+    mysql_interface.create_tables("database/schemas.sql")
 
-    abstract_csv_file = 'datalake/synergy/processed_Appenzeller-Herzog_2019_pubmed.csv'
+    abstract_csv_file = f'datalake/synergy/processed_{study_name}_pubmed.csv'
     abstract_ingestor = AbstractIngestor(db_type=datastore_db, db_name=datastore_db_name)
     abstract_ingestor.process_csv(abstract_csv_file, enhanced_pico=False, database_description="Sampled data from Synergy datasets for labelled included and excluded PMIDs from systematic review")
 
@@ -116,6 +153,13 @@ if __name__ == "__main__":
 
     # Retrieve the documents and feed into LlamaIndex
     documents = loader.get_documents()
+    large_metadata_records = find_large_metadata_records(documents, MAX_METADATA_LENGTH)
+    
+    # Modify documents with large metadata
+    for doc in large_metadata_records:
+        doc.metadata = reduce_authors_in_metadata(doc.metadata, MAX_AUTHORS)
+    
+
     index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME)
     index_interface.create_index(documents=documents) # Uncomment only if need to create / append to index
 

@@ -123,7 +123,7 @@ class AbstractIngestor(Ingestor):
         super().__init__(db_type=db_type, db_name=db_name)
         self.database_id = None
 
-    def process_csv(self, csv_file: str, database_description=None, enhanced_pico=False):
+    def process_csv(self, csv_file: str, database_description=None, process_pico=False, enhanced_pico=False):
 
         database_name = os.path.basename(os.path.dirname(csv_file))
         self.database_id = self.ensure_database_exists(database_name, description=database_description)
@@ -159,9 +159,9 @@ class AbstractIngestor(Ingestor):
             # if not mappings_df.empty:
             #     self.insert_data(session, 'DocumentDatabaseMapping', mappings_df)
                 
-
-        # After processing CSV, process PICO metadata
-        self.process_pico_metadata(csv_file, enhanced_pico)
+        if process_pico:
+            # After processing CSV, process PICO metadata
+            self.process_pico_metadata(csv_file, enhanced_pico)
 
     def process_pico_metadata(self, csv_filepath:str, enhanced_pico:bool=False, local_llm:bool=False):
 
