@@ -1,5 +1,7 @@
 # Comment once designs are finalised
 assets
+tmp
+openshift
 
 # Work in progress
 backend/serverfastapi/api/document_management

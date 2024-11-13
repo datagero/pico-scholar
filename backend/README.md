@@ -74,6 +74,12 @@ backend/
 
 ### Docker - Option 1: Run Locally
 
+---
+
+**Note**: In recent versions, a full TiDB Cloud setup can replace MySQL, based on the configuration in `backend/serverfastapi/app_init.py`. If `TiDB` is selected as the database type, you can skip the MySQL setup steps entirely.
+
+--- 
+
 1. **Set up MySQL Container with persistent local storage**:
    ```sh
    export MYSQL_ROOT_PASSWORD=my-secret-pw
@@ -107,7 +113,7 @@ backend/
    ```sh
    export MYSQL_ROOT_PASSWORD=my-secret-pw
    docker run --network mynetwork --name mysql-container -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -v $(pwd)/mysql_data:/var/lib/mysql -p 3306:3306 -d mysql:latest
-   docker run --network mynetwork --env-file .env_docker --name pico-backend -p 8000:8000 -p 8501:8501 pico-backend
+   docker run --network mynetwork --env-file .env_docker --name pico-backend -p 8000:8000 -p 8501:8501 datagero/pico-backend
    ```
 
 ### Development Setup for Python Environment

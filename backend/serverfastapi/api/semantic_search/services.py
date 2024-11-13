@@ -43,7 +43,7 @@ def execute_simple_search(
 
     return {
         "query": db_query.query_text,
-        "results": [result.to_dict() for result in orm_results[:10]]
+        "results": [result.to_dict() for result in orm_results[:5]]
     }
 
 def execute_advanced_search(

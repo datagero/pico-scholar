@@ -4,29 +4,29 @@ FROM node:18-alpine as build
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the package.json and package-lock.json files
-COPY package*.json ./
 
-# Install dependencies
-RUN npm install --no-optional
+# add `/app/node_modules/.bin` to $PATH
+ENV PATH /app/node_modules/.bin:$PATH
 
-# Copy the rest of the application code
-COPY . .
+# install application dependencies
+COPY package.json ./
+COPY package-lock.json ./
+RUN npm install --unsafe-perm=true --allow-root
 
-# Build the React application
-RUN npm run build
+# add app
+COPY . ./
 
-# Use a lightweight server to serve the built files
-FROM nginx:alpine
+# RUN chown -R 1000:1000 ./
+RUN mkdir -p /app/node_modules/.cache 
+RUN chown -R 1000:0 /app && chmod -R ug+rwx /app
+RUN chown -R 1000:0 /app/node_modules/.cache
+RUN chmod -R 777 /app/node_modules/.cache
+USER 1000
 
-# Copy the build output to the NGINX web server directory
-COPY --from=build /app/build /usr/share/nginx/html
+EXPOSE 3000
 
-# Copy custom NGINX configuration
-COPY nginx.conf /etc/nginx/conf.d/nginx.conf
+# Disable host check to fix Invalid Host header
+ENV WDS_SOCKET_PORT 0
 
-# Expose the port on which the app runs
-EXPOSE 80
-
-# Start the NGINX server
-CMD ["nginx", "-g", "daemon off;"]
+# start app
+CMD ["npm", "start"]
