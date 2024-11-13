@@ -11,7 +11,7 @@ def initialize_services():
     SettingsManager.set_global_settings()
 
     # Initialize databases and engines
-    operations_db = DatabaseInterface(db_type='mysql', db_name='operations_test', force_recreate_db=True)
+    operations_db = DatabaseInterface(db_type='tidb', db_name='operations', force_recreate_db=True)
     operations_db.setup_database()
     datastore_db = DatabaseInterface(db_type='tidb', db_name='datastore')
 

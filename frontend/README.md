@@ -75,9 +75,9 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 Build the image to set-up our frontend environment. Since we're targeting the gitpod environment, then its best to build and push this to the registry from the gitpod env to avoid compatability issues.
 
 ```
-docker build --no-cache -t pico-react-app --target pico-react-app -f Dockerfile.stage1 .
-docker tag pico-react-app datagero/pico-react-app:latest 
-docker push datagero/pico-react-app:latest
+
+docker build --platform linux/amd64 --no-cache -f Dockerfile -t datagero/pico-frontend .
+docker push datagero/pico-frontend:latest
 ```
 
 
@@ -89,11 +89,11 @@ Follow the backend instructions to make sure these are started on the network.
 From the `\frontend\lamatidb` directory, build the docker image
 
 ```
-docker build -t my-react-app .
+docker build -t pico-frontend .
 ```
 
 Join a network called `mynetwork` (as per backend instructions) with both the mysql-container and the pico-backend
 
 ```
-docker run -it --network mynetwork -p 3000:80 my-react-app
+docker run -it --name pico-frontend --network mynetwork -p 3000:3000 datagero/pico-frontend
 ```

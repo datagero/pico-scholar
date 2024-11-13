@@ -857,7 +857,7 @@
     "fsevents": "^2.3.3"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "HOST=0.0.0.0 react-scripts start --disable-host-check",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
