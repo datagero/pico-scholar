@@ -6,7 +6,7 @@ const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
 export const searchQuery = async (query) => {
     try {
-      const response = await fetch(`${BASE_URL}/projects/1/search/`, {
+      const response = await fetch(`${BASE_URL}/search/projects/1/simple_search/`, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -42,7 +42,7 @@ export const semanticSearchQuery = async (query, fields=["All Fields"], sourceId
     };
 
     // Make the API call to backend
-    const response = await fetch(`${BASE_URL}/projects/1/semantic_search/`, {
+    const response = await fetch(`${BASE_URL}/search/projects/1/semantic_search/`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -81,7 +81,7 @@ export const translateTerms = async (terms) => {
     const payload = terms;
 
     // Make the API call to the backend translation service
-    const response = await fetch(`${BASE_URL}/translate_terms/`, {
+    const response = await fetch(`${BASE_URL}/search/translate_terms/`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',

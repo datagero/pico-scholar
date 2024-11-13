@@ -62,10 +62,15 @@ OPENAI_API_KEY=<your-openai-api-key>
    MYSQL_PASSWORD=my-secret-pw
    MYSQL_PORT=3306
    MYSQL_DB_NAME=docker_test
-   PYTHONPATH=./backend
+   PYTHONPATH=./backend:./backend/serverfastapi
    ```
 
 2. **Run Docker Compose**:
+   The first time, we need to create a network
+   ```sh
+   docker network create mynetwork
+   ```
+
    To build and spin up the containerized app, run:
    ```sh
    docker-compose up --build

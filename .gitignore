@@ -1,3 +1,15 @@
+# Comment once designs are finalised
+assets
+tmp
+openshift
+
+# Work in progress
+backend/serverfastapi/api/document_management
+backend/serverfastapi/api/project_management
+backend/serverfastapi/api/rag_system
+backend/serverfastapi/api/translation
+backend/lamatidb/pipelines/my_tests.py
+
 .DS_Store
 useful_commands.txt
 sql_app.db

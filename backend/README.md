@@ -74,6 +74,12 @@ backend/
 
 ### Docker - Option 1: Run Locally
 
+---
+
+**Note**: In recent versions, a full TiDB Cloud setup can replace MySQL, based on the configuration in `backend/serverfastapi/app_init.py`. If `TiDB` is selected as the database type, you can skip the MySQL setup steps entirely.
+
+--- 
+
 1. **Set up MySQL Container with persistent local storage**:
    ```sh
    export MYSQL_ROOT_PASSWORD=my-secret-pw
@@ -107,16 +113,22 @@ backend/
    ```sh
    export MYSQL_ROOT_PASSWORD=my-secret-pw
    docker run --network mynetwork --name mysql-container -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -v $(pwd)/mysql_data:/var/lib/mysql -p 3306:3306 -d mysql:latest
-   docker run --network mynetwork --env-file .env_docker --name pico-backend -p 8000:8000 -p 8501:8501 pico-backend
+   docker run --network mynetwork --env-file .env_docker --name pico-backend -p 8000:8000 -p 8501:8501 datagero/pico-backend
    ```
 
 ### Development Setup for Python Environment
 
-If you're working in development and need to build the Python environment:
+If you're working in development and need to build the Python environment and (optionally) push it to the registry:
 ```sh
 docker build --no-cache -t pico-env-builder --target pico-env-builder -f Dockerfile.stage1 .
 docker tag pico-env-builder datagero/pico-env-builder:latest
 docker push datagero/pico-env-builder:latest
+```
+
+If you need to build the pico-backend environment and push it to docker registry:
+```sh
+docker build --no-cache --platform linux/amd64 --target pico-backend -t datagero/pico-backend:latest -f Dockerfile .
+docker push datagero/pico-backend:latest
 ```
 
 ## API Endpoints 🌐
