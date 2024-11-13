@@ -1,5 +1,4 @@
 import openai # Temporarily as paid LLM
-# from together import Together
 from llama_index.core.retrievers import VectorIndexRetriever, QueryFusionRetriever
 
 from llama_index.core.query_engine import RetrieverQueryEngine
@@ -8,7 +7,6 @@ from llama_index.core import VectorStoreIndex, get_response_synthesizer
 from llama_index.core.vector_stores.types import MetadataFilter, MetadataFilters
 from llama_index.core import Settings
 from llama_index.core.llms import ChatMessage
-from llama_index.llms.together import TogetherLLM
 
 
 class QueryInterface:
@@ -19,7 +17,6 @@ class QueryInterface:
 
     def configure_openai_client(self):
         self.open_ai_client = openai.Client()
-        # self.open_ai_client = Together()
 
     def configure_llm(self):
         # Demo to configure different LLMs -- currently not enabled
