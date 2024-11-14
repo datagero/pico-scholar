@@ -4,10 +4,11 @@ import FunnelTable from '../components/Funnel/FunnelTable';
 import styles from '../components/Funnel/Funnel.module.css';
 import { filterByStatus, updateDocumentStatuses } from '../services/statusService';
 import { semanticSearchQuery } from '../services/searchService';
+import AIAssistantChat from '../components/Funnel/AIAssistantChat';
 
 const FunnelPage = () => {
   const location = useLocation();
-  const initialResults = location.state?.results || []; // Get initial results from the main page search
+  const initialResults = location.state?.results || [];
   const [papers, setPapers] = useState(initialResults);
   const [sourceIds, setSourceIds] = useState(initialResults.map(paper => paper.source_id));
   const [displayIds, setDisplayPaperIds] = useState(initialResults.map(paper => paper.source_id));
@@ -15,19 +16,24 @@ const FunnelPage = () => {
   const [currentStatus, setCurrentStatus] = useState('Identified');
   const [selectedPapers, setSelectedPapers] = useState([]);
   const [semanticQuery, setSemanticSearchQuery] = useState('');
-  const [selectAll, setSelectAll] = useState(false); // State for Select All checkbox
+  const [selectAll, setSelectAll] = useState(false);
   const [narrowFields, setNarrowFields] = useState('All Fields');
   const [showArchived, setShowArchived] = useState(false);
-  const [showOnlyItemsWithPDFs, setShowOnlyItemsWithPDFs] = useState(false); // New state for "Show Only Items with PDFs"
-  const [currentPage, setCurrentPage] = useState(1); // Track the current page
+  const [showOnlyItemsWithPDFs, setShowOnlyItemsWithPDFs] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showChat, setShowChat] = useState(false);
 
-  // Function to update the current page
+  // Toggle Chat Visibility
+  const toggleChat = () => {
+    console.log("Toggle Chat triggered");
+    setShowChat(!showChat);
+    console.log("Chat state after toggle:", !showChat);
+  };
+
   const updateCurrentPage = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  // Run handleFilters whenever currentStatus (to bulk update selected items)
-  // or archivedStatus (individually select items) for a record changes
   useEffect(() => {
     handleFilters();
   }, [currentStatus, showArchived]);
@@ -42,14 +48,13 @@ const FunnelPage = () => {
   };
 
   const handleArchiveRecord = () => {
-    handleFilters(); // Refresh the filters
+    handleFilters();
   };
 
   const handleToggleShowOnlyItemsWithPDFs = () => {
     setShowOnlyItemsWithPDFs((prevState) => !prevState);
   };
 
-  // useEffect to update displayPapers whenever displayIds or papers change
   useEffect(() => {
     const filteredPapers = displayIds
       .map(id => papers.find(paper => paper.source_id === id))
@@ -119,18 +124,17 @@ const FunnelPage = () => {
 
       setPapers(newPapers);
       setSourceIds(newSourceIds);
-      setDisplayPapers(showOnlyItemsWithPDFs ? newPapers.filter(p => p.has_pdf) : newPapers); // Filter by PDFs if toggled on
+      setDisplayPapers(showOnlyItemsWithPDFs ? newPapers.filter(p => p.has_pdf) : newPapers);
     } catch (error) {
       console.error('Error in handleFilters:', error);
     }
   };
 
-  // Update the displayed papers based on the PDF filter
   useEffect(() => {
     if (showOnlyItemsWithPDFs) {
-      setDisplayPapers(papers.filter((paper) => paper.has_pdf)); // Assuming each paper has a `hasPDF` boolean
+      setDisplayPapers(papers.filter((paper) => paper.has_pdf));
     } else {
-      setDisplayPapers(papers); // Reset to show all papers if PDF filter is off
+      setDisplayPapers(papers);
     }
   }, [showOnlyItemsWithPDFs, papers]);
 
@@ -140,41 +144,18 @@ const FunnelPage = () => {
 
   return (
     <div className={styles.container}>
-
-      {/* Status Buttons */}
       <div className={styles.statusButtonsContainer}>
-        <button 
-          className={`${styles.statusButton} ${currentStatus === 'Identified' ? styles.activeStatus : ''}`}
-          onClick={() => handleStatusButtonClick('Identified')}
-        >
-          Identified
-        </button>
-        <button 
-          className={`${styles.statusButton} ${currentStatus === 'Screened' ? styles.activeStatus : ''}`}
-          onClick={() => handleStatusButtonClick('Screened')}
-        >
-          Screened
-        </button>
-        <button 
-          className={`${styles.statusButton} ${currentStatus === 'Sought Retrieval' ? styles.activeStatus : ''}`}
-          onClick={() => handleStatusButtonClick('Sought Retrieval')}
-        >
-          Sought Retrieval
-        </button>
-        <button 
-          className={`${styles.statusButton} ${currentStatus === 'Assessed Eligibility' ? styles.activeStatus : ''}`}
-          onClick={() => handleStatusButtonClick('Assessed Eligibility')}
-        >
-          Assessed Eligibility
-        </button>
-        <button 
-          className={`${styles.statusButton} ${currentStatus === 'Included in Review' ? styles.activeStatus : ''}`}
-          onClick={() => handleStatusButtonClick('Included in Review')}
-        >
-          Included in Review
-        </button>
+        {['Identified', 'Screened', 'Sought Retrieval', 'Assessed Eligibility', 'Included in Review'].map((status) => (
+          <button
+            key={status}
+            className={`${styles.statusButton} ${currentStatus === status ? styles.activeStatus : ''}`}
+            onClick={() => handleStatusButtonClick(status)}
+          >
+            {status}
+          </button>
+        ))}
       </div>
-      
+
       <div className={styles.controlsContainer}>
         <div className={styles.searchAndNarrowContainer}>
           <div className={styles.searchContainer}>
@@ -227,11 +208,9 @@ const FunnelPage = () => {
               onChange={handleStageChange} 
               className={styles.dropdown}
             >
-              <option value="Identified">Identified</option>
-              <option value="Screened">Screened</option>
-              <option value="Sought Retrieval">Sought Retrieval</option>
-              <option value="Assessed Eligibility">Assessed Eligibility</option>
-              <option value="Included in Review">Included in Review</option>
+              {['Identified', 'Screened', 'Sought Retrieval', 'Assessed Eligibility', 'Included in Review'].map((stage) => (
+                <option key={stage} value={stage}>{stage}</option>
+              ))}
             </select>
           </div>
           <div className={styles.filterControlsContainer}>
@@ -257,7 +236,6 @@ const FunnelPage = () => {
         </div>
       </div>
 
-      {/* Summary Box */}
       <div className={styles.summaryBox}>
         <p>{`AI Summary of items found on Page ${currentPage}.`}</p>
       </div>
@@ -268,16 +246,26 @@ const FunnelPage = () => {
         selectedPapers={selectedPapers}
         handleSelectPaper={handleSelectPaper}
         funnelStage={currentStatus}
-        updateCurrentPage={updateCurrentPage} // Pass the function to update the page
+        updateCurrentPage={updateCurrentPage}
         renderSummaryColumn={(paper) => (
           <>
-            <div>PDF Available</div>
             {paper.has_pdf && (
-              <button className={styles.pdfAssistantButton}>PDF AI Assistant</button>
+              <button
+                id="pdfAiAssistantButton"
+                onClick={() => {
+                  console.log("Button Clicked!");
+                  toggleChat();
+                }}
+                className={styles.pdfAssistantButton}
+              >
+                PDF AI Assistant
+              </button>
             )}
           </>
         )}
       />
+
+      {showChat && <AIAssistantChat onClose={toggleChat} />}
     </div>
   );
 };

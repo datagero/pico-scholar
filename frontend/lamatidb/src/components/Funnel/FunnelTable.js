@@ -4,13 +4,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilePdf, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { updateDocumentArchivedStatus } from '../../services/statusService';
 
-const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatusChange, updateCurrentPage }) => {
+const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatusChange, updateCurrentPage, renderSummaryColumn }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const papersPerPage = 10;
 
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber);
-    updateCurrentPage(pageNumber); // Update page in FunnelPage
+    updateCurrentPage(pageNumber);
   };
 
   const totalPages = Math.ceil(results.length / papersPerPage);
@@ -19,72 +19,10 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
   const currentPapers = results.slice(indexOfFirstPaper, indexOfLastPaper);
 
   const handleReviewChange = async (index, value) => {
-    const updatedStatuses = [...reviewStatuses];
-    updatedStatuses[index] = value;
-    setReviewStatuses(updatedStatuses);
-
     const documentId = results[index].source_id.toString();
     const isArchived = value === 'Yes';
     await updateDocumentArchivedStatus(documentId, isArchived);
-
     onStatusChange();
-  };
-
-  const renderPagination = () => {
-    const pages = [];
-    const firstPages = 5;
-    const lastPages = 2;
-
-    for (let i = 1; i <= Math.min(firstPages, totalPages); i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => paginate(i)}
-          className={`${styles.pageLink} ${currentPage === i ? styles.activePage : ''}`}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    if (totalPages > firstPages + lastPages) {
-      if (currentPage > firstPages + 1) {
-        pages.push(<span key="dots1">...</span>);
-      }
-
-      const startPage = Math.max(firstPages + 1, currentPage - 1);
-      const endPage = Math.min(totalPages - lastPages, currentPage + 1);
-
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(
-          <button
-            key={i}
-            onClick={() => paginate(i)}
-            className={`${styles.pageLink} ${currentPage === i ? styles.activePage : ''}`}
-          >
-            {i}
-          </button>
-        );
-      }
-
-      if (currentPage < totalPages - lastPages - 1) {
-        pages.push(<span key="dots2">...</span>);
-      }
-
-      for (let i = totalPages - lastPages + 1; i <= totalPages; i++) {
-        pages.push(
-          <button
-            key={i}
-            onClick={() => paginate(i)}
-            className={`${styles.pageLink} ${currentPage === i ? styles.activePage : ''}`}
-          >
-            {i}
-          </button>
-        );
-      }
-    }
-
-    return pages;
   };
 
   return (
@@ -131,7 +69,7 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
                         <FontAwesomeIcon icon={faFilePdf} className={styles.icon} title="PDF Available" />
                         <span>PDF Available</span>
                       </div>
-                      <button className={styles.pdfAssistantButton}>PDF AI Assistant</button>
+                      {renderSummaryColumn(result)}
                     </>
                   ) : (
                     <div className={styles.iconWithText}>
@@ -143,16 +81,16 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
               </td>
               <td className={`${styles.cell} ${styles.abstractCell}`} data-label="Abstract">{result.abstract}</td>
               <td className={`${styles.cell} ${styles.picoCell}`} data-label="PICO">
-                <div className={styles.picoItem} title="P (Patient) - The population or group of patients being studied">
+                <div className={styles.picoItem} title="P (Patient)">
                   <strong>P:</strong> {result.pico_p}
                 </div>
-                <div className={styles.picoItem} title="I (Intervention) - The intervention or treatment being considered">
+                <div className={styles.picoItem} title="I (Intervention)">
                   <strong>I:</strong> {result.pico_i}
                 </div>
-                <div className={styles.picoItem} title="C (Comparison) - The comparison or control being used in the study">
+                <div className={styles.picoItem} title="C (Comparison)">
                   <strong>C:</strong> {result.pico_c}
                 </div>
-                <div className={styles.picoItem} title="O (Outcome) - The outcomes being measured">
+                <div className={styles.picoItem} title="O (Outcome)">
                   <strong>O:</strong> {result.pico_o}
                 </div>
               </td>
@@ -161,23 +99,6 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
           ))}
         </tbody>
       </table>
-
-      {/* Pagination Controls */}
-      <div className={styles.pagination}>
-        <button onClick={() => paginate(1)} disabled={currentPage === 1} className={styles.pageLink}>
-          First
-        </button>
-        <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} className={styles.pageLink}>
-          Previous
-        </button>
-        {renderPagination()}
-        <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} className={styles.pageLink}>
-          Next
-        </button>
-        <button onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} className={styles.pageLink}>
-          Last
-        </button>
-      </div>
     </div>
   );
 };

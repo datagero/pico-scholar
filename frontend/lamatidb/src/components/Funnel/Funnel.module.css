@@ -552,3 +552,97 @@
     width: 100%; /* Ensures button spans full width on very small screens */
   }
 }
+
+/* AIAssistantChat */
+.chatWindow {
+  width: 300px;
+  position: fixed;
+  bottom: 50px;
+  right: 50px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  z-index: 1000;
+  background-color: white;
+}
+
+.chatHeader {
+  background-color: #007BFF;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  position: relative;
+}
+
+.chatHeader h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.chatHeader p {
+  margin: 0;
+  font-size: 12px;
+}
+
+.closeButton {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: none;
+  background: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.chatBody {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.userMessage, .assistantMessage {
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  max-width: 80%;
+}
+
+.userMessage {
+  background-color: #e6f4ff;
+  align-self: flex-end;
+  text-align: right;
+}
+
+.assistantMessage {
+  background-color: #f1f1f1;
+  align-self: flex-start;
+  text-align: left;
+}
+
+.chatInputContainer {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.chatInput {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.sendButton {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin-left: 5px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.sendButton:hover {
+  background-color: #0056b3;
+}
