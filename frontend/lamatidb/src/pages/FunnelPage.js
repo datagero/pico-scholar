@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import FunnelTable from '../components/Funnel/FunnelTable';
 import styles from '../components/Funnel/Funnel.module.css';
 import { filterByStatus, updateDocumentStatuses } from '../services/statusService';
-import { semanticSearchQuery } from '../services/searchService';
+import { semanticSearchQuery, fetchAISummary } from '../services/searchService'; // Adjust import if `fetchAISummary` is in `searchService.js`
 import AIAssistantChat from '../components/Funnel/AIAssistantChat';
 
 const FunnelPage = () => {
@@ -22,21 +22,35 @@ const FunnelPage = () => {
   const [showOnlyItemsWithPDFs, setShowOnlyItemsWithPDFs] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [showChat, setShowChat] = useState(false);
+  const [aiSummary, setAISummary] = useState(''); // Add state for AI Summary text
+  const [aiSummaryTitle, setAISummaryTitle] = useState(''); // Add state for AI Summary title
 
   // Toggle Chat Visibility
   const toggleChat = () => {
-    console.log("Toggle Chat triggered");
     setShowChat(!showChat);
-    console.log("Chat state after toggle:", !showChat);
   };
 
   const updateCurrentPage = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
+  // Fetch AI Summary for the first 10 items on the current page
+  const fetchAISummaryForPage = async () => {
+    const first10Ids = displayPapers.slice(0, 10).map(paper => paper.source_id);
+    try {
+      const summaryText = await fetchAISummary(first10Ids);
+      setAISummary(summaryText);
+      setAISummaryTitle(`AI Summary of First 10 Items from Page ${currentPage}`); // Update title with current page
+    } catch (error) {
+      console.error('Failed to fetch AI Summary:', error);
+      setAISummaryTitle(`AI Summary of First 10 Items from Page ${currentPage} (Failed to load)`);
+    }
+  };
+
   useEffect(() => {
     handleFilters();
-  }, [currentStatus, showArchived]);
+    fetchAISummaryForPage(); // Fetch summary whenever filters are applied or page changes
+  }, [currentStatus, showArchived, currentPage]);
 
   const handleUpdateStatuses = async (newStage) => {
     try {
@@ -117,7 +131,6 @@ const FunnelPage = () => {
 
   const handleFilters = async () => {
     try {
-      console.log("Filtering papers for status:", currentStatus);
       const filteredPapers = await filterByStatus(currentStatus, showArchived);
       const newPapers = filteredPapers.records;
       const newSourceIds = newPapers.map(paper => paper.source_id);
@@ -236,8 +249,10 @@ const FunnelPage = () => {
         </div>
       </div>
 
+      {/* Summary Box with Dynamic Title */}
       <div className={styles.summaryBox}>
-        <p>{`AI Summary of items found on Page ${currentPage}.`}</p>
+        <h3>{aiSummaryTitle}</h3>
+        <p>{aiSummary}</p>
       </div>
 
       <FunnelTable
@@ -252,10 +267,7 @@ const FunnelPage = () => {
             {paper.has_pdf && (
               <button
                 id="pdfAiAssistantButton"
-                onClick={() => {
-                  console.log("Button Clicked!");
-                  toggleChat();
-                }}
+                onClick={() => toggleChat()}
                 className={styles.pdfAssistantButton}
               >
                 PDF AI Assistant
