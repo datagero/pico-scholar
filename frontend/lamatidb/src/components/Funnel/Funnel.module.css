@@ -511,7 +511,15 @@
   padding-right: 20px; /* Space between labels and checkboxes */
 }
 
-/* Styles for the PDF AI Assistant Button */
+/* Updated iconContainer for better spacing */
+.iconContainer {
+  margin-top: 10px; /* Adjust spacing between the icon section and the button */
+  display: flex;
+  flex-direction: column; /* Stack icon/text with button vertically */
+  align-items: flex-start; /* Align items to the start of the cell */
+}
+
+/* Updated PDF AI Assistant Button styles */
 .pdfAssistantButton {
   background-color: #007BFF;
   color: #fff;
@@ -526,4 +534,21 @@
 
 .pdfAssistantButton:hover {
   background-color: #0056b3;
+}
+
+/* Responsive adjustments for smaller screens */
+@media screen and (max-width: 768px) {
+  .pdfAssistantButton {
+    width: 100%; /* Full width on smaller screens */
+    padding: 10px;
+    font-size: 16px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .pdfAssistantButton {
+    font-size: 14px;
+    padding: 8px;
+    width: 100%; /* Ensures button spans full width on very small screens */
+  }
 }

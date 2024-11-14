@@ -126,11 +126,13 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
                 ID: {result.source_id}, Similarity: {result.similarity}
                 <div className={styles.iconContainer}>
                   {result.has_pdf ? (
-                    <div className={styles.iconWithText}>
-                      <FontAwesomeIcon icon={faFilePdf} className={styles.icon} title="PDF Available" />
-                      <span>PDF Available</span>
+                    <>
+                      <div className={styles.iconWithText}>
+                        <FontAwesomeIcon icon={faFilePdf} className={styles.icon} title="PDF Available" />
+                        <span>PDF Available</span>
+                      </div>
                       <button className={styles.pdfAssistantButton}>PDF AI Assistant</button>
-                    </div>
+                    </>
                   ) : (
                     <div className={styles.iconWithText}>
                       <FontAwesomeIcon icon={faUpload} className={styles.icon} title="Upload PDF" />
