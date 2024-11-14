@@ -23,7 +23,6 @@ class QueryInterface:
         # self.llm = TogetherLLM(
         #     model="meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"
         # )
-        self.open_ai_model = "gpt-3.5-turbo" # temporary for testing
         return
     
     def get_query_gen_prompt(self):
@@ -97,8 +96,8 @@ class QueryInterface:
     def build_rag_query_engine(self, similarity_top_k=None):
         self.query_engine = self.index.as_query_engine(similarity_top_k=similarity_top_k)
 
-    def perform_metadata_filtered_query(self, query: str, filters: list):
-        metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in filters], condition=FilterCondition.OR)
+    def perform_metadata_filtered_query(self, query: str, filters: list, condition=FilterCondition.OR):
+        metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in filters], condition=condition)
         self.query_engine = self.index.as_query_engine(filters=metadata_filters, llm=self.llm)
         response = self.query_engine.query(query)
         return response
