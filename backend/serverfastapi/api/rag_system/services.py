@@ -35,7 +35,7 @@ def summarize_documents_by_ids(
     Be concise but thorough, extracting only the most important information from the abstracts. Do not list each article one at a time but rather refer to the general idea of all articles. Keep your summary to a maximum of 75 words."""
 
 
-    response = sum_query_interface.query_chatgpt(prompt)
+    response = sum_query_interface.perform_query(prompt)
     return response
 
 # def chat_with_document_by_id(db: Session, document_id: int, question: str) -> str:

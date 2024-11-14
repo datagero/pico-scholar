@@ -23,6 +23,7 @@ class QueryInterface:
         # self.llm = TogetherLLM(
         #     model="meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"
         # )
+        self.open_ai_model = "gpt-3.5-turbo" # temporary for testing
         return
     
     def get_query_gen_prompt(self):
@@ -83,6 +84,19 @@ class QueryInterface:
     def perform_query(self, query: str):
         response = self.query_engine.query(query)
         return response
+        
+    def perform_rag_query(self, context: str, prompt:str):
+        # construct prompt for LLM with both the context and task
+        full_prompt = f"Context:\n{context}\n\nUser Query:\n{prompt}"
+
+        # query the chat-gpt using the full prompt that has context and the task
+        response = openai.chat.completions.create(
+            model=self.open_ai_model,
+            messages=[{"role": "user", "content": full_prompt}]
+        )
+        # extract and return the response content
+        generated_text = response.choices[0].message.content
+        return generated_text 
 
     def inspect_similarity_scores(self, source_nodes):
         for node in source_nodes:

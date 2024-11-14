@@ -4,7 +4,8 @@ load_dotenv()  # This will load the variables from the .env file
 
 from lamatidb.interfaces.settings_manager import SettingsManager
 from lamatidb.interfaces.index_interface import IndexInterface
-from lamatidb.interfaces.query_interface import QueryInterface
+from lamatidb.interfaces.query_interface import QueryInterface, FilterCondition
+from typing import List
 
 SettingsManager.set_global_settings(set_local=False)
 
@@ -50,7 +51,6 @@ def generate_queries(query: str, llm, num_queries: int = 4):
 queries = generate_queries("What happened at Interleaf and Viaweb?", llm)
 
 
-
 # Query Rewriting (using QueryTransform)¶
 from llama_index.core.indices.query.query_transform import HyDEQueryTransform
 hyde = HyDEQueryTransform(include_original=True)
@@ -61,21 +61,21 @@ query_bundle = hyde.run("What is Bel?")
 from llama_index.core.question_gen import LLMQuestionGenerator
 from llama_index.question_gen.openai import OpenAIQuestionGenerator
 
-question_gen = OpenAIQuestionGenerator.from_defaults(llm=llm)
-question_gen.get_prompts()
+"""question_gen = OpenAIQuestionGenerator.from_defaults(llm=llm)
+question_gen.get_prompts()"""
 
 
 # Example 1: Granular Retrieval and Synthesis (Similarity Search)
-query_interface.configure_retriever(similarity_top_k=100)
+"""query_interface.configure_retriever(similarity_top_k=100)
 query_interface.configure_response_synthesizer()
 query_interface.assemble_query_engine()
 response = query_interface.perform_query("Neurological and cerebral conditions.")
-query_interface.inspect_similarity_scores(response.source_nodes)
+query_interface.inspect_similarity_scores(response.source_nodes)"""
 
 # Example 1.1: More clean for simple semantic search, without synthesiser
-query_interface.configure_retriever(similarity_top_k=200)
+"""query_interface.configure_retriever(similarity_top_k=200)
 source_nodes = query_interface.retriever.retrieve("List all documents.")
-query_interface.inspect_similarity_scores(source_nodes)
+query_interface.inspect_similarity_scores(source_nodes)"""
 
 pass
 
@@ -125,4 +125,92 @@ index = VectorStoreIndex.from_vector_store(
 )
 
 
+# ==================================================
+# Summary
+# ==================================================
 
+import mysql.connector
+import os
+
+# Database and vector table names
+DB_NAME = os.environ['TIDB_DB_NAME']
+VECTOR_TABLE_NAME = "scibert_alldata"
+# Load or create the index
+index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME)
+index_interface.load_index_from_vector_store()
+index = index_interface.get_index()
+
+
+def get_db_connection():
+    connection = mysql.connector.connect(
+        host=os.getenv('TIDB_HOST'),
+        user=os.getenv('TIDB_USERNAME'),
+        password=os.getenv('TIDB_PASSWORD'),
+        database=DB_NAME
+    )
+    return connection
+
+
+cursor = get_db_connection().cursor(dictionary=True)
+
+# View the table structure
+def show_table_structure(table_name):
+    cursor.execute(f"DESCRIBE {table_name}")
+    schema = cursor.fetchall()
+    print("Table Structure:")
+    for column in schema:
+        print(column)
+
+def summarize_documents_by_ids(
+        #db: Session,
+        query: str,
+        document_ids: List[int],
+        index: QueryInterface, 
+        ) -> str:
+    """
+    Summarizes the combined content of multiple documents identified by their IDs.
+    """
+    filters = [
+        {
+            "key": "source_id", # source or source_id ?
+            "value": doc_id,
+            "operator": "==",
+        } for doc_id in document_ids
+    ]
+
+    # Initialize and configure QueryInterface
+    sum_query_interface = QueryInterface(index)
+    sum_query_interface.configure_retriever(similarity_top_k=10, metadata_filters=filters, condition=FilterCondition.OR) # removed for testing for now: , metadata_filters=filters
+    sum_query_interface.configure_response_synthesizer()
+    sum_query_interface.assemble_query_engine()
+    retrieval_test_2 = sum_query_interface.perform_query(query)
+
+    retrieved_nodes = sum_query_interface.retriever.retrieve(query)
+
+    retrieval_test = sum_query_interface.perform_metadata_filtered_query(query, filters) # also doesn't work 
+    
+    if len(retrieval_test_2) == 0: #check for retrieval error
+        print("Error: empty retrieval perform query")
+        
+    if len(retrieval_test) == 0: #check for retrieval error
+        print("Error: empty retrieval retrieve")
+    
+    if len(retrieved_nodes) == 0: #check for retrieval error
+        print("Error: empty retrieval metadata query")
+    
+    # format retrieved context
+    context = "\n Article:".join([node.text for node in retrieved_nodes[:10]])  # It is 
+        
+    prompt = f"""You are a skilled researcher and summarization expert. Your task is to summarize the academic articles based on their abstracts into one cohesive description. Each article may come from a different field or focus on different aspects (theory, experiments, reviews, etc.), so ensure your summary reflects the key points accurately for each one.  
+    Form a cohesive paragraph that explains what the abstracts are generally about. Ensure you encapsulate the following topics from each of the abstracts:
+    1. Discipline or Topic: Identify the general areas of exploration for each abstract, if many overlap just include the overlapping topic once
+    2. Objective or Focus: Describe the main question, objective, or hypothesis the articles.
+    3. Methodology or Approach: Mention the type of study (e.g., experiment, survey, case study, literature review) and any notable techniques used.
+    Be concise but thorough, extracting only the most important information from the abstracts. Do not list each article one at a time but rather refer to the general idea of all articles. Keep your summary to a maximum of 75 words."""
+
+    response = sum_query_interface.perform_rag_query(context, prompt)
+    return response
+
+q = "Neurological and cerebral conditions."
+ids = [16625992,16625812,16625969,16625681]
+print(summarize_documents_by_ids(query=q, document_ids=ids, index=index))
