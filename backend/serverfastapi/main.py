@@ -15,7 +15,7 @@ from serverfastapi.core.config import settings
 # from api.document_management.routes import router as document_router
 from serverfastapi.api.semantic_search.routes import router as search_router
 # from api.translation.routes import router as translation_router
-# from api.rag_system.routes import router as rag_router
+from api.rag_system.routes import router as rag_router
 from serverfastapi.app_init import initialize_services
 # Configure logging
 logging.basicConfig(
@@ -58,7 +58,7 @@ app.add_middleware(
 # app.include_router(document_router, prefix="/documents", tags=["Documents"])
 app.include_router(search_router, prefix="/search", tags=["Search"])
 # app.include_router(translation_router, prefix="/translate", tags=["Translation"])
-# app.include_router(rag_router, prefix="/rag", tags=["RAG"])
+app.include_router(rag_router, prefix="/rag", tags=["RAG"])
 
 # Startup and shutdown events
 @app.on_event("startup")

@@ -4,10 +4,10 @@ from llama_index.core.retrievers import VectorIndexRetriever, QueryFusionRetriev
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.postprocessor import SimilarityPostprocessor
 from llama_index.core import VectorStoreIndex, get_response_synthesizer
+from llama_index.core.vector_stores import FilterCondition
 from llama_index.core.vector_stores.types import MetadataFilter, MetadataFilters
 from llama_index.core import Settings
 from llama_index.core.llms import ChatMessage
-
 
 class QueryInterface:
     def __init__(self, index):
@@ -35,9 +35,9 @@ class QueryInterface:
         )
         return QUERY_GEN_PROMPT
     
-    def configure_retriever(self, similarity_top_k=100, metadata_filters=None):
+    def configure_retriever(self, similarity_top_k=100, metadata_filters=None, condition=FilterCondition.OR):
         if metadata_filters:
-            metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in metadata_filters])
+            metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in metadata_filters], condition=condition)
     
         self.retriever = VectorIndexRetriever(
             index=self.index,
@@ -83,6 +83,7 @@ class QueryInterface:
     def perform_query(self, query: str):
         response = self.query_engine.query(query)
         return response
+        
 
     def inspect_similarity_scores(self, source_nodes):
         for node in source_nodes:
@@ -95,8 +96,8 @@ class QueryInterface:
     def build_rag_query_engine(self, similarity_top_k=None):
         self.query_engine = self.index.as_query_engine(similarity_top_k=similarity_top_k)
 
-    def perform_metadata_filtered_query(self, query: str, filters: list):
-        metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in filters])
+    def perform_metadata_filtered_query(self, query: str, filters: list, condition=FilterCondition.OR):
+        metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in filters], condition=condition)
         self.query_engine = self.index.as_query_engine(filters=metadata_filters, llm=self.llm)
         response = self.query_engine.query(query)
         return response
