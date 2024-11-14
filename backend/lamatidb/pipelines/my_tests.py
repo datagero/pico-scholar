@@ -150,7 +150,6 @@ def get_db_connection():
     )
     return connection
 
-
 cursor = get_db_connection().cursor(dictionary=True)
 
 # View the table structure
@@ -163,8 +162,7 @@ def show_table_structure(table_name):
 
 def summarize_documents_by_ids(
         #db: Session,
-        query: str,
-        document_ids: List[int],
+        document_ids: List[str],
         index: QueryInterface, 
         ) -> str:
     """
@@ -172,7 +170,7 @@ def summarize_documents_by_ids(
     """
     filters = [
         {
-            "key": "source_id", # source or source_id ?
+            "key": "source", # source or source_id ?
             "value": doc_id,
             "operator": "==",
         } for doc_id in document_ids
@@ -180,26 +178,9 @@ def summarize_documents_by_ids(
 
     # Initialize and configure QueryInterface
     sum_query_interface = QueryInterface(index)
-    sum_query_interface.configure_retriever(similarity_top_k=10, metadata_filters=filters, condition=FilterCondition.OR) # removed for testing for now: , metadata_filters=filters
+    sum_query_interface.configure_retriever(similarity_top_k=1000, metadata_filters=filters, condition=FilterCondition.OR) # removed for testing for now: , metadata_filters=filters
     sum_query_interface.configure_response_synthesizer()
     sum_query_interface.assemble_query_engine()
-    retrieval_test_2 = sum_query_interface.perform_query(query)
-
-    retrieved_nodes = sum_query_interface.retriever.retrieve(query)
-
-    retrieval_test = sum_query_interface.perform_metadata_filtered_query(query, filters) # also doesn't work 
-    
-    if len(retrieval_test_2) == 0: #check for retrieval error
-        print("Error: empty retrieval perform query")
-        
-    if len(retrieval_test) == 0: #check for retrieval error
-        print("Error: empty retrieval retrieve")
-    
-    if len(retrieved_nodes) == 0: #check for retrieval error
-        print("Error: empty retrieval metadata query")
-    
-    # format retrieved context
-    context = "\n Article:".join([node.text for node in retrieved_nodes[:10]])  # It is 
         
     prompt = f"""You are a skilled researcher and summarization expert. Your task is to summarize the academic articles based on their abstracts into one cohesive description. Each article may come from a different field or focus on different aspects (theory, experiments, reviews, etc.), so ensure your summary reflects the key points accurately for each one.  
     Form a cohesive paragraph that explains what the abstracts are generally about. Ensure you encapsulate the following topics from each of the abstracts:
@@ -208,9 +189,8 @@ def summarize_documents_by_ids(
     3. Methodology or Approach: Mention the type of study (e.g., experiment, survey, case study, literature review) and any notable techniques used.
     Be concise but thorough, extracting only the most important information from the abstracts. Do not list each article one at a time but rather refer to the general idea of all articles. Keep your summary to a maximum of 75 words."""
 
-    response = sum_query_interface.perform_rag_query(context, prompt)
+    response = sum_query_interface.perform_query(prompt)
     return response
 
-q = "Neurological and cerebral conditions."
-ids = [16625992,16625812,16625969,16625681]
-print(summarize_documents_by_ids(query=q, document_ids=ids, index=index))
+ids = ["16625992","16625812","16625969","16625681"]
+print(summarize_documents_by_ids(document_ids=ids, index=index))

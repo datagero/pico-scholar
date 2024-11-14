@@ -85,18 +85,6 @@ class QueryInterface:
         response = self.query_engine.query(query)
         return response
         
-    def perform_rag_query(self, context: str, prompt:str):
-        # construct prompt for LLM with both the context and task
-        full_prompt = f"Context:\n{context}\n\nUser Query:\n{prompt}"
-
-        # query the chat-gpt using the full prompt that has context and the task
-        response = openai.chat.completions.create(
-            model=self.open_ai_model,
-            messages=[{"role": "user", "content": full_prompt}]
-        )
-        # extract and return the response content
-        generated_text = response.choices[0].message.content
-        return generated_text 
 
     def inspect_similarity_scores(self, source_nodes):
         for node in source_nodes:
@@ -110,7 +98,7 @@ class QueryInterface:
         self.query_engine = self.index.as_query_engine(similarity_top_k=similarity_top_k)
 
     def perform_metadata_filtered_query(self, query: str, filters: list):
-        metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in filters])
+        metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in filters], condition=FilterCondition.OR)
         self.query_engine = self.index.as_query_engine(filters=metadata_filters, llm=self.llm)
         response = self.query_engine.query(query)
         return response
