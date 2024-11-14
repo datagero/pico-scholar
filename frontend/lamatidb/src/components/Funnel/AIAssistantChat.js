@@ -21,7 +21,7 @@ const AIAssistantChat = ({ onClose }) => {
     <Draggable>
       <div className={styles.chatWindow}>
         <div className={styles.chatHeader}>
-          <h3>AI PDF Assistant</h3>
+          <h3>PDF AI Assistant</h3>
           <button onClick={onClose} className={styles.closeButton}>×</button>
         </div>
         <div className={styles.chatBody}>

@@ -25,6 +25,92 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
     onStatusChange();
   };
 
+  // Render pagination controls
+  const renderPagination = () => {
+    const pages = [];
+    const firstPages = 2;
+    const lastPages = 2;
+    const surroundingPages = 2;
+
+    // First Page button
+    pages.push(
+      <button
+        key="first"
+        onClick={() => paginate(1)}
+        disabled={currentPage === 1}
+        className={styles.pageLink}
+      >
+        First Page
+      </button>
+    );
+
+    // Pages at the start
+    for (let i = 1; i <= Math.min(firstPages, totalPages); i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => paginate(i)}
+          className={`${styles.pageLink} ${currentPage === i ? styles.activePage : ''}`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Ellipsis if there is a gap
+    if (currentPage > firstPages + surroundingPages + 1) {
+      pages.push(<span key="dots1">...</span>);
+    }
+
+    // Pages around the current page
+    const startPage = Math.max(firstPages + 1, currentPage - surroundingPages);
+    const endPage = Math.min(totalPages - lastPages, currentPage + surroundingPages);
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => paginate(i)}
+          className={`${styles.pageLink} ${currentPage === i ? styles.activePage : ''}`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Ellipsis if there is a gap
+    if (currentPage < totalPages - lastPages - surroundingPages) {
+      pages.push(<span key="dots2">...</span>);
+    }
+
+    // Pages at the end
+    for (let i = Math.max(totalPages - lastPages + 1, startPage + 1); i <= totalPages; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => paginate(i)}
+          className={`${styles.pageLink} ${currentPage === i ? styles.activePage : ''}`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Last Page button
+    pages.push(
+      <button
+        key="last"
+        onClick={() => paginate(totalPages)}
+        disabled={currentPage === totalPages}
+        className={styles.pageLink}
+      >
+        Last Page
+      </button>
+    );
+
+    return pages;
+  };
+
   return (
     <div className={styles['table-container']}>
       <table className={styles.table}>
@@ -99,6 +185,11 @@ const FunnelTable = ({ results = [], selectedPapers, handleSelectPaper, onStatus
           ))}
         </tbody>
       </table>
+
+      {/* Pagination Controls */}
+      <div className={styles.pagination}>
+        {renderPagination()}
+      </div>
     </div>
   );
 };
