@@ -7,7 +7,7 @@ export const fetchAISummary = async (doc_ids) => {
     doc_ids = doc_ids.map(id => String(id));
 
     // Send the POST request
-    const response = await fetch(`${BASE_URL}/rag/projects/1/summarize`, {
+    const response = await fetch(`${BASE_URL}/rag/projects/1/summarize/`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',

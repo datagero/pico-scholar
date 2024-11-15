@@ -49,6 +49,7 @@ def summarize_documents_endpoint(
             "summary": response
         }
     except Exception as e:
+        logger.error(f"Summarization failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error during summarization")
 
 # @router.post("/rag/chat/")

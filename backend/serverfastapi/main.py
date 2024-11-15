@@ -11,11 +11,11 @@ from contextlib import asynccontextmanager
 
 # Set up paths and imports
 from serverfastapi.core.config import settings
-# from api.project_management.routes import router as project_router
-# from api.document_management.routes import router as document_router
+# from serverfastapi.api.project_management.routes import router as project_router
+# from serverfastapi.api.document_management.routes import router as document_router
 from serverfastapi.api.semantic_search.routes import router as search_router
-# from api.translation.routes import router as translation_router
-from api.rag_system.routes import router as rag_router
+# from serverfastapi.api.translation.routes import router as translation_router
+from serverfastapi.api.rag_system.routes import router as rag_router
 from serverfastapi.app_init import initialize_services
 # Configure logging
 logging.basicConfig(
