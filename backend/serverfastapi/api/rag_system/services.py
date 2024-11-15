@@ -1,3 +1,4 @@
+from cachetools import cached, TTLCache
 from sqlalchemy.orm import Session
 from typing import List, Dict, Optional
 from lamatidb.interfaces.query_interface import QueryInterface
@@ -5,8 +6,18 @@ from llama_index.core.vector_stores import FilterCondition
 # from some_chat_module import chat_with_document
 # from some_query_expansion_module import expand_query
 
+# Create a TTL cache for caching results with a 5-minute expiration
+cache = TTLCache(maxsize=100, ttl=300)
+
+def cache_key(document_ids: List[str]):
+    """
+    Creates a unique key for caching based on document_ids.
+    """
+    return tuple(sorted(document_ids))  # Sorting to handle order variations
+
+#NOTE - Cache not tested, may need to be adjusted
+@cached(cache, key=lambda document_ids, index: cache_key(document_ids))
 def summarize_documents_by_ids(
-        db: Session,
         document_ids: List[str],
         index: QueryInterface, 
         ) -> str:
@@ -21,9 +32,12 @@ def summarize_documents_by_ids(
         } for doc_id in document_ids
     ]
 
+    if not filters:
+        return "No documents to summarize."
+
     # Initialize and configure QueryInterface
     sum_query_interface = QueryInterface(index)
-    sum_query_interface.configure_retriever(similarity_top_k=1000, metadata_filters=filters, condition=FilterCondition.OR) # when db scales up may need to increase top_k
+    sum_query_interface.configure_retriever(similarity_top_k=10, metadata_filters=filters, condition=FilterCondition.OR) # when db scales up may need to increase top_k
     sum_query_interface.configure_response_synthesizer()
     sum_query_interface.assemble_query_engine()
         

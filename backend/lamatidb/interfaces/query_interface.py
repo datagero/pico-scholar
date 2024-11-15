@@ -84,7 +84,6 @@ class QueryInterface:
         response = self.query_engine.query(query)
         return response
         
-
     def inspect_similarity_scores(self, source_nodes):
         for node in source_nodes:
             source = node.metadata['source']
