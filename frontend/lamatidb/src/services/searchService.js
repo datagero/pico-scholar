@@ -1,28 +1,34 @@
 const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
-// Fetch AI summary for first 10 items
-export const fetchAISummary = async (itemIds) => {
+// Function to fetch AI-generated summary
+export const fetchAISummary = async (doc_ids) => {
   try {
-    const response = await fetch(`${BASE_URL}/summary/ai_summary/`, {
+    // Ensure doc_ids are strings
+    doc_ids = doc_ids.map(id => String(id));
+
+    // Send the POST request
+    const response = await fetch(`${BASE_URL}/rag/projects/1/summarize`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ item_ids: itemIds }),
+      body: JSON.stringify(doc_ids),
     });
 
+    // Check if the response is ok
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
 
-    const data = await response.json();
-    return data.summaryText; // Adjust based on your API's response format
+    // Return the parsed JSON data
+    return await response.json();
   } catch (error) {
-    console.error('Error fetching AI summary:', error);
-    return 'Failed to load AI summary.';
+    console.error("Error fetching AI summary:", error);
+    throw error;
   }
 };
+
 
 // Function to execute a simple search query
 export const searchQuery = async (query) => {

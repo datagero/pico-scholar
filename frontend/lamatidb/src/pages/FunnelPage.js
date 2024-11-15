@@ -36,10 +36,10 @@ const FunnelPage = () => {
 
   // Fetch AI Summary for the first 10 items on the current page
   const fetchAISummaryForPage = async () => {
-    const first10Ids = displayPapers.slice(0, 10).map(paper => paper.source_id);
+    const first10Ids = sourceIds.slice(0, 10);
     try {
       const summaryText = await fetchAISummary(first10Ids);
-      setAISummary(summaryText);
+      setAISummary(summaryText.summary);
       setAISummaryTitle(`AI Summary of First 10 Items from Page ${currentPage}`); // Update title with current page
     } catch (error) {
       console.error('Failed to fetch AI Summary:', error);
@@ -49,7 +49,7 @@ const FunnelPage = () => {
 
   useEffect(() => {
     handleFilters();
-    fetchAISummaryForPage(); // Fetch summary whenever filters are applied or page changes
+    // fetchAISummaryForPage(); // This is expensive for testing/PoC, so just load once for now
   }, [currentStatus, showArchived, currentPage]);
 
   const handleUpdateStatuses = async (newStage) => {
@@ -75,6 +75,12 @@ const FunnelPage = () => {
       .filter(paper => paper !== undefined);
     setDisplayPapers(filteredPapers);
   }, [displayIds, papers]);
+
+  // Run fetchAISummaryForPage only once when the component mounts
+  useEffect(() => {
+    fetchAISummaryForPage();
+  }, []); // Empty dependency array ensures this runs only on initial render
+
 
   const handleSelectPaper = (paperIds) => {
     if (Array.isArray(paperIds)) {

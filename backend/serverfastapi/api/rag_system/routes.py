@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-@router.post("/rag/summarize/", response_model=SummarizeResponse)
+@router.post("/projects/{project_id}/summarize/", response_model=SummarizeResponse)
 def summarize_documents_endpoint(
     project_id: int,
     doc_ids: List[int],
@@ -43,7 +43,7 @@ def summarize_documents_endpoint(
     datastore_db = services["datastore_db"]
 
     try:
-        response = summarize_documents_by_ids(db, doc_ids, index)
+        response = summarize_documents_by_ids(doc_ids, index)
 
         return {
             "summary": response
