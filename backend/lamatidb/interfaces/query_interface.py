@@ -84,7 +84,6 @@ class QueryInterface:
     def perform_query(self, query: str):
         response = self.query_engine.query(query)
         return response
-        
 
     def inspect_similarity_scores(self, source_nodes):
         for node in source_nodes:

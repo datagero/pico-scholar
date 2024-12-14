@@ -1,10 +1,14 @@
 import os
 from dotenv import load_dotenv
 load_dotenv()  # This will load the variables from the .env file
+import sys
+sys.path.append('/Users/isaaclo/Development/pico-scholar/backend/')
+
 
 from lamatidb.interfaces.settings_manager import SettingsManager
 from lamatidb.interfaces.index_interface import IndexInterface
 from lamatidb.interfaces.query_interface import QueryInterface, FilterCondition
+from llama_index.core.vector_stores.types import MetadataFilter, MetadataFilters
 from typing import List
 
 SettingsManager.set_global_settings(set_local=False)
@@ -28,54 +32,54 @@ llm = OpenAI(model="gpt-3.5-turbo")
 
 
 #Query Rewriting (Custom)
-query_gen_str = """\
-You are a helpful assistant that generates multiple search queries based on a \
-single input query. Generate {num_queries} search queries, one on each line, \
-related to the following input query:
-Query: {query}
-Queries:
-"""
+# query_gen_str = """\
+# You are a helpful assistant that generates multiple search queries based on a \
+# single input query. Generate {num_queries} search queries, one on each line, \
+# related to the following input query:
+# Query: {query}
+# Queries:
+# """
 
-query_gen_prompt = PromptTemplate(query_gen_str)
+# query_gen_prompt = PromptTemplate(query_gen_str)
 
-def generate_queries(query: str, llm, num_queries: int = 4):
-    response = llm.predict(
-        query_gen_prompt, num_queries=num_queries, query=query
-    )
-    # assume LLM proper put each query on a newline
-    queries = response.split("\n")
-    queries_str = "\n".join(queries)
-    print(f"Generated queries:\n{queries_str}")
-    return queries
+# def generate_queries(query: str, llm, num_queries: int = 4):
+#     response = llm.predict(
+#         query_gen_prompt, num_queries=num_queries, query=query
+#     )
+#     # assume LLM proper put each query on a newline
+#     queries = response.split("\n")
+#     queries_str = "\n".join(queries)
+#     print(f"Generated queries:\n{queries_str}")
+#     return queries
 
-queries = generate_queries("What happened at Interleaf and Viaweb?", llm)
-
-
-# Query Rewriting (using QueryTransform)¶
-from llama_index.core.indices.query.query_transform import HyDEQueryTransform
-hyde = HyDEQueryTransform(include_original=True)
-query_bundle = hyde.run("What is Bel?")
+# queries = generate_queries("What happened at Interleaf and Viaweb?", llm)
 
 
-# Sub-Questions¶
-from llama_index.core.question_gen import LLMQuestionGenerator
-from llama_index.question_gen.openai import OpenAIQuestionGenerator
-
-"""question_gen = OpenAIQuestionGenerator.from_defaults(llm=llm)
-question_gen.get_prompts()"""
+# # Query Rewriting (using QueryTransform)¶
+# from llama_index.core.indices.query.query_transform import HyDEQueryTransform
+# hyde = HyDEQueryTransform(include_original=True)
+# query_bundle = hyde.run("What is Bel?")
 
 
-# Example 1: Granular Retrieval and Synthesis (Similarity Search)
-"""query_interface.configure_retriever(similarity_top_k=100)
-query_interface.configure_response_synthesizer()
-query_interface.assemble_query_engine()
-response = query_interface.perform_query("Neurological and cerebral conditions.")
-query_interface.inspect_similarity_scores(response.source_nodes)"""
+# # Sub-Questions¶
+# from llama_index.core.question_gen import LLMQuestionGenerator
+# from llama_index.question_gen.openai import OpenAIQuestionGenerator
 
-# Example 1.1: More clean for simple semantic search, without synthesiser
-"""query_interface.configure_retriever(similarity_top_k=200)
-source_nodes = query_interface.retriever.retrieve("List all documents.")
-query_interface.inspect_similarity_scores(source_nodes)"""
+# """question_gen = OpenAIQuestionGenerator.from_defaults(llm=llm)
+# question_gen.get_prompts()"""
+
+
+# # Example 1: Granular Retrieval and Synthesis (Similarity Search)
+# """query_interface.configure_retriever(similarity_top_k=100)
+# query_interface.configure_response_synthesizer()
+# query_interface.assemble_query_engine()
+# response = query_interface.perform_query("Neurological and cerebral conditions.")
+# query_interface.inspect_similarity_scores(response.source_nodes)"""
+
+# # Example 1.1: More clean for simple semantic search, without synthesiser
+# """query_interface.configure_retriever(similarity_top_k=200)
+# source_nodes = query_interface.retriever.retrieve("List all documents.")
+# query_interface.inspect_similarity_scores(source_nodes)"""
 
 pass
 
@@ -107,22 +111,22 @@ DATABASE_URI = URL(
     query={"ssl_verify_cert": True, "ssl_verify_identity": True},
 )
 
-tidbvec = TiDBVectorStore(
-    connection_string=DATABASE_URI,
-    table_name= vector_table_name,
-    distance_strategy="cosine",
-    vector_dimension=768, # SciBERT outputs 768-dimensional vectors
-    drop_existing_table=False,
-)
+# tidbvec = TiDBVectorStore(
+#     connection_string=DATABASE_URI,
+#     table_name= vector_table_name,
+#     distance_strategy="cosine",
+#     vector_dimension=768, # SciBERT outputs 768-dimensional vectors
+#     drop_existing_table=False,
+# )
 
-# engine = create_engine(DATABASE_URI, pool_size=10, max_overflow=20, pool_timeout=30, pool_recycle=1800)
+# # engine = create_engine(DATABASE_URI, pool_size=10, max_overflow=20, pool_timeout=30, pool_recycle=1800)
 
-embedding_model = HuggingFaceEmbedding(model_name="allenai/scibert_scivocab_uncased")
+# embedding_model = HuggingFaceEmbedding(model_name="allenai/scibert_scivocab_uncased")
 
-index = VectorStoreIndex.from_vector_store(
-    vector_store=tidbvec,
-    embed_model=embedding_model
-)
+# index = VectorStoreIndex.from_vector_store(
+#     vector_store=tidbvec,
+#     embed_model=embedding_model
+# )
 
 
 # ==================================================
@@ -134,7 +138,7 @@ import os
 
 # Database and vector table names
 DB_NAME = os.environ['TIDB_DB_NAME']
-VECTOR_TABLE_NAME = "scibert_alldata"
+VECTOR_TABLE_NAME = "scibert_alldata_fulltext"
 # Load or create the index
 index_interface = IndexInterface(DB_NAME, VECTOR_TABLE_NAME)
 index_interface.load_index_from_vector_store()
@@ -178,7 +182,7 @@ def summarize_documents_by_ids(
 
     # Initialize and configure QueryInterface
     sum_query_interface = QueryInterface(index)
-    sum_query_interface.configure_retriever(similarity_top_k=1000, metadata_filters=filters, condition=FilterCondition.OR) # removed for testing for now: , metadata_filters=filters
+    sum_query_interface.configure_retriever(similarity_top_k=1, metadata_filters=filters, condition=FilterCondition.OR) 
     sum_query_interface.configure_response_synthesizer()
     sum_query_interface.assemble_query_engine()
         
@@ -189,8 +193,80 @@ def summarize_documents_by_ids(
     3. Methodology or Approach: Mention the type of study (e.g., experiment, survey, case study, literature review) and any notable techniques used.
     Be concise but thorough, extracting only the most important information from the abstracts. Do not list each article one at a time but rather refer to the general idea of all articles. Keep your summary to a maximum of 75 words."""
 
+
+    prompt = "List out each of the items you are given, print the entire full text and what document/data type it is given to you in"
+
     response = sum_query_interface.perform_query(prompt)
     return response
 
-ids = ["16625992","16625812","16625969","16625681"]
-print(summarize_documents_by_ids(document_ids=ids, index=index))
+# ids = ["16626491"] # can use this for fulltext document
+# print(summarize_documents_by_ids(document_ids=ids, index=index))
+
+
+import gradio as gr
+
+# -------------------------------------- Testing Method 1 1 ------------------------------------------
+
+index_interface = IndexInterface(TIDB_DB_NAME, VECTOR_TABLE_NAME)
+index_interface.load_index_from_vector_store()
+index = index_interface.get_index() 
+
+# Create a filter that matches the specific document's metadata
+metadata_filters = MetadataFilters(
+    filters=[MetadataFilter(key="source", value="16626486", operator="==")]
+)
+
+retriever = index.as_retriever(
+    filters=metadata_filters
+)
+
+chat_engine = index.as_chat_engine(chat_mode="context", verbose=True, retriever_kwargs={"retriever": retriever}) # This retriever here does not do what we want it to do 
+chat_engine.reset()
+
+def wrapper_chat_history(memory):
+    chat_history = []
+    for m in memory:
+        if m.role in ['user', 'assistant'] and m.content is not None:
+            chat_history.append(m.content)
+    return chat_history
+
+def converse(message, chat_history):
+    try: 
+        response=chat_engine.chat(message)
+        chat_history = wrapper_chat_history(chat_engine.chat_history)
+        return response.response
+    except Exception as e:
+        return f"An error occurred: {e}"
+
+# Remove only for testing method 2
+# demo = gr.ChatInterface(fn=converse, fill_height=True, title="Demo")
+# demo.launch(share=False)
+
+
+
+# ------------------------ Testing method 2 ----------------------------
+
+index_interface = IndexInterface(TIDB_DB_NAME, VECTOR_TABLE_NAME)
+index_interface.load_index_from_vector_store()
+index = index_interface.get_index() 
+
+# Create a filter that matches the specific document's metadata
+metadata_filters = MetadataFilters(
+    filters=[MetadataFilter(key="source", value="16626486", operator="==")]
+)
+
+retriever = index.as_retriever(
+    filters=metadata_filters
+)
+retrieved_nodes = retriever.retrieve(' ')
+
+for node in retrieved_nodes:
+    print(node.get_text())
+
+document_content = [node.get_text() for node in retrieved_nodes]
+documents = [Document(text=t) for t in document_content]
+single_doc_index = VectorStoreIndex.from_documents(documents)
+chat_engine = single_doc_index.as_chat_engine()
+response = chat_engine.chat('Tell me about this document')
+print(response)
+# My last method I think that I can set up query_interface in a way that I can use the retriever query engine to do chatbot outputs
