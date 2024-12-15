@@ -245,6 +245,7 @@ def converse(message, chat_history):
 
 
 # ------------------------ Testing method 2 ----------------------------
+# Currently the retrievment method of the previous was not working.
 
 index_interface = IndexInterface(TIDB_DB_NAME, VECTOR_TABLE_NAME)
 index_interface.load_index_from_vector_store()
@@ -267,6 +268,23 @@ document_content = [node.get_text() for node in retrieved_nodes]
 documents = [Document(text=t) for t in document_content]
 single_doc_index = VectorStoreIndex.from_documents(documents)
 chat_engine = single_doc_index.as_chat_engine()
-response = chat_engine.chat('Tell me about this document')
-print(response)
+
+def wrapper_chat_history(memory):
+    chat_history = []
+    for m in memory:
+        if m.role in ['user', 'assistant'] and m.content is not None:
+            chat_history.append(m.content)
+    return chat_history
+
+def converse(message, chat_history):
+    try: 
+        response=chat_engine.chat(message)
+        chat_history = wrapper_chat_history(chat_engine.chat_history)
+        return response.response
+    except Exception as e:
+        return f"An error occurred: {e}"
+    
+demo = gr.ChatInterface(fn=converse, fill_height=True, title="Demo")
+demo.launch(share=False)
+
 # My last method I think that I can set up query_interface in a way that I can use the retriever query engine to do chatbot outputs
