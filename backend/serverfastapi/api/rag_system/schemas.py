@@ -27,8 +27,11 @@ class ChatRequest(BaseModel):
     document_id: int
     question: str
 
+class ChatStart(BaseModel):
+    condition: str
+
 class ChatResponse(BaseModel):
-    answer: str
+    response: str
 
 # Query expansion schema
 class QueryExpansionRequest(BaseModel):

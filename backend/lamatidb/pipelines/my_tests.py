@@ -9,6 +9,7 @@ from lamatidb.interfaces.settings_manager import SettingsManager
 from lamatidb.interfaces.index_interface import IndexInterface
 from lamatidb.interfaces.query_interface import QueryInterface, FilterCondition
 from llama_index.core.vector_stores.types import MetadataFilter, MetadataFilters
+from llama_index.core.chat_engine.types import BaseChatEngine, ChatMode
 from typing import List
 
 SettingsManager.set_global_settings(set_local=False)
@@ -205,22 +206,20 @@ def summarize_documents_by_ids(
 
 import gradio as gr
 
-# -------------------------------------- Testing Method 1 1 ------------------------------------------
+# -------------------------------------- Testing Method 1 ------------------------------------------
 
+TIDB_DB_NAME='scibert_alldata_pico'
+VECTOR_TABLE_NAME = "scibert_alldata_fulltext"
 index_interface = IndexInterface(TIDB_DB_NAME, VECTOR_TABLE_NAME)
 index_interface.load_index_from_vector_store()
 index = index_interface.get_index() 
 
 # Create a filter that matches the specific document's metadata
 metadata_filters = MetadataFilters(
-    filters=[MetadataFilter(key="source", value="16626486", operator="==")]
+    filters=[MetadataFilter(key="source", value="16626486", operator="==")], FilterCondition = FilterCondition.AND
 )
 
-retriever = index.as_retriever(
-    filters=metadata_filters
-)
-
-chat_engine = index.as_chat_engine(chat_mode="context", verbose=True, retriever_kwargs={"retriever": retriever}) # This retriever here does not do what we want it to do 
+chat_engine = index.as_chat_engine(chat_mode=ChatMode.CONTEXT, verbose=True, **{"filters":metadata_filters}) # This retriever here does not do what we want it to do 
 chat_engine.reset()
 
 def wrapper_chat_history(memory):
@@ -239,52 +238,7 @@ def converse(message, chat_history):
         return f"An error occurred: {e}"
 
 # Remove only for testing method 2
-# demo = gr.ChatInterface(fn=converse, fill_height=True, title="Demo")
-# demo.launch(share=False)
-
-
-
-# ------------------------ Testing method 2 ----------------------------
-# Currently the retrievment method of the previous was not working.
-
-index_interface = IndexInterface(TIDB_DB_NAME, VECTOR_TABLE_NAME)
-index_interface.load_index_from_vector_store()
-index = index_interface.get_index() 
-
-# Create a filter that matches the specific document's metadata
-metadata_filters = MetadataFilters(
-    filters=[MetadataFilter(key="source", value="16626486", operator="==")]
-)
-
-retriever = index.as_retriever(
-    filters=metadata_filters
-)
-retrieved_nodes = retriever.retrieve(' ')
-
-for node in retrieved_nodes:
-    print(node.get_text())
-
-document_content = [node.get_text() for node in retrieved_nodes]
-documents = [Document(text=t) for t in document_content]
-single_doc_index = VectorStoreIndex.from_documents(documents)
-chat_engine = single_doc_index.as_chat_engine()
-
-def wrapper_chat_history(memory):
-    chat_history = []
-    for m in memory:
-        if m.role in ['user', 'assistant'] and m.content is not None:
-            chat_history.append(m.content)
-    return chat_history
-
-def converse(message, chat_history):
-    try: 
-        response=chat_engine.chat(message)
-        chat_history = wrapper_chat_history(chat_engine.chat_history)
-        return response.response
-    except Exception as e:
-        return f"An error occurred: {e}"
-    
 demo = gr.ChatInterface(fn=converse, fill_height=True, title="Demo")
 demo.launch(share=False)
 
-# My last method I think that I can set up query_interface in a way that I can use the retriever query engine to do chatbot outputs
+

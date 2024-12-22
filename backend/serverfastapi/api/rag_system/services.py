@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from typing import List, Dict, Optional
 from lamatidb.interfaces.query_interface import QueryInterface
 from llama_index.core.vector_stores import FilterCondition
+from llama_index.core.vector_stores.types import MetadataFilter, MetadataFilters
 # from some_chat_module import chat_with_document
 # from some_query_expansion_module import expand_query
 
@@ -37,13 +38,23 @@ def summarize_documents_by_ids(
     response = sum_query_interface.perform_query(prompt)
     return response
 
-# def chat_with_document_by_id(db: Session, document_id: int, question: str) -> str:
-#     """
-#     Allows chatting with a specific document by ID.
-#     """
-#     document = get_document_by_id(db, document_id)
-#     answer = chat_with_document(document.content, question)  # Use your chat method
-#     return answer
+def init_document_chat_by_id(db: Session, document_id: int, index: QueryInterface) -> str:
+    """
+    Inits chatting with a specific document by ID.
+    """
+    # document = get_document_by_id(db, document_id) 
+    # answer = chat_with_document(document.content, question)  # Use your chat method
+    doc_chat_interface = QueryInterface(index)
+    doc_chat_interface.configure_document_chat(document_id)
+    return doc_chat_interface
+
+def query_docu_chat(db: Session, query: str, chat_engine: QueryInterface):
+    """
+    Queries chatbot for a single response?
+    """
+    response = chat_engine.query_document_chat(query)
+    return response.response
+
 
 # def expand_query_with_alternatives(initial_query: str) -> List[str]:
 #     """
