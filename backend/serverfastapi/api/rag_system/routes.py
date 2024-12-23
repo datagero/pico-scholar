@@ -42,7 +42,7 @@ def init_document_chat_endpoint(
 def query_document_chat_endpoint(
     project_id: int,
     query: str,
-    doc_id:int, 
+    document_id:int, 
     request: Request,
     db: Session = Depends(get_db)
     ):
@@ -50,7 +50,9 @@ def query_document_chat_endpoint(
     Endpoint to query the document chat engine
     """
     if not hasattr(request.app.state, 'chat_engine'):
-        raise HTTPException(status_code=400, detail="Chat not initialized for this document")
+        services = request.app.state.services
+        index = services["index"]
+        request.app.state.chat_engine = init_document_chat_by_id(db, document_id, index)
     try:
         chat_engine = request.app.state.chat_engine
         response = query_docu_chat(db, query=query, chat_engine=chat_engine)
