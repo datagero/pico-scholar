@@ -24,11 +24,7 @@ class SummarizeResponse(BaseModel):
 
 # Chat schemas
 class ChatRequest(BaseModel):
-    document_id: int
     question: str
-
-class ChatStart(BaseModel):
-    condition: str
 
 class ChatResponse(BaseModel):
     response: str

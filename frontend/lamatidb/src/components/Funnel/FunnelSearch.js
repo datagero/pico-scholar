@@ -1,1 +1,0 @@
-// Handles additional searches or filtering within the funnel.

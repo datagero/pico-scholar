@@ -5,7 +5,7 @@ from typing import List
 from lamatidb.interfaces.index_interface import IndexInterface
 from serverfastapi.api.rag_system.services import summarize_documents_by_ids, init_document_chat_by_id, query_docu_chat
 #, chat_with_document_by_id, expand_query_with_alternatives
-from serverfastapi.api.rag_system.schemas import SummarizeRequest, SummarizeResponse, ChatResponse, ChatRequest, ChatStart
+from serverfastapi.api.rag_system.schemas import SummarizeRequest, SummarizeResponse, ChatResponse, ChatRequest
 from serverfastapi.core.db import get_db
 
 # Set up logging according to policy
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
     
-@router.post("/rag/docu_chat/query_bot", response_model=ChatResponse)
+@router.post("/rag/{project_id}/docu_chat/query_bot", response_model=ChatResponse)
 def query_document_chat_endpoint(
     project_id: int,
     query: str,
@@ -42,6 +42,8 @@ def query_document_chat_endpoint(
 
 
 @router.post("/rag/summarize/", response_model=SummarizeResponse)
+
+@router.post("/projects/{project_id}/summarize/", response_model=SummarizeResponse)
 def summarize_documents_endpoint(
     project_id: int,
     doc_ids: List[int],
@@ -67,12 +69,13 @@ def summarize_documents_endpoint(
     datastore_db = services["datastore_db"]
 
     try:
-        response = summarize_documents_by_ids(db, doc_ids, index)
+        response = summarize_documents_by_ids(doc_ids, index)
 
         return {
             "summary": response
         }
     except Exception as e:
+        logger.error(f"Summarization failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error during summarization")
 
 # @router.post("/rag/chat/")

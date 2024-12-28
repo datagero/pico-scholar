@@ -1,1 +1,0 @@
-// Component for filtering options within the funnel view.

@@ -96,7 +96,7 @@ class QueryInterface:
     def perform_query(self, query: str):
         response = self.query_engine.query(query)
         return response
-
+        
     def inspect_similarity_scores(self, source_nodes):
         for node in source_nodes:
             source = node.metadata['source']
@@ -108,8 +108,8 @@ class QueryInterface:
     def build_rag_query_engine(self, similarity_top_k=None):
         self.query_engine = self.index.as_query_engine(similarity_top_k=similarity_top_k)
 
-    def perform_metadata_filtered_query(self, query: str, filters: list):
-        metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in filters], condition=FilterCondition.OR)
+    def perform_metadata_filtered_query(self, query: str, filters: list, condition=FilterCondition.OR):
+        metadata_filters = MetadataFilters(filters=[MetadataFilter(**f) for f in filters], condition=condition)
         self.query_engine = self.index.as_query_engine(filters=metadata_filters, llm=self.llm)
         response = self.query_engine.query(query)
         return response

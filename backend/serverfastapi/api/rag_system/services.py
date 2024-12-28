@@ -40,7 +40,7 @@ def summarize_documents_by_ids(
 
 def init_document_chat_by_id(db: Session, document_id: int, index: QueryInterface) -> str:
     """
-    Inits chatting with a specific document by ID.
+    Initializes bot chatting with a specific document by ID.
     """
     # document = get_document_by_id(db, document_id) 
     # answer = chat_with_document(document.content, question)  # Use your chat method
@@ -50,9 +50,9 @@ def init_document_chat_by_id(db: Session, document_id: int, index: QueryInterfac
 
 def query_docu_chat(db: Session, query: str, chat_engine: QueryInterface):
     """
-    Queries chatbot for a single response?
+    Queries chatbot for a single response
     """
-    response = chat_engine.query_document_chat(query)
+    response = chat_engine.query_document_chat(query) # Tested for chat history memory between queries and it passes
     return response.response
 
 
