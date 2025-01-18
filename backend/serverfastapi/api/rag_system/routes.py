@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
     
-@router.post("/rag/{project_id}/docu_chat/query_bot", response_model=ChatResponse)
+@router.post("/projects/{project_id}/docu_chat/query_bot", response_model=ChatResponse)
 def query_document_chat_endpoint(
     project_id: int,
     query: str,
@@ -40,8 +40,6 @@ def query_document_chat_endpoint(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Query processing error: {str(e)}")
 
-
-@router.post("/rag/summarize/", response_model=SummarizeResponse)
 
 @router.post("/projects/{project_id}/summarize/", response_model=SummarizeResponse)
 def summarize_documents_endpoint(

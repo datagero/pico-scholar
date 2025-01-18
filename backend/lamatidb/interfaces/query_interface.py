@@ -71,7 +71,7 @@ class QueryInterface:
 
     def configure_document_chat(self, document_id):
         metadata_filters = MetadataFilters(
-            filters=[MetadataFilter(key="source", value=str(document_id), operator="==")], FilterCondition = FilterCondition.AND
+            filters=[MetadataFilter(key="source", value=str(document_id), operator="==")], FilterCondition = FilterCondition.OR
         )
         self.chat_engine = self.index.as_chat_engine(chat_mode=ChatMode.CONTEXT, verbose = True, **{"filters":metadata_filters})
         self.chat_engine.reset()

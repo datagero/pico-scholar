@@ -8,11 +8,8 @@ sys.path.append('/Users/isaaclo/Development/pico-scholar/backend/')
 from lamatidb.interfaces.settings_manager import SettingsManager
 from lamatidb.interfaces.index_interface import IndexInterface
 from lamatidb.interfaces.query_interface import QueryInterface, FilterCondition
-<<<<<<< HEAD
 from llama_index.core.vector_stores.types import MetadataFilter, MetadataFilters
 from llama_index.core.chat_engine.types import BaseChatEngine, ChatMode
-=======
->>>>>>> main
 from typing import List
 
 SettingsManager.set_global_settings(set_local=False)
@@ -59,40 +56,16 @@ llm = OpenAI(model="gpt-3.5-turbo")
 # queries = generate_queries("What happened at Interleaf and Viaweb?", llm)
 
 
-<<<<<<< HEAD
-# # Query Rewriting (using QueryTransform)¶
-# from llama_index.core.indices.query.query_transform import HyDEQueryTransform
-# hyde = HyDEQueryTransform(include_original=True)
-# query_bundle = hyde.run("What is Bel?")
-=======
 # Query Rewriting (using QueryTransform)¶
 from llama_index.core.indices.query.query_transform import HyDEQueryTransform
 hyde = HyDEQueryTransform(include_original=True)
 query_bundle = hyde.run("What is Bel?")
->>>>>>> main
 
 
 # # Sub-Questions¶
 # from llama_index.core.question_gen import LLMQuestionGenerator
 # from llama_index.question_gen.openai import OpenAIQuestionGenerator
 
-<<<<<<< HEAD
-# """question_gen = OpenAIQuestionGenerator.from_defaults(llm=llm)
-# question_gen.get_prompts()"""
-
-
-# # Example 1: Granular Retrieval and Synthesis (Similarity Search)
-# """query_interface.configure_retriever(similarity_top_k=100)
-# query_interface.configure_response_synthesizer()
-# query_interface.assemble_query_engine()
-# response = query_interface.perform_query("Neurological and cerebral conditions.")
-# query_interface.inspect_similarity_scores(response.source_nodes)"""
-
-# # Example 1.1: More clean for simple semantic search, without synthesiser
-# """query_interface.configure_retriever(similarity_top_k=200)
-# source_nodes = query_interface.retriever.retrieve("List all documents.")
-# query_interface.inspect_similarity_scores(source_nodes)"""
-=======
 """question_gen = OpenAIQuestionGenerator.from_defaults(llm=llm)
 question_gen.get_prompts()"""
 
@@ -108,7 +81,6 @@ query_interface.inspect_similarity_scores(response.source_nodes)"""
 """query_interface.configure_retriever(similarity_top_k=200)
 source_nodes = query_interface.retriever.retrieve("List all documents.")
 query_interface.inspect_similarity_scores(source_nodes)"""
->>>>>>> main
 
 pass
 

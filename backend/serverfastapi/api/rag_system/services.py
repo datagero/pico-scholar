@@ -42,8 +42,6 @@ def init_document_chat_by_id(db: Session, document_id: int, index: QueryInterfac
     """
     Initializes bot chatting with a specific document by ID.
     """
-    # document = get_document_by_id(db, document_id) 
-    # answer = chat_with_document(document.content, question)  # Use your chat method
     doc_chat_interface = QueryInterface(index)
     doc_chat_interface.configure_document_chat(document_id)
     return doc_chat_interface
