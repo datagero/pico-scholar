@@ -24,7 +24,7 @@ def summarize_documents_by_ids(
 
     # Initialize and configure QueryInterface
     sum_query_interface = QueryInterface(index)
-    sum_query_interface.configure_retriever(similarity_top_k=1000, metadata_filters=filters, condition=FilterCondition.OR) # when db scales up may need to increase top_k
+    sum_query_interface.configure_retriever(similarity_top_k=10, metadata_filters=filters, condition=FilterCondition.OR) # when db scales up may need to increase top_k
     sum_query_interface.configure_response_synthesizer()
     sum_query_interface.assemble_query_engine()
         
