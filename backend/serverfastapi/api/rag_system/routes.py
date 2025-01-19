@@ -3,8 +3,9 @@ from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from lamatidb.interfaces.index_interface import IndexInterface
-from serverfastapi.api.rag_system.services import summarize_documents_by_ids #, chat_with_document_by_id, expand_query_with_alternatives
-from serverfastapi.api.rag_system.schemas import SummarizeRequest, SummarizeResponse
+from serverfastapi.api.rag_system.services import summarize_documents_by_ids, init_document_chat_by_id, query_docu_chat
+#, chat_with_document_by_id, expand_query_with_alternatives
+from serverfastapi.api.rag_system.schemas import SummarizeRequest, SummarizeResponse, ChatResponse, ChatRequest
 from serverfastapi.core.db import get_db
 
 # Set up logging according to policy
@@ -16,6 +17,29 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+    
+@router.post("/projects/{project_id}/docu_chat/query_bot", response_model=ChatResponse)
+def query_document_chat_endpoint(
+    project_id: int,
+    query: str,
+    document_id: int, 
+    request: Request,
+    db: Session = Depends(get_db)
+    ):
+    """
+    Endpoint to query the document chat engine
+    """
+    if not hasattr(request.app.state, 'chat_engine'):
+        services = request.app.state.services
+        index = services["index"]
+        request.app.state.chat_engine = init_document_chat_by_id(db, document_id, index) # To initialize documents of different ids that may require some meta data storage
+    try:
+        chat_engine = request.app.state.chat_engine
+        response = query_docu_chat(db, query=query, chat_engine=chat_engine)
+        return {"response": response}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Query processing error: {str(e)}")
+
 
 @router.post("/projects/{project_id}/summarize/", response_model=SummarizeResponse)
 def summarize_documents_endpoint(
