@@ -7,7 +7,6 @@ from llama_index.core.vector_stores.types import MetadataFilter, MetadataFilters
 # from some_query_expansion_module import expand_query
 
 def summarize_documents_by_ids(
-        db: Session,
         document_ids: List[str],
         index: QueryInterface, 
         ) -> str:
@@ -36,9 +35,9 @@ def summarize_documents_by_ids(
     Be concise but thorough, extracting only the most important information from the abstracts. Do not list each article one at a time but rather refer to the general idea of all articles. Keep your summary to a maximum of 75 words."""
 
     response = sum_query_interface.perform_query(prompt)
-    return response
+    return response.response # returns just the response from the chatbot without the metadata and excess information
 
-def init_document_chat_by_id(db: Session, document_id: int, index: QueryInterface) -> str:
+def init_document_chat_by_id(document_id: int, index: QueryInterface) -> str:
     """
     Initializes bot chatting with a specific document by ID.
     """
@@ -46,12 +45,12 @@ def init_document_chat_by_id(db: Session, document_id: int, index: QueryInterfac
     doc_chat_interface.configure_document_chat(document_id)
     return doc_chat_interface
 
-def query_docu_chat(db: Session, query: str, chat_engine: QueryInterface):
+def query_docu_chat(query: str, chat_engine: QueryInterface):
     """
     Queries chatbot for a single response
     """
     response = chat_engine.query_document_chat(query) # Tested for chat history memory between queries and it passes
-    return response.response
+    return response.response 
 
 
 # def expand_query_with_alternatives(initial_query: str) -> List[str]:

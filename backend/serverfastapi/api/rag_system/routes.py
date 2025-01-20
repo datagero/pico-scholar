@@ -24,7 +24,6 @@ def query_document_chat_endpoint(
     query: str,
     document_id: int, 
     request: Request,
-    db: Session = Depends(get_db)
     ):
     """
     Endpoint to query the document chat engine
@@ -32,10 +31,10 @@ def query_document_chat_endpoint(
     if not hasattr(request.app.state, 'chat_engine'):
         services = request.app.state.services
         index = services["index"]
-        request.app.state.chat_engine = init_document_chat_by_id(db, document_id, index) # To initialize documents of different ids that may require some meta data storage
+        request.app.state.chat_engine = init_document_chat_by_id(document_id, index) # To initialize documents of different ids that may require some meta data storage
     try:
         chat_engine = request.app.state.chat_engine
-        response = query_docu_chat(db, query=query, chat_engine=chat_engine)
+        response = query_docu_chat(query=query, chat_engine=chat_engine)
         return {"response": response}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Query processing error: {str(e)}")
@@ -46,7 +45,6 @@ def summarize_documents_endpoint(
     project_id: int,
     doc_ids: List[int],
     request: Request,
-    db: Session = Depends(get_db)
     ):
     """
     Endpoint to summarize the combined content of multiple document IDs.
@@ -64,7 +62,6 @@ def summarize_documents_endpoint(
     # Retrieve necessary services from app state
     services = request.app.state.services
     index = services["index"]
-    datastore_db = services["datastore_db"]
 
     try:
         response = summarize_documents_by_ids(doc_ids, index)
