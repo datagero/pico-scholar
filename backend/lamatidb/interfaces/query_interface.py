@@ -8,6 +8,7 @@ from llama_index.core.vector_stores import FilterCondition
 from llama_index.core.vector_stores.types import MetadataFilter, MetadataFilters
 from llama_index.core import Settings
 from llama_index.core.llms import ChatMessage
+from llama_index.core.chat_engine.types import BaseChatEngine, ChatMode
 
 class QueryInterface:
     def __init__(self, index):
@@ -23,6 +24,7 @@ class QueryInterface:
         # self.llm = TogetherLLM(
         #     model="meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"
         # )
+        self.open_ai_model = "gpt-3.5-turbo" # temporary for testing
         return
     
     def get_query_gen_prompt(self):
@@ -66,6 +68,17 @@ class QueryInterface:
             verbose=True,
             query_gen_prompt=self.get_query_gen_prompt(),  # we could override the query generation prompt here
         )
+
+    def configure_document_chat(self, document_id):
+        metadata_filters = MetadataFilters(
+            filters=[MetadataFilter(key="source", value=str(document_id), operator="==")], FilterCondition = FilterCondition.OR
+        )
+        self.chat_engine = self.index.as_chat_engine(chat_mode=ChatMode.CONTEXT, verbose = True, **{"filters":metadata_filters})
+        self.chat_engine.reset()
+
+    def query_document_chat(self, query):
+        response = self.chat_engine.chat(query)
+        return response
 
     def configure_response_synthesizer(self):
         if not self.llm:
