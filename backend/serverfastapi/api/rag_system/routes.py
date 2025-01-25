@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
     
 @router.post("/projects/{project_id}/docu_chat/query_bot", response_model=ChatResponse)
-def query_document_chat_endpoint(
+async def query_document_chat_endpoint(
     project_id: int,
     query: str,
     document_id: int, 
