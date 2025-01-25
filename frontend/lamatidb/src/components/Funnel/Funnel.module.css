@@ -556,7 +556,7 @@
 /* AIAssistantChat */
 .chatWindow {
   width: 300px;
-  position: fixed;
+  position: absolute;
   bottom: 50px;
   right: 50px;
   border-radius: 8px;
@@ -564,6 +564,10 @@
   overflow: hidden;
   z-index: 1000;
   background-color: white;
+  min-width: 300px;
+  min-height: 400px;
+  resize: both;
+  overflow: auto;
 }
 
 .chatHeader {
@@ -645,4 +649,11 @@
 
 .sendButton:hover {
   background-color: #0056b3;
+}
+
+.react-resizable-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
 }

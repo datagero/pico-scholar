@@ -24,9 +24,13 @@ const FunnelPage = () => {
   const [showChat, setShowChat] = useState(false);
   const [aiSummary, setAISummary] = useState(''); // Add state for AI Summary text
   const [aiSummaryTitle, setAISummaryTitle] = useState(''); // Add state for AI Summary title
+  const [currentDocumentID, setCurrentDocumentID] = useState(null);
+  const [currentChatbotHeader, setCurrentChatbotHeader] = useState(''); // Add state for Chatbot Header
 
   // Toggle Chat Visibility
-  const toggleChat = () => {
+  const toggleChat = (documentID = null, paperInfo = '') => {
+    setCurrentChatbotHeader(paperInfo);
+    setCurrentDocumentID(documentID)
     setShowChat(!showChat);
   };
 
@@ -268,12 +272,13 @@ const FunnelPage = () => {
         handleSelectPaper={handleSelectPaper}
         funnelStage={currentStatus}
         updateCurrentPage={updateCurrentPage}
+        
         renderSummaryColumn={(paper) => (
           <>
             {paper.has_pdf && (
               <button
                 id="pdfAiAssistantButton"
-                onClick={() => toggleChat()}
+                onClick={() => toggleChat(paper.source_id)}
                 className={styles.pdfAssistantButton}
               >
                 PDF AI Assistant
@@ -283,7 +288,7 @@ const FunnelPage = () => {
         )}
       />
 
-      {showChat && <AIAssistantChat onClose={toggleChat} />}
+      {showChat && <AIAssistantChat onClose={toggleChat} documentID={currentDocumentID} />}
     </div>
   );
 };
