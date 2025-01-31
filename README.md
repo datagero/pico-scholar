@@ -17,10 +17,19 @@ With PICO Scholar, researchers can:
 ## Screenshots
 
 ### Search Screen
-![Search Screen](assets/search-screen.png)
+<p align="center">
+  <img src="assets/PhaseII/search-screen.png" alt="Search Screen">
+  <br>
+  <em>A glimpse into the UI where researchers can input advanced search queries with precise filters for PICO elements and publication criteria. Researchers can modify these advanced filters to fine-tune their search results.</em>
+</p>
+
 
 ### Funnel Screen
-![Funnel Screen](assets/funnel-screen.png)
+<p align="center">
+  <img src="assets/PhaseII/funnel-screen.png" alt="Search Screen">
+  <br>
+  <em>Screenshot of the funnel where researchers can track the status of documents, moving them through stages from 'Identified' to 'Included in Review'.</em>
+</p>
 
 
 ## Important Note on Setup
