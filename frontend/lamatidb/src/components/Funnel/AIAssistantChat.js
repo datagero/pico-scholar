@@ -4,7 +4,7 @@ import styles from './Funnel.module.css';
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
 
-const AIAssistantChat = ({ onClose, documentID }) => {
+const AIAssistantChat = ({ onClose, documentID, documentAuthors }) => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
   const [isFirstMessagesSent, setIsFirstMessagesSent] = useState(false);
@@ -27,12 +27,11 @@ const AIAssistantChat = ({ onClose, documentID }) => {
 
   useEffect(() => {
     if (!isFirstMessagesSent) {
-      // Optionally send the initial message to the backend
       (async () => {
         try {
-          const response = await sendChat("Introduce the article I am chatting with", documentID);
-          setMessages((prevMessages) => [...prevMessages, { text: response.response, sender: 'assistant' }]);
-          setMessages((prevMessages) => [...prevMessages, { text: 'Ask me more about this study!', sender: 'assistant' }]);
+          // const response = await sendChat("Introduce the article I am chatting with", documentID);
+          // setMessages((prevMessages) => [...prevMessages, { text: response.response, sender: 'assistant' }]);
+          setMessages((prevMessages) => [...prevMessages, { text: 'I am your AI Chat Assistant, ask me about this study!', sender: 'assistant' }]);
         } catch (error) {
           console.error('Error fetching initial response:', error);
         }
@@ -71,7 +70,9 @@ const AIAssistantChat = ({ onClose, documentID }) => {
     <Draggable>
       <div className={styles.chatWindow}>
         <div className={styles.chatHeader}>
-          <h3>PDF AI Assistant</h3>
+          Study From: {documentAuthors?.length > 50 
+          ? `${documentAuthors.substring(0, 50)}...` 
+          : documentAuthors}
           <button onClick={onClose} className={styles.closeButton}>×</button>
         </div>
         <div 

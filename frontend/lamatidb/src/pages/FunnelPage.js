@@ -28,8 +28,8 @@ const FunnelPage = () => {
   const [currentChatbotHeader, setCurrentChatbotHeader] = useState(''); // Add state for Chatbot Header
 
   // Toggle Chat Visibility
-  const toggleChat = (documentID = null, paperInfo = '') => {
-    setCurrentChatbotHeader(paperInfo);
+  const toggleChat = (documentID = null, paperAuthors = []) => {
+    setCurrentChatbotHeader(paperAuthors);
     setCurrentDocumentID(documentID)
     setShowChat(!showChat);
   };
@@ -165,6 +165,7 @@ const FunnelPage = () => {
     setSemanticSearchQuery('');
   };
 
+
   return (
     <div className={styles.container}>
       <div className={styles.statusButtonsContainer}>
@@ -278,7 +279,7 @@ const FunnelPage = () => {
             {paper.has_pdf && (
               <button
                 id="pdfAiAssistantButton"
-                onClick={() => toggleChat(paper.source_id)}
+                onClick={() => toggleChat(paper.source_id, paper.authors)}
                 className={styles.pdfAssistantButton}
               >
                 PDF AI Assistant
@@ -288,7 +289,7 @@ const FunnelPage = () => {
         )}
       />
 
-      {showChat && <AIAssistantChat onClose={toggleChat} documentID={currentDocumentID} />}
+      {showChat && <AIAssistantChat onClose={toggleChat} documentID={currentDocumentID} documentAuthors={currentChatbotHeader}/>}
     </div>
   );
 };
